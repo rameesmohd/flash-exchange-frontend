@@ -63,7 +63,7 @@ const Home = () => {
           </Col>
           <Col span={8}>
             <div className="flex flex-col items-center">
-              <BiMoneyWithdraw onClick={()=>setDepositDrawer(!depositDrawer)} size={32} className="text-black mb-1" />
+              <BiMoneyWithdraw onClick={()=>navigate('/withdraw')} size={32} className="text-black mb-1" />
               <p className="text-sm">Withdraw</p>
             </div>
           </Col>

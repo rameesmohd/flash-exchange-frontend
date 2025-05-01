@@ -7,6 +7,7 @@ import Wallet from "./pages/Wallet";
 import Account from "./pages/Account";
 import Settings from "./pages/Settings";
 import Deposit from './pages/Deposit'
+import Withdraw from './pages/Withdraw'
 
 const AppContent = () => {
   const location = useLocation();
@@ -20,6 +21,7 @@ const AppContent = () => {
           <Route path="/account" element={<Account />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/deposit" element={<Deposit />} />
+          <Route path="/withdraw" element={<Withdraw />} />
 
         </Route>
       </Routes>
