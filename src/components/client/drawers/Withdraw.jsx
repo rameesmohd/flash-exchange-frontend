@@ -2,17 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Button, Drawer, Input, List, Typography, Space, Divider } from 'antd';
 import { ArrowLeft, History } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
-
+import WithdrawHistory from '../drawers/WithdrawHistory'
+import Address from '../drawers/Address'
 import trxicon from '../../../../public/trxicon.png';
 import usdticon from '../../../../public/imageusdt.png';
 
 const { Text, Paragraph } = Typography;
 
-const App = ({ role }) => {
+const App = ({}) => {
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [openDrawer,setOpenDrawer]=useState({
+    address : false,
+    withdrawHistory :false
+  })
 
   return (
+    <>
     <Drawer
       closable
       destroyOnClose
@@ -24,7 +30,7 @@ const App = ({ role }) => {
       title={
         <div className="flex justify-between items-center">
           <Text strong className="text-base">Withdraw USDT</Text>
-          <History size={20} className="text-gray-500" />
+          <History onClick={()=>setOpenDrawer((prev)=>({...prev,withdrawHistory : true}))} size={20} className="text-gray-500" />
         </div>
       }
     >
@@ -33,7 +39,7 @@ const App = ({ role }) => {
         dataSource={[
           {
             title: 'Select Address',
-            action: <IoMdAdd size={20} />,
+            action: <IoMdAdd onClick={()=>setOpenDrawer((prev)=>({...prev,address : true}))} size={20} />,
           },
           {
             title: 'Currency',
@@ -82,12 +88,16 @@ const App = ({ role }) => {
           placeholder="Please enter the amount"
           prefix={<img src={usdticon} alt="usdt" className="w-4 h-4" />}
           suffix="USDT"
-        />
+          />
         <Button type="primary" block className="bg-black text-white h-10">
           Confirm
         </Button>
       </Space>
     </Drawer>
+    
+    { <WithdrawHistory open={openDrawer.withdrawHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdrawHistory : false}))}/> }
+    { <Address open={openDrawer.address} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,address : false}))}/> }
+    </>
   );
 };
 

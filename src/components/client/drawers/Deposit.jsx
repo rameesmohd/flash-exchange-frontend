@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Drawer, } from 'antd';
 import { ArrowLeft, History } from 'lucide-react'; 
 import imageDeposit from '../../../../public/gradient-cryptocurrency-concept_52683-77383.jpg'
 import trxicon from '../../../../public/trxicon.png'
 import usdticon from '../../../../public/imageusdt.png'
-
-import { InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import { Input, Tooltip } from 'antd';
+import DepositHistory from '../drawers/DepositHistory'
 
 const App = ({role}) => {
   const [open, setOpen] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
+  const [openDepositHistory,setOpenDepositHistory]=useState(false)
   
   return (
     <>
@@ -25,7 +25,7 @@ const App = ({role}) => {
         title={
           <div className="flex pl-9 justify-between items-center w-full">
             <p className="font-bold text-base m-0">USDT Deposit</p>
-            <History size={20} className="text-gray-500" /> {/* History icon */}
+            <History onClick={()=>setOpenDepositHistory(true)}  size={20} className="text-gray-500" /> {/* History icon */}
           </div>
         }
       >
@@ -39,6 +39,8 @@ const App = ({role}) => {
 
         <Button className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
       </Drawer>
+
+      {<DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>}
     </>
   );
 };

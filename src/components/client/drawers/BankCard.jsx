@@ -3,14 +3,9 @@ import { Button, Drawer, Input, List, Typography, Space, Divider, Card } from 'a
 import { ArrowLeft, History } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
 import { CiClock1 } from "react-icons/ci";
-
-import trxicon from '../../../../public/trxicon.png';
-import usdticon from '../../../../public/imageusdt.png';
-
 const { Text, Paragraph } = Typography;
 
-const App = ({ role }) => {
-  const [open, setOpen] = useState(true);
+const App = ({  open,setOpenDrawer  }) => {
   const [loading, setLoading] = useState(false);
 
   return (
@@ -20,7 +15,7 @@ const App = ({ role }) => {
       placement="right"
       open={open}
       loading={loading}
-      onClose={() => setOpen(false)}
+      onClose={setOpenDrawer}
       closeIcon={<ArrowLeft size={20} />}
       title={
         <div className="flex justify-between items-center">
