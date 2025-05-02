@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Button, Drawer, } from 'antd';
 import { ArrowLeft, History } from 'lucide-react'; 
-import imageDeposit from '../../../public/gradient-cryptocurrency-concept_52683-77383.jpg'
-import trxicon from '../../../public/trxicon.png'
-import usdticon from '../../../public/imageusdt.png'
+import imageDeposit from '../../../../public/gradient-cryptocurrency-concept_52683-77383.jpg'
+import trxicon from '../../../../public/trxicon.png'
+import usdticon from '../../../../public/imageusdt.png'
 
 import { InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import { Input, Tooltip } from 'antd';

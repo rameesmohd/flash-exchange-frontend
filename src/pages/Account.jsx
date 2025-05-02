@@ -77,7 +77,7 @@ const Account = () => {
       <div>
           {
             options.map((value,index)=>
-              <div className='flex items-center justify-between my-4  text-sm'>
+              <div key={index} className='flex items-center justify-between my-4  text-sm'>
                 <div className='flex items-center'>
                 <div className=''>{value.icon}</div>
                 <div className='mx-1'>{value.title}</div>

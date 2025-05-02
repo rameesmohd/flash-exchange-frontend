@@ -4,16 +4,15 @@ import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { RiLuggageDepositLine, RiBankCardLine } from "react-icons/ri";
 import { BiMoneyWithdraw } from "react-icons/bi";
 import { HelpCircle, NotebookIcon } from 'lucide-react';
-import DepositDrawer from '../components/client/Drawer'
+import DepositDrawer from '../components/client/drawers/Deposit'
+import WithdrawDrawer from '../components/client/drawers/Withdraw'
 import PageWrapper from '../components/client/PageWrapper'
-import { useNavigate } from 'react-router-dom';
+import BankCard from '../components/client/drawers/BankCard'
 
 const Home = () => {
   const [depositDrawer,setDepositDrawer]=useState(false)
-  const navigate = useNavigate()
-  const openDepositDrawer=()=>{
-    setDepositDrawer(true)
-  }
+  const [withdrawDrawer,setWithdrawDrawer] = useState(false)
+  const [bankCard,setBankCard]=useState(false)
   return (
     <PageWrapper>
       {/* Top Header */}
@@ -57,19 +56,19 @@ const Home = () => {
         <Row gutter={16} justify="center" className="text-center">
           <Col span={8}>
             <div className="flex flex-col items-center cursor-pointer">
-              <RiLuggageDepositLine onClick={()=>navigate('/deposit')} size={32} className="text-black mb-1" />
+              <RiLuggageDepositLine onClick={()=>setDepositDrawer(!depositDrawer)} size={32} className="text-black mb-1" />
               <p className="text-sm">Deposit</p>
             </div>
           </Col>
           <Col span={8}>
             <div className="flex flex-col items-center">
-              <BiMoneyWithdraw onClick={()=>navigate('/withdraw')} size={32} className="text-black mb-1" />
+              <BiMoneyWithdraw onClick={()=>setWithdrawDrawer(!withdrawDrawer)} size={32} className="text-black mb-1" />
               <p className="text-sm">Withdraw</p>
             </div>
           </Col>
           <Col span={8}>
             <div className="flex flex-col items-center">
-              <RiBankCardLine onClick={()=>setDepositDrawer(!depositDrawer)} size={32} className="text-black mb-1" />
+              <RiBankCardLine onClick={()=>setBankCard(!bankCard)} size={32} className="text-black mb-1" />
               <p className="text-sm">Bank Card</p>
             </div>
           </Col>
@@ -78,6 +77,8 @@ const Home = () => {
       </div>
 
       {depositDrawer && <DepositDrawer/>}
+      {withdrawDrawer && <WithdrawDrawer/>}
+      {bankCard && <BankCard/>}
     </PageWrapper>
   );
 };
