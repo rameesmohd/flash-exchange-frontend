@@ -16,7 +16,7 @@ const Layout = () => {
      
 
       {/* Page content */}
-      <main className="flex-grow overflow-hidden relative ">
+      <main className="flex-grow relative ">
         <Outlet />
       </main>
 
