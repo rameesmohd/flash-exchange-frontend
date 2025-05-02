@@ -16,12 +16,12 @@ const Layout = () => {
      
 
       {/* Page content */}
-      <main className="flex-grow relative ">
+      <main className="flex-grow relative overflow-y-scroll">
         <Outlet />
       </main>
 
       {/* Bottom Tab Bar */}
-      <nav className="flex justify-around items-center bg-white border-t p-2">
+      <nav className="flex justify-around items-center bg-white border-t p-2 z-50">
         {tabs.map((tab) => (
           <NavLink
             to={tab.path}
