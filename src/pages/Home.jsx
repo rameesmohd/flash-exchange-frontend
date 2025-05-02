@@ -78,7 +78,7 @@ const Home = () => {
 
       {depositDrawer && <DepositDrawer/>}
       {withdrawDrawer && <WithdrawDrawer/>}
-      {bankCard && <BankCard/>}
+      {bankCard && <BankCard open={bankCard} setOpenDrawer={()=>setBankCard(false)}/>}
     </PageWrapper>
   );
 };
