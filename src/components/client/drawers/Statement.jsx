@@ -23,7 +23,6 @@ const App = ({ open,setOpenDrawer }) => {
           <Text strong className="text-base">Statement</Text>
       }
     >
-      
     <p className='txt-xs text-gray-400 text-center my-4'>Your connection has been disconnected</p>  
     <p className='txt-xs text-gray-400 text-center my-4'>Please try again later</p>
     </Drawer>

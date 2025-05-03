@@ -3,16 +3,16 @@ import earnBanner from '../../public/earnbanner.png'
 import React, { useState } from 'react';
 import { Button, Card, Typography, Image } from 'antd';
 import { ArrowRightOutlined } from '@ant-design/icons';
-
+import Signup from '../components/client/drawers/Signup'
 const { Title, Text } = Typography;
 import PageWrapper from '../components/client/PageWrapper'
 
 
 const Home = () => {
-
+  const [openDrawer,setopenDrawer]=useState(false)
   return (
     <PageWrapper>
-      <div className="w-full max-w-[375px] mx-auto bg-gray-50 ">
+      <div className="w-full mx-auto bg-gray-50 ">
       {/* Header Image */}
       <Image
         src={landingimage}
@@ -28,7 +28,7 @@ const Home = () => {
           Welcome to <span className="text-black font-semibold">E Value Trade</span>
         </Title>
 
-        <Button type="primary" block size="large" className="bg-black">
+        <Button onClick={()=>setopenDrawer(true)} type="primary" block size="large" className="bg-black">
           Signup
         </Button>
 
@@ -42,7 +42,7 @@ const Home = () => {
               <Text className="block text-base p-1 text-gray-700">
                 The average user can earn up to ₹1 Lakh
               </Text>
-              <Button type="link" icon={<ArrowRightOutlined />}>
+              <Button onClick={()=>setopenDrawer(true)} type="link" icon={<ArrowRightOutlined />}>
                 Get Started
               </Button>
             </div>
@@ -57,6 +57,8 @@ const Home = () => {
         </Card>
       </div>
     </div>
+
+    { openDrawer && <Signup open={openDrawer} setOpenDrawer={()=>setopenDrawer(false)}/> }
     </PageWrapper>
   );
 };
