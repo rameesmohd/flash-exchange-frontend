@@ -24,6 +24,7 @@ const App = ({}) => {
       destroyOnClose
       placement="right"
       open={open}
+      size='large'
       loading={loading}
       onClose={() => setOpen(false)}
       closeIcon={<ArrowLeft size={20} />}

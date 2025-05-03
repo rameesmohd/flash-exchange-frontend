@@ -13,7 +13,7 @@ const Exchange = () => {
   return (
     <PageWrapper>
 
-    <div className="max-w-[375px] mx-auto flex flex-col bg-gray-50">
+    <div className="mx-auto flex flex-col bg-gray-50">
       
       {/* Top Header */}
       <header className="p-4 bg-white shadow-md flex justify-between items-center font-bold text-lg">

@@ -14,6 +14,7 @@ const App = ({ open,setOpenDrawer }) => {
       closable
       destroyOnClose
       placement="right"
+      size='large'
       open={open}
       loading={loading}
       onClose={() => setOpenDrawer()}

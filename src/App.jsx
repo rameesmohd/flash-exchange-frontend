@@ -5,6 +5,7 @@ import Layout from "./components/client/Layout";
 import Home from "./pages/Home";
 import Wallet from "./pages/Wallet";
 import Account from "./pages/Account";
+import Landing from './pages/Landing'
 
 const AppContent = () => {
   const location = useLocation();
@@ -13,7 +14,8 @@ const AppContent = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/account" element={<Account />} />
         </Route>
