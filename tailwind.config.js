@@ -16,7 +16,7 @@ export default {
           'Arial',
           'sans-serif',
         ],
-      },
+      }
     },
   },
   plugins: [
