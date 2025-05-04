@@ -23,11 +23,13 @@ const App = ({ open,setOpenDrawer }) => {
         <Text className='my-0 py-0 font-semibold text-xs'>Just one step to complete sign in</Text>
 
         <div className='mt-5'>
+        <div className="flex flex-col space-y-1 my-2">
           <Text type='secondary'>Phone Number</Text>
           <Space.Compact>
             <Input className='rounded-lg border-gray-300' style={{ width: '20%' }} defaultValue="+91" />
             <Input className='rounded-lg border-gray-300' style={{ width: '80%' }} defaultValue="" />
           </Space.Compact>
+        </div>
 
           <div className="flex flex-col space-y-1 my-2">
             <Text type="secondary">OTP</Text>
