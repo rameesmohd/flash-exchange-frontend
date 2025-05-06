@@ -26,6 +26,7 @@ const App = ({  open,setOpenDrawer  }) => {
     >
    {[1,2,3].map((value,index)=>
     <Card 
+    key={index}
     type="inner" 
     title={
      <div className="text-gray-400 text-xs flex items-center px-0 py-0">

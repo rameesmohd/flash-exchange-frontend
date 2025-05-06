@@ -19,6 +19,8 @@ import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import ResetPass from '../components/client/drawers/ResetPass'
 import WithdrawHistory from '../components/client/drawers/WithdrawHistory'
 import MyReferrals from '../components/client/drawers/MyReferrals'
+import { useDispatch } from 'react-redux';
+import { userLogout } from '../redux/ClientSlice';
 
 const Account = () => {
   const [openDrawer,setOpenDrawer]=useState({
@@ -75,8 +77,10 @@ const Account = () => {
     }
   ]
 
-
-console.log(openDrawer);
+const dispatch = useDispatch()
+const logoutUser =()=>{
+  dispatch(userLogout())
+}
 
   return (
     <PageWrapper>
@@ -119,6 +123,7 @@ console.log(openDrawer);
         className="bg-black top-10 h-10 w-full text-white rounded-md"
         size="large"
         block
+        onClick={()=>logoutUser()}
       >
         Sign Out
       </Button>

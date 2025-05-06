@@ -4,8 +4,8 @@ import { NavLink, Outlet } from "react-router-dom";
 import { Home, Wallet, User, Settings ,HelpCircle,NotebookIcon} from "lucide-react";
 
 const tabs = [
-  { label: "Home", icon: <Home />, path: "/" },
-  { label: "Exchange", icon: <Wallet />, path: "/wallet" },
+  { label: "Home", icon: <Home />, path: "/home" },
+  { label: "Exchange", icon: <Wallet />, path: "/exchange" },
   { label: "Account", icon: <User />, path: "/account" },
 ];
 

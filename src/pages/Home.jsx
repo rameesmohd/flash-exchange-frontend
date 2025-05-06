@@ -8,11 +8,15 @@ import DepositDrawer from '../components/client/drawers/Deposit'
 import WithdrawDrawer from '../components/client/drawers/Withdraw'
 import PageWrapper from '../components/client/PageWrapper'
 import BankCard from '../components/client/drawers/BankCard'
+import { useSelector } from 'react-redux';
 
 const Home = () => {
   const [depositDrawer,setDepositDrawer]=useState(false)
   const [withdrawDrawer,setWithdrawDrawer] = useState(false)
   const [bankCard,setBankCard]=useState(false)
+
+  const { userData } = useSelector((value)=>value.User)
+  const [user,setUser]=useState(userData)
   return (
     <PageWrapper>
       {/* Top Header */}
@@ -37,17 +41,17 @@ const Home = () => {
         <Card className="rounded-lg mb-4" bodyStyle={{ padding: '16px' }}>
           <div className="mb-4">
             <p className="text-gray-500 text-sm">Total Balance ($)</p>
-            <p className="text-2xl font-bold">0</p>
+            <p className="text-2xl font-bold">{user.totalBalance || 0}</p>
           </div>
 
           <Row gutter={16}>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Available ($)</p>
-              <p className="font-bold text-lg">0</p>
+              <p className="font-bold text-lg">{user.avalableBalance || 0}</p>
             </Col>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Processing ($)</p>
-              <p className="font-bold text-lg">0</p>
+              <p className="font-bold text-lg">{user.processing || 0}</p>
             </Col>
           </Row>
         </Card>

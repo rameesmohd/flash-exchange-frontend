@@ -6,11 +6,26 @@ import trxicon from '../../../../public/trxicon.png'
 import usdticon from '../../../../public/imageusdt.png'
 import { Input, Tooltip } from 'antd';
 import DepositHistory from '../drawers/DepositHistory'
+import { usersPost } from '../../../services/userApi';
 
 const App = ({role}) => {
   const [open, setOpen] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [openDepositHistory,setOpenDepositHistory]=useState(false)
+
+
+  const [amount,setAmount]=useState(0)
+
+  const createOrder=async()=>{
+    try {
+      setLoading(true)
+      await usersPost('/deposit',amount)
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false)
+    }
+  }
   
   return (
     <>
@@ -35,9 +50,9 @@ const App = ({role}) => {
         <Button className='w-480' icon={<img className='w-4 h-4' src={trxicon}></img>}>Tron (TRC-20)</Button>
         
         <div className='my-2 text-gray-600'>Amount</div>
-        <Input placeholder='Please enter the amount' prefix={<><img className='w-4 h-4' src={usdticon}/></>} suffix="USDT" />
+        <Input  onChange={(e)=>setAmount((prev)=>({...prev,amount:e.target.value}))} placeholder='Please enter the amount' prefix={<><img className='w-4 h-4' src={usdticon}/></>} suffix="USDT" />
 
-        <Button className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
+        <Button loading={loading} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
       </Drawer>
 
       {<DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>}

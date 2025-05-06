@@ -3,27 +3,27 @@ import { createSlice } from '@reduxjs/toolkit';
 export const userSlice = createSlice({
   name: 'User',
   initialState: {
-    token : null,
-    userData : null,
-    referral : ""
+    isAuthenticated: false,
+    userData: null,
   },
   reducers: {
     setUserData:(state,action)=>{
       state.userData= action.payload
     },
-    setToken  :(state,action)=>{
-      state.token = action.payload
+    setIsAuthenticated  :(state,action)=>{
+      state.isAuthenticated = true
     },
     userLogout : (state,action)=>{
-      state.token = null
+      state.isAuthenticated = false
       state.userData = null
-    },
-    setReferral : (state,action)=>{
-      state.referral = action.payload;
     }
-  },
+  }
 });
 
-export const { setUserData,setToken ,setRecentManager,userLogout,setReferral } = userSlice.actions;
+export const { 
+  setUserData, 
+  setIsAuthenticated, 
+  userLogout 
+} = userSlice.actions;
 
 export default userSlice.reducer;

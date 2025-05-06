@@ -3,9 +3,14 @@ import { Drawer, Input, Typography, Space, Button, message } from 'antd';
 import { ArrowLeft } from 'lucide-react';
 const { Text, Title } = Typography;
 import userAxios from './../../../axios/userAxios';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setIsAuthenticated, setUserData } from '../../../redux/ClientSlice';
 
 const App = ({ open, setOpenDrawer }) => {
   const axiosInstance = userAxios();
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState('');
@@ -19,15 +24,12 @@ const App = ({ open, setOpenDrawer }) => {
     setSuccessMsg('');
     try {
       setLoading(true);
-      const response = await axiosInstance.post('/signup', {
-        phone,
-        email,
-        otp,
-      });
-
+      const response = await axiosInstance.post('/signup', { phone, email, otp });
       if (response?.data?.success) {
         setSuccessMsg(response.data.message || 'Signed in successfully');
-        message.success(response.data.message || 'Success');
+        dispatch(setIsAuthenticated())
+        dispatch(setUserData(response.data.user))
+        navigate('/home')
       } else {
         setErrMsg(response.data.message || 'Something went wrong');
         message.error(response.data.message || 'Error');
@@ -41,7 +43,7 @@ const App = ({ open, setOpenDrawer }) => {
         setErrMsg('Unexpected error: ' + error.message);
       }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 

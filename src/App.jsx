@@ -1,23 +1,29 @@
 // App.jsx
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Layout from "./components/client/Layout";
 import Home from "./pages/Home";
 import Wallet from "./pages/Wallet";
 import Account from "./pages/Account";
 import Landing from './pages/Landing'
+import AuthGuard from './components/client/AuthGuard'
+import { useSelector } from "react-redux";
 
 const AppContent = () => {
   const location = useLocation();
-
+  const isAuthenticated = useSelector((state) => state.User.isAuthenticated)
+  const PrivateRoute = ({ element, ...rest }) => {
+    return isAuthenticated ? element : <Navigate to="/" />;
+  };
+  
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route element={<Layout />}>
           <Route path="/" element={<Landing />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/account" element={<Account />} />
+          <Route path="/home" element={<PrivateRoute element={<Home />}/>} />
+          <Route path="/exchange" element={<PrivateRoute element={<Wallet />}/>} />
+          <Route path="/account" element={<PrivateRoute element={<Account />}/>} />
         </Route>
       </Routes>
     </AnimatePresence>
@@ -27,7 +33,9 @@ const AppContent = () => {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+     <AuthGuard>
+        <AppContent />
+     </AuthGuard>
     </BrowserRouter>
   );
 }
