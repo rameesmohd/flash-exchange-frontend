@@ -10,7 +10,7 @@ import { usersGet, usersPatch } from '../../services/userApi';
 const { Text } = Typography;
 
 const CryptoDeposit = ({deposit}) => {
-    const [address,setAddress]=useState("TQm4uJUJn5J2t2u2Q74ZB1J1fPb7yW3gM8")
+    const [address,setAddress]=useState("")
     const [amount,setAmount]=useState(deposit.amount || 0)
     const [loading, setLoading] = React.useState({
         confirmTxid : false,
@@ -18,6 +18,7 @@ const CryptoDeposit = ({deposit}) => {
     });
     const [showSuccess,setShowSuccess] = useState(false)
     const [txid,setTxid]=useState("")
+    const [errMsg,setErrMsg]=useState("")
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(address).then(() => {
@@ -32,12 +33,13 @@ const CryptoDeposit = ({deposit}) => {
            setLoading((prev)=>({...prev,confirmTxid :  true}))
            const response =  await usersPatch('/deposit',{txid,id:deposit._id})
            if(response.success) { 
-                message.success(response.message || "Deposit success")
+              setErrMsg(response.message || "Deposit success")
            } else { 
-                message.info(response.message || "Deposit not completed")
+              setErrMsg(response.message || "Deposit not completed")
            }
         } catch (error) {
             console.log(error);
+            setErrMsg(error.response?.data?.message)
         } finally {
             setLoading((prev)=>({...prev,confirmTxid :  false}))
         }
@@ -46,9 +48,9 @@ const CryptoDeposit = ({deposit}) => {
     const fetchMainAddress=async()=>{
         try {
             setLoading((prev)=>({...prev,loadAddress :  true}))
-            const resposne =  await usersGet('/address')
-            if(reponse.address) { 
-                setAddress(resposne.address)
+            const response =  await usersGet('/address')
+            if(response.address) { 
+                setAddress(response.address)
             }
         } catch (error) {
             console.log(error);
@@ -110,7 +112,7 @@ const CryptoDeposit = ({deposit}) => {
                 prefix={<><img className='w-4 h-4' src={usdticon}/></>} 
                 suffix="TXID" 
             />
-      
+            <Text type='danger' className='text-xs'>{errMsg}</Text>
             <Button 
                 onClick={()=>checkPayment()}
                 loading={loading.confirmTxid}

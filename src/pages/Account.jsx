@@ -86,7 +86,7 @@ const logoutUser =()=>{
     <PageWrapper>
     <div className='p-4'>
       <div className='flex'>
-       <Avatar size={64} icon={<><img src={profileAvatar} alt="" srcset="" /></>} />
+       <Avatar size={64} icon={<><img src={profileAvatar} alt="" /></>} />
        <div>
         <div className='mx-3 text-lg font-bold'>+91 85***5696</div>
         <div className='p-2'>
