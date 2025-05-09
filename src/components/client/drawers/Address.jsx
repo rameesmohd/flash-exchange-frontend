@@ -3,13 +3,15 @@ import {  Button, Card, Col, Drawer, Flex, Input, Row, Typography } from 'antd';
 import { ArrowLeft } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
 import { usersGet, usersPost } from '../../../services/userApi';
-import { MdNavigateNext } from 'react-icons/md';
 import EmptyBox from '../common/EmptyBox';
 import { formatDate } from '../../../services/formatData';
+import { useDispatch } from 'react-redux';
+import { setAddressSelected } from '../../../redux/ClientSlice';
 const { Text } = Typography;
 
-const App = ({ open,setOpenDrawer,selectAddress }) => {
+const App = ({ open,setOpenDrawer }) => {
   const [addressList,setAddressList]=useState([])
+  const dispatch = useDispatch()
   const [loading, setLoading] = useState({
     drawer : false,
     addAddress : false
@@ -61,7 +63,7 @@ const App = ({ open,setOpenDrawer,selectAddress }) => {
   },[open])
 
   const selectAdd=(address)=>{
-    selectAddress(address)
+    dispatch(setAddressSelected(address))
     setOpenDrawer()
   }
 

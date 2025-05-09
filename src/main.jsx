@@ -9,7 +9,7 @@ import { Spin } from 'antd'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
   <Provider store={store}>
-    <Suspense fallback={<React.Fragement className={'flex justify-center'}><Spin/></React.Fragement>}>
+    <Suspense fallback={<React.Fragement className={'w-screen h-screen flex justify-center items-center'}><Spin/></React.Fragement>}>
       <App />
     </Suspense>
   </Provider>

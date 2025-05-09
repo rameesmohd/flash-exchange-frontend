@@ -47,7 +47,7 @@ const Home = () => {
           <Row gutter={16}>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Available ($)</p>
-              <p className="font-bold text-lg">{user.avalableBalance ? user.avalableBalance.toFixed(2) : 0}</p>
+              <p className="font-bold text-lg">{user.availableBalance ? user.availableBalance.toFixed(2) : 0}</p>
             </Col>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Processing ($)</p>

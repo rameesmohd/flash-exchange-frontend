@@ -35,7 +35,7 @@ const DepositHistoryList = ({ depositHistory }) => {
         <Row gutter={[8, 4]}>
           <Col span={12}>
             <Text className='text-xs' strong>ID:</Text> <Text className='text-xs' copyable>{value.transactionId}</Text><br />
-            <Text className='text-xs' strong>Network:</Text> <Text>{value.paymentMode}</Text><br />
+            <Text className='text-xs' strong>Network:</Text> <Text className='text-xs'>{value.paymentMode}</Text><br />
             <Text className='text-xs' strong>Amount:</Text> <Text className='text-base' strong>${value.amount}</Text>
           </Col>
           <Col span={12}>

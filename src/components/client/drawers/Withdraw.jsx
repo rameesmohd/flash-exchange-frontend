@@ -1,22 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Drawer, Input, List, Typography, Space, Divider, Card } from 'antd';
+import { Button, Drawer, Input, List, Typography, Space, Divider, Card, Result } from 'antd';
 import { ArrowLeft, History, PlusIcon } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
 import WithdrawHistory from '../drawers/WithdrawHistory'
 import Address from '../drawers/Address'
 import trxicon from '../../../../public/trxicon.png';
 import usdticon from '../../../../public/imageusdt.png';
+import { useSelector } from 'react-redux';
+import { usersPost } from '../../../services/userApi';
+import { useNavigate } from 'react-router-dom';
 
 const { Text, Paragraph } = Typography;
 
 const App = ({}) => {
+  const {selectedAddress} = useSelector((state)=>state.User)
+  const navigate=useNavigate()
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [openDrawer,setOpenDrawer]=useState({
     address : false,
     withdrawHistory :false
   })
-  const [selectedAddress,setSelectedAddress]=useState({})
+  const [amount,setAmount]=useState("")
+  const [errMsg,setErrMsg]=useState("")
+
+  const [success,setSuccess]=useState({
+    show : false,
+    withdraw : {}
+  })
+
+  const submitWithdraw=async()=>{
+    try {
+      setLoading(true)
+      const response = await usersPost('/withdraw',{amount,addressId : selectedAddress._id})
+      if(response.success){
+        setSuccess({
+          show : true,
+          withdraw : response.withdraw
+        })
+      } else {
+        setErrMsg(response.message)
+      }
+    } catch (error) {
+      if(error?.response?.data?.message){
+        setErrMsg(error.response.data.message)
+      }
+      console.log(error);
+    } finally { 
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -26,7 +59,6 @@ const App = ({}) => {
       placement="right"
       open={open}
       size='large sm:default'
-      loading={loading}
       onClose={() => setOpen(false)}
       closeIcon={<ArrowLeft size={20} />}
       title={
@@ -36,6 +68,7 @@ const App = ({}) => {
         </div>
       }
     >
+    {!success.show? <>
       { Object.keys(selectedAddress).length ?
         <List
         itemLayout="horizontal"
@@ -64,7 +97,7 @@ const App = ({}) => {
             title: 'Wallet Address',
             action: (
                 <Paragraph
-                  className="text-xs mb-0 text-gray-700"
+                className="text-xs mb-0 text-gray-700"
                   style={{
                     maxWidth: '180px',          // adjust based on your layout
                     wordBreak: 'break-all',     // breaks long strings
@@ -82,7 +115,7 @@ const App = ({}) => {
             <div>{action}</div>
           </List.Item>
         )}
-      /> :
+        /> :
       <Card onClick={()=>setOpenDrawer((prev)=>({...prev,address : true}))} className='bg-gray-100 border-dashed cursor-pointer hover:scale-105 border-gray-700 flex justify-center items-center'>
           <Text className='flex items-center' type='secondary'><PlusIcon/>Add address</Text>
       </Card>
@@ -93,18 +126,32 @@ const App = ({}) => {
       <Space direction="vertical" size="middle" className="w-full">
         <Input
           size='large'
+          type='number'
           placeholder="Please enter the amount"
           prefix={<img src={usdticon} alt="usdt" className="w-4 h-4" />}
           suffix="USDT"
+          onChange={(e)=>setAmount(e.target.value)}
           />
-        <Button type="primary" block className="bg-black text-white h-10">
-          Confirm
+        {errMsg && <Text type='danger' className='text-xs'>{errMsg}</Text>}
+        <Button onClick={()=>submitWithdraw()} disabled={amount<10} loading={loading} type="primary" size='large' block className="bg-black text-white">
+            Confirm
         </Button>
       </Space>
-    </Drawer>
+    </> : <Result
+              status="success"
+              title={`#${success.withdraw.transactionId} You have successfully submitted withdraw request`}
+              subTitle={`${success.withdraw.amount} USDT will be send after verification`}
+              extra={[
+                <Button onClick={()=>navigate('/home')} key="buy">Done</Button>,
+              ]}
+          />
+      }
+              
+              </Drawer>
     
     { <WithdrawHistory open={openDrawer.withdrawHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdrawHistory : false}))}/> }
-    { <Address selectAddress={setSelectedAddress}  open={openDrawer.address} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,address : false}))}/> }
+    { <Address open={openDrawer.address} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,address : false}))}/> }
+    
     </>
   );
 };
