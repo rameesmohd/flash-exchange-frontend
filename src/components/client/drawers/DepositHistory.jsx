@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Drawer,} from 'antd';
 import { ArrowLeft, History } from 'lucide-react';
 import { usersGet } from '../../../services/userApi';
-import EmptyBox from '../EmptyBox'
+import EmptyBox from '../common/EmptyBox'
 import {formatDate} from '../../../services/formatData'
 import { Card, Row, Col, Tag, Typography } from 'antd';
 const { Text } = Typography;
@@ -55,7 +55,9 @@ const DepositHistoryList = ({ depositHistory }) => {
         </Row>
       </Card>
     ))}
-  </div> : openDeposit.show && <CryptoDeposit deposit={openDeposit.data}/>
+    <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>  
+  </div>: 
+  openDeposit.show && <CryptoDeposit deposit={openDeposit.data}/>
 )};
 
 const App = ({ open,setOpenDrawer }) => {
@@ -64,7 +66,7 @@ const App = ({ open,setOpenDrawer }) => {
 
   const fetchDeposits =async()=>{
     try {
-      const response = await usersGet('/deposit-history')
+      const response = await usersGet('/deposit')
       setDepositHistory(response.deposits)
     } catch (error) {
       console.log(error);
@@ -93,12 +95,7 @@ const App = ({ open,setOpenDrawer }) => {
           <Text strong className="text-base">Deposit History</Text>
       }
     >
-      { depositHistory.length ? 
-      <>
-      <DepositHistoryList depositHistory={depositHistory}/>
-      <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>  
-      </>
-      : <EmptyBox/> }
+      { depositHistory.length ? <DepositHistoryList depositHistory={depositHistory}/> : <EmptyBox/> }
     </Drawer>
   );
 };

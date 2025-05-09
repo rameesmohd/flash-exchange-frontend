@@ -39,8 +39,9 @@ const App = ({}) => {
     <>
       <Drawer
         closable
-       destroyOnClose
-         placement="right"
+        destroyOnClose
+        placement="right"
+        // bodyStyle={{padding : 5}}
         open={open}
         loading={loading}
         onClose={() => setOpen(false)}
@@ -61,7 +62,7 @@ const App = ({}) => {
         <Button loading={loading} disabled={amount<100} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
       </> : <CryptoDeposit deposit={depositData}/>}
       </Drawer>
-      {<DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>}
+      {openDepositHistory && <DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>}
 
     </>
   );

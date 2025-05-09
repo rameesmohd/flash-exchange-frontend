@@ -1,17 +1,25 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import userAxios from "../../axios/userAxios"
 import { Spinner } from "flowbite-react";
+import { setIsAuthenticated, setUserData } from "../../redux/ClientSlice";
+import { useDispatch } from "react-redux";
+import { usersGet } from "../../services/userApi";
 
 const AuthGuard = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const axiosInstance = userAxios()
-  
+  const dispatch = useDispatch()
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axiosInstance.get("/auth/verify");
+        const response = await usersGet("/auth/verify");
+        console.log(response);
+        
+        if(response.user){
+        dispatch(setUserData(response.user))
+        dispatch(setIsAuthenticated())
+        }
         navigate("/home");
       } catch (err) {
         console.log(err);

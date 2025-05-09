@@ -7,11 +7,11 @@ import { store } from './redux/Store.js'
 import { Spin } from 'antd'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // <React.StrictMode>
+  <React.StrictMode>
   <Provider store={store}>
     <Suspense fallback={<React.Fragement className={'flex justify-center'}><Spin/></React.Fragement>}>
-    <App />
+      <App />
     </Suspense>
   </Provider>
-  // </React.StrictMode>,
+  </React.StrictMode>
 )

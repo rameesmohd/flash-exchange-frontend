@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Flex, Spin, message, Typography, Space } from 'antd';
+import { Button, Flex, Spin, message, Typography, Space, Result } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import usdticon from '../../../public/imageusdt.png'
 import { Textarea } from 'flowbite-react';
@@ -7,6 +7,7 @@ import { Card, Row, Col } from 'antd';
 import QRCode from 'qrcode.react';
 import { CopyOutlined } from '@ant-design/icons';
 import { usersGet, usersPatch } from '../../services/userApi';
+import { useNavigate } from 'react-router-dom';
 const { Text } = Typography;
 
 const CryptoDeposit = ({deposit}) => {
@@ -19,6 +20,7 @@ const CryptoDeposit = ({deposit}) => {
     const [showSuccess,setShowSuccess] = useState(false)
     const [txid,setTxid]=useState("")
     const [errMsg,setErrMsg]=useState("")
+    const navigate = useNavigate()
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(address).then(() => {
@@ -33,6 +35,7 @@ const CryptoDeposit = ({deposit}) => {
            setLoading((prev)=>({...prev,confirmTxid :  true}))
            const response =  await usersPatch('/deposit',{txid,id:deposit._id})
            if(response.success) { 
+              setShowSuccess(true)
               setErrMsg(response.message || "Deposit success")
            } else { 
               setErrMsg(response.message || "Deposit not completed")
@@ -48,7 +51,7 @@ const CryptoDeposit = ({deposit}) => {
     const fetchMainAddress=async()=>{
         try {
             setLoading((prev)=>({...prev,loadAddress :  true}))
-            const response =  await usersGet('/address')
+            const response =  await usersGet('/main-address')
             if(response.address) { 
                 setAddress(response.address)
             }
@@ -67,8 +70,8 @@ const CryptoDeposit = ({deposit}) => {
     <div>
       <Row justify="center" className="my-1">
         <Col xs={24} sm={24} md={24} lg={24}>
-          <Card variant='borderless' className="w-full">
-            <Flex gap="middle" justify='center' className='my-0' wrap>
+          <Card variant='borderless' bodyStyle={{padding : 5}} className="w-full">
+          {!showSuccess && <><Flex gap="middle" justify='center' className='my-0' wrap>
               <div className="relative">
                 <QRCode 
                 level={'H'}
@@ -78,7 +81,7 @@ const CryptoDeposit = ({deposit}) => {
               </div>
             </Flex>
             <Text strong className="text-lg">{amount} USDT</Text>
-            {!showSuccess && <div className="my-1">
+             <div className="my-1">
             <div className='flex justify-between items-center '>
               <div className='font-semibold flex '>Awaiting Payment <Spin size='small' className='mx-3 my-1'/>  </div>
             </div>
@@ -121,15 +124,15 @@ const CryptoDeposit = ({deposit}) => {
             >
                 Confirm
             </Button> 
-            </div>}
-            {/* {showSuccess && 
-            <PaymentSuccess 
-              amount={`${amount} USDT`} 
-              type={'deposit'} 
-              subMsg={"You have successfully completed the deposit"}
-              msg={"Deposit added to your wallet"}
-              transaction_id={order.orderTransactionId}/>
-            }    */}
+            </div></>}
+             { showSuccess &&  <Result
+              status="success"
+              title={`#${deposit.transactionId} You have successfully completed the deposit`}
+              subTitle={`${deposit.amount} USDT Deposit added to your wallet`}
+              extra={[
+                <Button onClick={()=>navigate('/home')} key="buy">Done</Button>,
+              ]}
+            /> }
           </Card>
         </Col>
       </Row>

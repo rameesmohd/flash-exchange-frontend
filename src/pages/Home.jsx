@@ -41,17 +41,17 @@ const Home = () => {
         <Card className="rounded-lg mb-4" bodyStyle={{ padding: '16px' }}>
           <div className="mb-4">
             <p className="text-gray-500 text-sm">Total Balance ($)</p>
-            <p className="text-2xl font-bold">{user.totalBalance || 0}</p>
+            <p className="text-2xl font-bold">{user.totalBalance? user.totalBalance.toFixed(2) : 0}</p>
           </div>
 
           <Row gutter={16}>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Available ($)</p>
-              <p className="font-bold text-lg">{user.avalableBalance || 0}</p>
+              <p className="font-bold text-lg">{user.avalableBalance ? user.avalableBalance.toFixed(2) : 0}</p>
             </Col>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Processing ($)</p>
-              <p className="font-bold text-lg">{user.processing || 0}</p>
+              <p className="font-bold text-lg">{user.processing ? user.processing.toFixed(2) : 0}</p>
             </Col>
           </Row>
         </Card>
@@ -65,13 +65,13 @@ const Home = () => {
             </div>
           </Col>
           <Col span={8}>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center cursor-pointer">
               <BiMoneyWithdraw onClick={()=>setWithdrawDrawer(!withdrawDrawer)} size={32} className="text-black mb-1" />
               <p className="text-sm">Withdraw</p>
             </div>
           </Col>
           <Col span={8}>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center cursor-pointer">
               <RiBankCardLine onClick={()=>setBankCard(!bankCard)} size={32} className="text-black mb-1" />
               <p className="text-sm">Bank Card</p>
             </div>

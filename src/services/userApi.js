@@ -29,10 +29,10 @@ const handleError = (error) => {
     const status = error.response?.status;
     const errMsg = error.response?.data?.errMsg || getErrorMessage(status);
   
-    if (error.response?.timeout) {
-      logoutUser(); // Use the logout function if the status is 401
+    if (status === 401) {
+      logoutUser(); // Correctly logout on unauthorized
     } else {
-      message.error(errMsg);
+      console.log(errMsg);
     }
   
     return Promise.reject(error);
