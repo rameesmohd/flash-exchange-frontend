@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import { AnimatePresence } from "framer-motion";
 import Layout from "./components/client/Layout";
 import Home from "./pages/Home";
-import Wallet from "./pages/Wallet";
+import Exchange from "./pages/Exchange";
 import Account from "./pages/Account";
 import Landing from './pages/Landing'
 import AuthGuard from './components/client/AuthGuard'
@@ -22,7 +22,7 @@ const AppContent = () => {
         <Route element={<Layout />}>
           <Route path="/" element={<Landing />} />
           <Route path="/home" element={<PrivateRoute element={<Home />}/>} />
-          <Route path="/exchange" element={<PrivateRoute element={<Wallet />}/>} />
+          <Route path="/exchange" element={<PrivateRoute element={<Exchange />}/>} />
           <Route path="/account" element={<PrivateRoute element={<Account />}/>} />
         </Route>
       </Routes>

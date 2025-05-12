@@ -86,9 +86,7 @@ const usersDelete = async (url) => {
 //   // Custom logout function for user
 const logoutUser = () => {
     store.dispatch(userLogout());
-    localStorage.removeItem("persist:User");
-    window.location.href = "/";
-  };
+};
 
 export { 
     usersGet,

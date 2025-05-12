@@ -5,7 +5,8 @@ export const userSlice = createSlice({
   initialState: {
     isAuthenticated: false,
     userData: null,
-    selectedAddress:{}
+    selectedAddress:{},
+    selectedBankCard : {}
   },
   reducers: {
     setUserData:(state,action)=>{
@@ -16,6 +17,9 @@ export const userSlice = createSlice({
     },
     setAddressSelected:(state,action)=>{
       state.selectedAddress = action.payload
+    },
+    setBankCardSelected:(state,action)=>{
+      state.selectedBankCard = action.payload
     },
     userLogout : (state,action)=>{
       state.isAuthenticated = false
@@ -28,6 +32,7 @@ export const {
   setUserData, 
   setIsAuthenticated,
   setAddressSelected, 
+  setBankCardSelected,
   userLogout 
 } = userSlice.actions;
 

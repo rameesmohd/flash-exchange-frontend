@@ -5,12 +5,13 @@ import { IoMdAdd } from 'react-icons/io';
 import { usersGet, usersPost } from '../../../services/userApi';
 import EmptyBox from '../common/EmptyBox';
 import { formatDate } from '../../../services/formatData';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setAddressSelected } from '../../../redux/ClientSlice';
 const { Text } = Typography;
 
 const App = ({ open,setOpenDrawer }) => {
   const [addressList,setAddressList]=useState([])
+  const {selectedAddress} = useSelector((state)=>state.User)
   const dispatch = useDispatch()
   const [loading, setLoading] = useState({
     drawer : false,
@@ -116,7 +117,7 @@ const App = ({ open,setOpenDrawer }) => {
            <>
            {
              addressList.map((value,index)=>
-               <Card onClick={()=>selectAdd(value)} key={index} className='mb-1 hover:border-gray-300' type='inner' bodyStyle={{padding : 10}}>
+               <Card onClick={()=>selectAdd(value)} key={index} className={`${selectedAddress._id == value._id ? 'border-gray-600 ' : 'hover:border-gray-300'} mb-1  shadow-sm cursor-pointer`} type='inner' bodyStyle={{padding : 10}}>
                  <Row gutter={[8, 4]} style={{ width: '100%' }}>
                    <Col span={24}>
                      <Text className="text-xs" strong>
