@@ -21,7 +21,7 @@ const Layout = () => {
       </main>
 
       {/* Bottom Tab Bar */}
-      <nav className="flex justify-around items-center bg-white border-t p-2 z-50">
+      <nav className="flex justify-around items-center bg-white border-t p-2 z-30">
         {tabs.map((tab) => (
           <NavLink
             to={tab.path}

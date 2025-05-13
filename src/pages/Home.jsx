@@ -8,15 +8,21 @@ import DepositDrawer from '../components/client/drawers/Deposit'
 import WithdrawDrawer from '../components/client/drawers/Withdraw'
 import PageWrapper from '../components/client/PageWrapper'
 import BankCard from '../components/client/drawers/BankCard'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import TransactionPinModal from '../components/client/TransactionPinModal';
+import { closePinModal } from '../redux/PinModalSlice';
+
 
 const Home = () => {
   const [depositDrawer,setDepositDrawer]=useState(false)
   const [withdrawDrawer,setWithdrawDrawer] = useState(false)
   const [bankCard,setBankCard]=useState(false)
+  const dispatch = useDispatch();
+  const { isOpen, onSubmit } = useSelector((state) => state.PinModal);
+
 
   const { userData } = useSelector((value)=>value.User)
-  const [user,setUser]=useState(userData)
+  const user=userData
   return (
     <PageWrapper>
       {/* Top Header */}
@@ -79,10 +85,18 @@ const Home = () => {
         </Row>
 
       </div>
+      { <DepositDrawer open={depositDrawer} setOpenDrawer={()=>setDepositDrawer(false)}/> }
+      { <WithdrawDrawer open={withdrawDrawer} setOpenDrawer={()=>setWithdrawDrawer(false)}/> }
+      { <BankCard open={bankCard} setOpenDrawer={()=>setBankCard(false)}/> }
 
-      {depositDrawer && <DepositDrawer/>}
-      {withdrawDrawer && <WithdrawDrawer/>}
-      {<BankCard open={bankCard} setOpenDrawer={()=>setBankCard(false)}/>}
+      <TransactionPinModal
+        open={isOpen}
+        onClose={() => dispatch(closePinModal())}
+        onSubmit={(pin) => {
+          if (onSubmit) onSubmit(pin);
+          dispatch(closePinModal());
+        }}
+      />
     </PageWrapper>
   );
 };

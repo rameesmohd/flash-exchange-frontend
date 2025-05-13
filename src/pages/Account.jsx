@@ -7,7 +7,6 @@ import { RiBankCardLine } from "react-icons/ri";
 import { VscHistory } from "react-icons/vsc";
 import { RiLuggageDepositLine } from "react-icons/ri";
 import { BiMoneyWithdraw } from "react-icons/bi";
-import { RiTeamLine } from "react-icons/ri";
 import { PiShareNetworkBold } from "react-icons/pi";
 import { TbExchange } from "react-icons/tb";
 import { MdNavigateNext } from "react-icons/md";
@@ -19,10 +18,13 @@ import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import ResetPass from '../components/client/drawers/ResetPass'
 import WithdrawHistory from '../components/client/drawers/WithdrawHistory'
 import MyReferrals from '../components/client/drawers/MyReferrals'
-import { useDispatch } from 'react-redux';
+import Deposit from '../components/client/drawers/Deposit'
+import Withdraw from '../components/client/drawers/Withdraw'
+import { useDispatch, useSelector } from 'react-redux';
 import { userLogout } from '../redux/ClientSlice';
 
 const Account = () => {
+  const { userData } = useSelector((state)=>state.User)
   const [openDrawer,setOpenDrawer]=useState({
     statement : false,
     bankcard : false,
@@ -30,15 +32,12 @@ const Account = () => {
     depositHistory : false,
     withdrawHistory: false,
     myReferrrals : false,
-    resetPass : false
+    resetPass : false,
+    deposit : false,
+    withdraw : false
   })
 
   const options = [
-    {
-      title : "Statement",
-      icon : <LuNotebook />,
-      onClick:()=>setOpenDrawer((prev)=>({...prev,statement : true}))
-    },
     {
       title : "Bank card",
       icon : <RiBankCardLine />,
@@ -77,10 +76,10 @@ const Account = () => {
     }
   ]
 
-const dispatch = useDispatch()
-const logoutUser =()=>{
-  dispatch(userLogout())
-}
+  const dispatch = useDispatch()
+  const logoutUser =()=>{
+    dispatch(userLogout())
+  }
 
   return (
     <PageWrapper>
@@ -88,10 +87,10 @@ const logoutUser =()=>{
       <div className='flex'>
        <Avatar size={64} icon={<><img src={profileAvatar} alt="" /></>} />
        <div>
-        <div className='mx-3 text-lg font-bold'>+91 85***5696</div>
+        <div className='mx-3 text-lg font-bold'>+91 {userData.phone}</div>
         <div className='p-2'>
-        <Button size='small' type='primary' className='mr-2 text-white border text-xs bg-blue-600'>Deposit</Button>
-        <Button size='small' className='text-xs'>Withdraw</Button>
+        <Button onClick={()=>setOpenDrawer((prev)=>({...prev,deposit : true}))} size='small' type='primary' className='mr-2 text-white border text-xs bg-blue-600'>Deposit</Button>
+        <Button onClick={()=>setOpenDrawer((prev)=>({...prev,withdraw : true}))} size='small' className='text-xs'>Withdraw</Button>
         </div>
        </div>
       </div>
@@ -130,6 +129,8 @@ const logoutUser =()=>{
 
     </div>
 
+    {  <Deposit open={openDrawer.deposit} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,deposit : false}))}/>}
+    { <Withdraw open={openDrawer.withdraw} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdraw : false}))}/>    } 
     { <Statement open={openDrawer.statement} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,statement : false}))}/> }
     { <BankCard open={openDrawer.bankcard} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,bankcard : false}))} /> }
     { <DepositHistory open={openDrawer.depositHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,depositHistory : false}))} /> }

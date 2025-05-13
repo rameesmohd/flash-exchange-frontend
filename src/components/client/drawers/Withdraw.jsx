@@ -6,24 +6,24 @@ import WithdrawHistory from '../drawers/WithdrawHistory'
 import Address from '../drawers/Address'
 import trxicon from '../../../../public/trxicon.png';
 import usdticon from '../../../../public/imageusdt.png';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { usersPost } from '../../../services/userApi';
 import { useNavigate } from 'react-router-dom';
+import { setUserData } from '../../../redux/ClientSlice';
 
 const { Text, Paragraph } = Typography;
 
-const App = ({}) => {
-  const {selectedAddress} = useSelector((state)=>state.User)
+const App = ({open,setOpenDrawer}) => {
+  const { selectedAddress } = useSelector((state)=>state.User)
   const navigate=useNavigate()
-  const [open, setOpen] = useState(true);
+  const dispatch = useDispatch()
   const [loading, setLoading] = useState(false);
-  const [openDrawer,setOpenDrawer]=useState({
+  const [openDrawer,setDrawer]=useState({
     address : false,
     withdrawHistory :false
   })
   const [amount,setAmount]=useState("")
   const [errMsg,setErrMsg]=useState("")
-
   const [success,setSuccess]=useState({
     show : false,
     withdraw : {}
@@ -34,10 +34,8 @@ const App = ({}) => {
       setLoading(true)
       const response = await usersPost('/withdraw',{amount,addressId : selectedAddress._id})
       if(response.success){
-        setSuccess({
-          show : true,
-          withdraw : response.withdraw
-        })
+        setSuccess({ show : true, withdraw : response.withdraw })
+        dispatch(setUserData(response.user))
       } else {
         setErrMsg(response.message)
       }
@@ -59,12 +57,12 @@ const App = ({}) => {
       placement="right"
       open={open}
       size='large sm:default'
-      onClose={() => setOpen(false)}
+      onClose={() => setOpenDrawer(false)}
       closeIcon={<ArrowLeft size={20} />}
       title={
         <div className="flex justify-between items-center">
           <Text strong className="text-base">Withdraw USDT</Text>
-          <History onClick={()=>setOpenDrawer((prev)=>({...prev,withdrawHistory : true}))} size={20} className="text-gray-500 hover:scale-110 cursor-pointer" />
+          <History onClick={()=>setDrawer((prev)=>({...prev,withdrawHistory : true}))} size={20} className="text-gray-500 hover:scale-110 cursor-pointer" />
         </div>
       }
     >
@@ -75,7 +73,7 @@ const App = ({}) => {
         dataSource={[
           {
             title: 'Select Address',
-            action: <IoMdAdd className='hover:scale-110 cursor-pointer' onClick={()=>setOpenDrawer((prev)=>({...prev,address : true}))} size={20} />,
+            action: <IoMdAdd className='hover:scale-110 cursor-pointer' onClick={()=>setDrawer((prev)=>({...prev,address : true}))} size={20} />,
           },
           {
             title: 'Currency',
@@ -116,7 +114,7 @@ const App = ({}) => {
           </List.Item>
         )}
         /> :
-      <Card onClick={()=>setOpenDrawer((prev)=>({...prev,address : true}))} className='bg-gray-100 border-dashed cursor-pointer hover:scale-105 border-gray-700 flex justify-center items-center'>
+      <Card onClick={()=>setDrawer((prev)=>({...prev,address : true}))} className='bg-gray-100 border-dashed cursor-pointer hover:scale-105 border-gray-700 flex justify-center items-center'>
           <Text className='flex items-center' type='secondary'><PlusIcon/>Add address</Text>
       </Card>
       }
@@ -149,8 +147,8 @@ const App = ({}) => {
               
               </Drawer>
     
-    { <WithdrawHistory open={openDrawer.withdrawHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdrawHistory : false}))}/> }
-    { <Address open={openDrawer.address} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,address : false}))}/> }
+    { <WithdrawHistory open={openDrawer.withdrawHistory} setOpenDrawer={()=>setDrawer((prev)=>({...prev,withdrawHistory : false}))}/> }
+    { <Address open={openDrawer.address} setOpenDrawer={()=>setDrawer((prev)=>({...prev,address : false}))}/> }
     
     </>
   );

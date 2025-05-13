@@ -9,15 +9,17 @@ import rupeesIcon from '../../public/gold-coin-rupee-icon.svg';
 import binanceIcon from '../../public/binance-icon-512x512-yslglaeq.png';
 import wazirxIcon from '../../public/wazirx-svgrepo-com.svg';
 import PageWrapper from '../components/client/PageWrapper'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {usersGet, usersPost} from '../services/userApi'
 import { NotebookIcon } from 'lucide-react';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import BankCard from '../components/client/drawers/BankCard'
+import { setUserData } from '../redux/ClientSlice';
 
 const Exchange = () => {
   const user = useSelector((state)=>state.User.userData)
   const selectedBankCard = useSelector((state)=>state.User.selectedBankCard)
+  const dispatch=useDispatch()
   const [fund,setFund]=useState(98)
   const [error,setError]=useState('')
   const [loading,setLoading]=useState({
@@ -29,7 +31,9 @@ const Exchange = () => {
     fiat : ''
   })
   const [exchangeHistory,setShowExchangeHistory]=useState(false)
+  const [otherExchangeRate,setOtherExchangeRate]=useState([
 
+  ])
   const [openBankCard,setOpenBankCard]=useState({
     open :false,
     confirm : false
@@ -41,6 +45,7 @@ const Exchange = () => {
       const response = await usersGet('/fund')
       if(response.success){
         setFund(response.funds)
+        setOtherExchangeRate(response.otherExchangeRates)
       }
     } catch (error) {
       console.log(error);
@@ -62,6 +67,7 @@ const Exchange = () => {
           bankCard:selectedBankCard
         })
         if(response.success){
+          dispatch(setUserData(response.user))
           setShowExchangeHistory(true)
         }
       } catch (error) {
@@ -96,7 +102,7 @@ const Exchange = () => {
 
     {/* Content */}
     <Content className="p-4 space-y-1">
-    {loading.rate && <Spin fullscreen/>}
+    {/* {loading.rate && <Spin fullscreen/>} */}
     {/* Crypto Balance */}
     <Card size="small" className="rounded-md">
       <div className="flex justify-between text-xs text-gray-500">
@@ -183,17 +189,19 @@ const Exchange = () => {
     </Card>
     <Text type='danger' className='text-xs'>{error}</Text>
     {/* Sell Button */}
-    {!openBankCard.confirm ? <Button onClick={()=>setOpenBankCard((prev)=>({...prev,open : true}))} type="primary" style={{marginTop : 5}} className="bg-black w-full text-white rounded-md" size="large">
+    { 
+    !openBankCard.confirm ? 
+    <Button loading={loading.rate} onClick={()=>setOpenBankCard((prev)=>({...prev,open : true}))} type="primary" style={{marginTop : 5}} className="bg-black w-full text-white rounded-md" size="large">
       SELL USDT
-    </Button> : 
+    </Button>: 
     <>
-    <Button onClick={()=>handleSubmitOrder()} type="primary" style={{marginTop : 5}} className="bg-black w-full text-white rounded-md" size="large">
+    <Button loading={loading.submit} onClick={()=>handleSubmitOrder()} type="primary" style={{marginTop : 5}} className="bg-black w-full text-white rounded-md" size="large">
       Confirm
     </Button>
     <Button onClick={()=>setOpenBankCard((prev)=>({...prev,open : true}))} type="default" style={{marginTop : 5}} className="w-full rounded-md" size="large">
       Change Bank Card
     </Button>
-    </>
+    </> 
     }
 
     {/* Exchange Prices */}
@@ -201,20 +209,23 @@ const Exchange = () => {
       <Title level={5} className="text-gray-700 mt-3">Exchange Price</Title>
       {[{
         name: 'Binance',
-        price: '90.13',
+        price: otherExchangeRate[0]?.binance,
+        lastUpdate : otherExchangeRate[0]?.lastUpdated,
         icon: binanceIcon
-      }, {
-        name: 'Wazirx',
-        price: '88.13',
-        icon: wazirxIcon
-      }].map(({ name, price, icon }) => (
+      }, 
+      // {
+      //   name: 'Wazirx',
+      //   price: '88.13',
+      //   icon: wazirxIcon
+      // }
+    ].map(({ name, price,lastUpdate, icon }) => (
         <Card key={name} size="small" className="rounded-md mb-3">
           <div className="flex justify-between items-center mb-1">
             <div className="flex items-center font-medium text-gray-700">
               <img src={icon} alt={name} className="w-5 h-5 mr-2" />
               {name}
             </div>
-            <span className="text-xs text-gray-400">Updated: 28 Apr 2025 15:47:02</span>
+            <span className="text-xs text-gray-400">Updated:{lastUpdate}</span>
           </div>
           <div className="flex justify-between items-center text-sm">
             <div>Avg <span className="text-xl font-bold">{price}</span> ₹</div>
@@ -222,8 +233,8 @@ const Exchange = () => {
           </div>
         </Card>
       ))}
-      </div>
-      </Content>
+    </div>
+    </Content>
     </Layout>
     { 
     <ExchangeHistory 

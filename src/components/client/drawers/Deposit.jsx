@@ -11,8 +11,7 @@ import DepositHistory from '../drawers/DepositHistory'
 import { usersPost } from '../../../services/userApi';
 import CryptoDeposit from '../CryptoDeposit';
 
-const App = ({}) => {
-  const [open, setOpen] = React.useState(true);
+const App = ({open,setOpenDrawer}) => {
   const [loading, setLoading] = React.useState(false);
   const [openDepositHistory,setOpenDepositHistory]=useState(false)
   const [amount,setAmount]=useState(0)
@@ -44,7 +43,7 @@ const App = ({}) => {
         // bodyStyle={{padding : 5}}
         open={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => setOpenDrawer(false)}
         closeIcon={<ArrowLeft size={20} />}
         title={
           <div className="flex pl-9 justify-between items-center w-full">

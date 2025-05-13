@@ -110,7 +110,7 @@ const App = ({  open,setOpenDrawer  }) => {
     !showAddBankCard ? <>
     {
       bankCard.map((value,index)=>
-      <Badge.Ribbon text="Selected" className={selectedBankCard._id == value._id ?'':'hidden'} placement='end' color="green">
+      <Badge.Ribbon key={index+index} text="Selected" className={selectedBankCard._id == value._id ?'':'hidden'} placement='end' color="green">
       <Card 
       key={index}
       type="inner"
