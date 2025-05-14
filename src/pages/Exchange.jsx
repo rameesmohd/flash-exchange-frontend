@@ -15,6 +15,7 @@ import { NotebookIcon } from 'lucide-react';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import BankCard from '../components/client/drawers/BankCard'
 import { setUserData } from '../redux/ClientSlice';
+import { formatDate } from '../services/formatData';
 
 const Exchange = () => {
   const user = useSelector((state)=>state.User.userData)
@@ -225,7 +226,7 @@ const Exchange = () => {
               <img src={icon} alt={name} className="w-5 h-5 mr-2" />
               {name}
             </div>
-            <span className="text-xs text-gray-400">Updated:{lastUpdate}</span>
+            <span className="text-xs text-gray-400">Updated:{lastUpdate ? formatDate(lastUpdate) :''}</span>
           </div>
           <div className="flex justify-between items-center text-sm">
             <div>Avg <span className="text-xl font-bold">{price}</span> ₹</div>

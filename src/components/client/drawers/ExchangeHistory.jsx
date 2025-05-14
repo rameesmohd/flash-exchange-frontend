@@ -65,7 +65,7 @@ const App = ({  open,setOpenDrawer }) => {
             <Text className='text-xs' strong>Status:</Text> {getStatusTag(value.status)}<br />
             <div className="justify-end items-end">
               <Text type="secondary" style={{ fontSize: 12 }}>
-                Created: {formatDate(value.createdAt)}
+                Created: { formatDate(value.createdAt) }
               </Text>
             </div>
           </Col>
