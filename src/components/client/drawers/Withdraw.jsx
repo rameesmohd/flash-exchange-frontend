@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Drawer, Input, List, Typography, Space, Divider, Card, Result } from 'antd';
 import { ArrowLeft, History, PlusIcon } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
@@ -10,44 +10,61 @@ import { useDispatch, useSelector } from 'react-redux';
 import { usersPost } from '../../../services/userApi';
 import { useNavigate } from 'react-router-dom';
 import { setUserData } from '../../../redux/ClientSlice';
+import TransactionPinModal from '../TransactionPinModal';
+import { closePinModal, openPinModal } from '../../../redux/PinModalSlice';
 
 const { Text, Paragraph } = Typography;
 
 const App = ({open,setOpenDrawer}) => {
   const { selectedAddress } = useSelector((state)=>state.User)
+  const { isOpen } = useSelector((state) => state.PinModal);
+
   const navigate=useNavigate()
   const dispatch = useDispatch()
+
   const [loading, setLoading] = useState(false);
+  const [amount,setAmount]=useState("")
+  const [errMsg,setErrMsg]=useState("")
   const [openDrawer,setDrawer]=useState({
     address : false,
     withdrawHistory :false
   })
-  const [amount,setAmount]=useState("")
-  const [errMsg,setErrMsg]=useState("")
   const [success,setSuccess]=useState({
     show : false,
     withdraw : {}
   })
 
-  const submitWithdraw=async()=>{
+  useEffect(()=>{
+    setErrMsg("")
+  },[amount])
+
+  const submitWithdraw = useCallback(async (pin) => {
+    console.log("Submit Withdraw triggered with PIN:", pin);
     try {
-      setLoading(true)
-      const response = await usersPost('/withdraw',{amount,addressId : selectedAddress._id})
-      if(response.success){
-        setSuccess({ show : true, withdraw : response.withdraw })
-        dispatch(setUserData(response.user))
+      setLoading(true);
+      const response = await usersPost('/withdraw', {
+        pin,
+        amount,
+        addressId: selectedAddress._id
+      });
+      console.log("API response:", response); // Add this
+  
+      if (response.success) {
+        setSuccess({ show: true, withdraw: response.withdraw });
+        dispatch(setUserData(response.user));
       } else {
-        setErrMsg(response.message)
+        setErrMsg(response.message);
       }
     } catch (error) {
-      if(error?.response?.data?.message){
-        setErrMsg(error.response.data.message)
+      console.log("Withdraw error:", error);
+      if (error?.response?.data?.message) {
+        setErrMsg(error.response.data.message);
       }
-      console.log(error);
-    } finally { 
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
-  }
+  }, [amount, selectedAddress, dispatch]);
+  
 
   return (
     <>
@@ -131,7 +148,13 @@ const App = ({open,setOpenDrawer}) => {
           onChange={(e)=>setAmount(e.target.value)}
           />
         {errMsg && <Text type='danger' className='text-xs'>{errMsg}</Text>}
-        <Button onClick={()=>submitWithdraw()} disabled={amount<10} loading={loading} type="primary" size='large' block className="bg-black text-white">
+        <Button 
+        onClick={() => dispatch(openPinModal())}
+        disabled={amount<10} 
+        loading={loading} 
+        type="primary" 
+        size='large' block 
+        className="bg-black text-white">
             Confirm
         </Button>
       </Space>
@@ -145,11 +168,26 @@ const App = ({open,setOpenDrawer}) => {
           />
       }
               
-              </Drawer>
+    </Drawer>
     
-    { <WithdrawHistory open={openDrawer.withdrawHistory} setOpenDrawer={()=>setDrawer((prev)=>({...prev,withdrawHistory : false}))}/> }
-    { <Address open={openDrawer.address} setOpenDrawer={()=>setDrawer((prev)=>({...prev,address : false}))}/> }
-    
+    <WithdrawHistory 
+      open={openDrawer.withdrawHistory} 
+      setOpenDrawer={()=>setDrawer((prev)=>({...prev,withdrawHistory : false}))}
+      /> 
+    <Address 
+      open={openDrawer.address} 
+      setOpenDrawer={()=>setDrawer((prev)=>({...prev,address : false}))}
+      /> 
+    <TransactionPinModal
+      key={isOpen ? 'open' : 'closed'}
+      open={isOpen}
+      onClose={() => dispatch(closePinModal())}
+      onSubmit={(pin) => {
+        console.log("PIN received in parent onSubmit:", pin);
+        submitWithdraw(pin);
+        dispatch(closePinModal());
+      }}
+    />
     </>
   );
 };

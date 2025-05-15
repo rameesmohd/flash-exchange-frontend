@@ -1,21 +1,19 @@
+// redux/PinModalSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  isOpen: true,
-  onSubmit: null, // callback to run after successful PIN
+  isOpen: false
 };
 
 const pinModalSlice = createSlice({
   name: 'PinModal',
   initialState,
   reducers: {
-    openPinModal: (state, action) => {
+    openPinModal: (state) => {
       state.isOpen = true;
-      state.onSubmit = action.payload; // function to call on pin submit
     },
     closePinModal: (state) => {
       state.isOpen = false;
-      state.onSubmit = null;
     },
   },
 });

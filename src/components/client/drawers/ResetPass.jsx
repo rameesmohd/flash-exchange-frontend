@@ -46,7 +46,7 @@ const App = ({ open,setOpenDrawer }) => {
   const submit = async()=>{
     try {
       setLoading((prev)=>({...prev,submit : true}))
-      const response = await usersPost('/verify',{ 
+      const response = await usersPost('/reset-pin',{ 
         OTP:otp.OTP, 
         otpId:otp.OtpId,
         newPin
@@ -123,7 +123,7 @@ const App = ({ open,setOpenDrawer }) => {
       <Input 
         maxLength={6} 
         value={newPin} 
-        placeholder='***' 
+        placeholder='******' 
         onChange={(e)=>setNewPin(e.target.value)} 
         type='tel'
         size='large' 

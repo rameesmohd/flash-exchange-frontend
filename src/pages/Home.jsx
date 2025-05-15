@@ -8,18 +8,14 @@ import DepositDrawer from '../components/client/drawers/Deposit'
 import WithdrawDrawer from '../components/client/drawers/Withdraw'
 import PageWrapper from '../components/client/PageWrapper'
 import BankCard from '../components/client/drawers/BankCard'
-import { useDispatch, useSelector } from 'react-redux';
-import TransactionPinModal from '../components/client/TransactionPinModal';
-import { closePinModal } from '../redux/PinModalSlice';
-
+import { useSelector } from 'react-redux';
+import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 
 const Home = () => {
   const [depositDrawer,setDepositDrawer]=useState(false)
   const [withdrawDrawer,setWithdrawDrawer] = useState(false)
   const [bankCard,setBankCard]=useState(false)
-  const dispatch = useDispatch();
-  const { isOpen, onSubmit } = useSelector((state) => state.PinModal);
-
+  const [exchangeHistory,setShowExchangeHistory]=useState(false)
 
   const { userData } = useSelector((value)=>value.User)
   const user=userData
@@ -30,7 +26,7 @@ const Home = () => {
         E Value Trade
         <div className="flex space-x-3">
           <HelpCircle size={22} />
-          <NotebookIcon size={22} />
+          <NotebookIcon onClick={()=>setShowExchangeHistory(true)} size={22} />
         </div>
       </header>
 
@@ -85,18 +81,13 @@ const Home = () => {
         </Row>
 
       </div>
-      { <DepositDrawer open={depositDrawer} setOpenDrawer={()=>setDepositDrawer(false)}/> }
-      { <WithdrawDrawer open={withdrawDrawer} setOpenDrawer={()=>setWithdrawDrawer(false)}/> }
-      { <BankCard open={bankCard} setOpenDrawer={()=>setBankCard(false)}/> }
-
-      <TransactionPinModal
-        open={isOpen}
-        onClose={() => dispatch(closePinModal())}
-        onSubmit={(pin) => {
-          if (onSubmit) onSubmit(pin);
-          dispatch(closePinModal());
-        }}
-      />
+      <ExchangeHistory 
+        open={exchangeHistory} 
+        setOpenDrawer={()=>setShowExchangeHistory(false)}
+      /> 
+       <DepositDrawer open={depositDrawer} setOpenDrawer={()=>setDepositDrawer(false)}/> 
+       <WithdrawDrawer open={withdrawDrawer} setOpenDrawer={()=>setWithdrawDrawer(false)}/> 
+       <BankCard open={bankCard} setOpenDrawer={()=>setBankCard(false)}/> 
     </PageWrapper>
   );
 };

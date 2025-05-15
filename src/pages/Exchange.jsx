@@ -16,11 +16,16 @@ import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import BankCard from '../components/client/drawers/BankCard'
 import { setUserData } from '../redux/ClientSlice';
 import { formatDate } from '../services/formatData';
+import { closePinModal, openPinModal } from '../redux/PinModalSlice';
+import TransactionPinModal from '../components/client/TransactionPinModal';
 
 const Exchange = () => {
   const user = useSelector((state)=>state.User.userData)
+  const { isOpen } = useSelector((state) => state.PinModal);
+
   const selectedBankCard = useSelector((state)=>state.User.selectedBankCard)
   const dispatch=useDispatch()
+
   const [fund,setFund]=useState(98)
   const [error,setError]=useState('')
   const [loading,setLoading]=useState({
@@ -32,13 +37,15 @@ const Exchange = () => {
     fiat : ''
   })
   const [exchangeHistory,setShowExchangeHistory]=useState(false)
-  const [otherExchangeRate,setOtherExchangeRate]=useState([
-
-  ])
+  const [otherExchangeRate,setOtherExchangeRate]=useState([])
   const [openBankCard,setOpenBankCard]=useState({
     open :false,
     confirm : false
   })
+
+  useEffect(()=>{
+    setError("")
+  },[inputs])
 
   const fetchRate = async()=>{
     try {
@@ -55,7 +62,7 @@ const Exchange = () => {
     }
   }
 
-  const handleSubmitOrder=async()=>{
+  const handleSubmitOrder=async(pin)=>{
         if(Number(inputs.usdt) < 10, Number(inputs.fiat) < 10){
           return setError("Invalid values")
         }
@@ -65,7 +72,8 @@ const Exchange = () => {
           usdt:inputs.usdt,
           fiat:inputs.fiat,
           fund,
-          bankCard:selectedBankCard
+          bankCard:selectedBankCard,
+          pin
         })
         if(response.success){
           dispatch(setUserData(response.user))
@@ -196,7 +204,10 @@ const Exchange = () => {
       SELL USDT
     </Button>: 
     <>
-    <Button loading={loading.submit} onClick={()=>handleSubmitOrder()} type="primary" style={{marginTop : 5}} className="bg-black w-full text-white rounded-md" size="large">
+    <Button loading={loading.submit} 
+    // onClick={()=>handleSubmitOrder()} 
+    onClick={() => dispatch(openPinModal())}
+    type="primary" style={{marginTop : 5}} className="bg-black w-full text-white rounded-md" size="large">
       Confirm
     </Button>
     <Button onClick={()=>setOpenBankCard((prev)=>({...prev,open : true}))} type="default" style={{marginTop : 5}} className="w-full rounded-md" size="large">
@@ -237,18 +248,24 @@ const Exchange = () => {
     </div>
     </Content>
     </Layout>
-    { 
     <ExchangeHistory 
       open={exchangeHistory} 
       setOpenDrawer={()=>setShowExchangeHistory(false)}
     /> 
-    }
-    {
-      <BankCard 
-        open={openBankCard.open} 
-        setOpenDrawer={()=>setOpenBankCard((prev)=>({...prev,open : false ,confirm : true}))}
-      />
-    }
+    <BankCard 
+      open={openBankCard.open} 
+      setOpenDrawer={()=>setOpenBankCard((prev)=>({...prev,open : false ,confirm : true}))}
+    />
+    <TransactionPinModal
+      key={isOpen ? 'open' : 'closed'}
+      open={isOpen}
+      onClose={() => dispatch(closePinModal())}
+      onSubmit={(pin) => {
+        console.log("PIN received in parent onSubmit:", pin);
+        handleSubmitOrder(pin);
+        dispatch(closePinModal());
+      }}
+    />
     </PageWrapper>
   );
 };

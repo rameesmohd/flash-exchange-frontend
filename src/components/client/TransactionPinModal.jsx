@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Spin } from "antd";
+import { LoadingOutlined } from '@ant-design/icons';
 
 const PIN_LENGTH = 6;
 
-const TransactionPinModal = ({ open, onClose, onSubmit }) => {
+const TransactionPinModal = ({ open, onClose, onSubmit,loading }) => {
   const [pin, setPin] = useState(Array(PIN_LENGTH).fill(""));
   const inputsRef = useRef([]);
 
@@ -33,10 +35,17 @@ const TransactionPinModal = ({ open, onClose, onSubmit }) => {
     }
   };
 
+  const submitRef = useRef(onSubmit);
+
+  useEffect(() => {
+    submitRef.current = onSubmit;
+  }, [onSubmit]);
+
   const handleSubmit = () => {
     const joined = pin.join("");
     if (joined.length === PIN_LENGTH) {
-      onSubmit(joined);
+      console.log("handleSubmit triggered", joined);
+      submitRef.current(joined); // use the ref instead
     }
   };
 
@@ -46,7 +55,7 @@ const TransactionPinModal = ({ open, onClose, onSubmit }) => {
         <>
           {/* Overlay */}
           <motion.div
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 z-[1100]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -55,7 +64,7 @@ const TransactionPinModal = ({ open, onClose, onSubmit }) => {
 
           {/* Bottom Modal */}
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl p-6"
+            className="fixed bottom-0 left-0 right-0 z-[1101] bg-white rounded-t-3xl p-6"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -90,7 +99,11 @@ const TransactionPinModal = ({ open, onClose, onSubmit }) => {
               disabled={pin.includes("")}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-semibold shadow-lg hover:brightness-105 transition-all"
             >
-              Confirm
+              {
+                loading ? 
+                <Spin indicator={<LoadingOutlined className="text-white" spin />} size=""/>
+                : 'Confirm'
+              }
             </button>
           </motion.div>
         </>
