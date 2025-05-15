@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Layout,Typography, Input, Divider, Spin } from 'antd';
+import { Card, Button, Layout,Typography, Input, Divider, Spin, Select } from 'antd';
 import { CgArrowsExchangeAlt } from 'react-icons/cg';
 import { QuestionCircleOutlined, BookOutlined } from '@ant-design/icons';
 const {Text,Title} = Typography
@@ -14,7 +14,7 @@ import {usersGet, usersPost} from '../services/userApi'
 import { NotebookIcon } from 'lucide-react';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import BankCard from '../components/client/drawers/BankCard'
-import { setUserData } from '../redux/ClientSlice';
+import { setFund, setUserData } from '../redux/ClientSlice';
 import { formatDate } from '../services/formatData';
 import { closePinModal, openPinModal } from '../redux/PinModalSlice';
 import TransactionPinModal from '../components/client/TransactionPinModal';
@@ -22,11 +22,11 @@ import TransactionPinModal from '../components/client/TransactionPinModal';
 const Exchange = () => {
   const user = useSelector((state)=>state.User.userData)
   const { isOpen } = useSelector((state) => state.PinModal);
-
-  const selectedBankCard = useSelector((state)=>state.User.selectedBankCard)
+  const {selectedBankCard,selectedFund} = useSelector((state)=>state.User)
   const dispatch=useDispatch()
-
-  const [fund,setFund]=useState(98)
+  
+  const [allFunds,setAllFunds]=useState([])
+  
   const [error,setError]=useState('')
   const [loading,setLoading]=useState({
     rate : true,
@@ -43,6 +43,19 @@ const Exchange = () => {
     confirm : false
   })
 
+  console.log(selectedFund);
+  
+  
+  useEffect(()=>{
+    if(!selectedFund){
+      dispatch(setFund(allFunds[0]))
+    }
+    setInputs({
+      usdt : '',
+      fiat : ''
+    })
+  },[allFunds,selectedFund])
+
   useEffect(()=>{
     setError("")
   },[inputs])
@@ -51,8 +64,15 @@ const Exchange = () => {
     try {
       setLoading((prev)=>({...prev,rate: true}))
       const response = await usersGet('/fund')
-      if(response.success){
-        setFund(response.funds)
+      if(response.success && response.funds){
+        const options =  response.funds.map((fund) => ({
+          value: fund._id,
+          label: `${fund.type}: ₹${fund.rate}/USDT`,
+          rate : fund.rate,
+          _id: fund._id,
+          status : fund.status
+        }));
+        setAllFunds(options)
         setOtherExchangeRate(response.otherExchangeRates)
       }
     } catch (error) {
@@ -71,7 +91,7 @@ const Exchange = () => {
         const response = await usersPost('/order',{
           usdt:inputs.usdt,
           fiat:inputs.fiat,
-          fund,
+          fund : selectedFund,
           bankCard:selectedBankCard,
           pin
         })
@@ -137,7 +157,7 @@ const Exchange = () => {
               } else {
                 setInputs({
                   usdt: value,
-                  fiat: (parseFloat(value) * fund.rate).toFixed(2)
+                  fiat: (parseFloat(value) * selectedFund.rate).toFixed(2)
                 });
               }
             }}
@@ -147,12 +167,14 @@ const Exchange = () => {
             }}
             placeholder="0.00"
           />
+  
           </div>
           {/* <div className="font-semibold text-gray-700 text-lg">0.00</div> */}
           <Text type="secondary" className="text-xs cursor-pointer text-blue-500">Deposit</Text>
         </div>
       </div>
     </Card>
+
 
     {/* Exchange Icon */}
     <div className="flex justify-center relative z-10">
@@ -162,10 +184,27 @@ const Exchange = () => {
     </div>
 
     {/* Fiat */}
-    <Card size="small" bodyStyle={{height : "90px"}} className="rounded-md items-center">
-      <div className="flex mt-2 justify-between text-xs text-gray-500 mb-2">
+    <Card size="small" className="rounded-md items-center">
+      <div className="flex mt-2 justify-between items-center text-xs text-gray-500 mb-2">
         <span>Fiat Currency</span>
-        <span>1 USDT: ₹{fund.rate}</span>
+        <span>  
+      <Select
+        // defaultValue="Select fund"
+        // style={{ width: 120 }}
+        loading={loading.rate} 
+        options={allFunds}
+        value={selectedFund?.value}
+        onChange={(value) => {
+          const fund = allFunds.find(f => f.value === value);
+          dispatch(setFund({
+            value: fund.value,
+            rate: fund.rate,
+            _id: fund._id,
+            status: fund.status,
+            label: fund.label,
+          }));
+        }}
+      /> </span>
       </div>
       <div className="flex justify-between items-center">
         <div className="flex items-center">
@@ -185,7 +224,7 @@ const Exchange = () => {
             } else {
               setInputs({
                 fiat: value,
-                usdt: (parseFloat(value) / fund.rate).toFixed(2)
+                usdt: (parseFloat(value) / selectedFund.rate).toFixed(2)
               });
             }
           }}

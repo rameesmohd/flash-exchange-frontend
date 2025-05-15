@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Row, Col } from 'antd';
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { RiLuggageDepositLine, RiBankCardLine } from "react-icons/ri";
@@ -8,17 +8,35 @@ import DepositDrawer from '../components/client/drawers/Deposit'
 import WithdrawDrawer from '../components/client/drawers/Withdraw'
 import PageWrapper from '../components/client/PageWrapper'
 import BankCard from '../components/client/drawers/BankCard'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
+import { usersGet } from '../services/userApi';
+import { setFund } from '../redux/ClientSlice';
 
 const Home = () => {
   const [depositDrawer,setDepositDrawer]=useState(false)
   const [withdrawDrawer,setWithdrawDrawer] = useState(false)
   const [bankCard,setBankCard]=useState(false)
   const [exchangeHistory,setShowExchangeHistory]=useState(false)
-
   const { userData } = useSelector((value)=>value.User)
   const user=userData
+  const dispatch = useDispatch()
+
+  const fetchfunds = async()=>{
+    try {
+      const response = await usersGet('/funds')
+      if(response.success){
+        dispatch(setFund(response.fund))
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(()=>{
+    // fetchfunds()
+  },[])
+
   return (
     <PageWrapper>
       {/* Top Header */}

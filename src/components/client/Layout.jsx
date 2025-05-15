@@ -24,14 +24,15 @@ const Layout = () => {
       <nav className="flex justify-around items-center bg-white border-t p-2 z-30">
         {tabs.map((tab) => (
           <NavLink
-            to={tab.path}
-            key={tab.path}
-            className={({ isActive }) =>
-              `flex flex-col items-center text-xs ${
-                isActive ? "text-black" : "text-gray-500"
-              }`
-            }
-          >
+              to={tab.path}
+              end
+              key={tab.path}
+              className={({ isActive }) =>
+                `flex flex-col items-center text-xs ${
+                  isActive ? "text-black" : "text-gray-500"
+                }`
+              }
+            >
             <div className="text-xl">{tab.icon}</div>
             <span>{tab.label}</span>
           </NavLink>
