@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Button, Flex, Spin, message, Typography, Space, Result } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import usdticon from '../../../public/imageusdt.png'
 import { Textarea } from 'flowbite-react';
 import { Card, Row, Col } from 'antd';
 import QRCode from 'qrcode.react';
 import { CopyOutlined } from '@ant-design/icons';
-import { usersGet, usersPatch } from '../../services/userApi';
+import { usersPatch } from '../../services/userApi';
 import { useNavigate } from 'react-router-dom';
 const { Text } = Typography;
 
 const CryptoDeposit = ({deposit}) => {
-    const [address,setAddress]=useState("")
+    const [address,setAddress]=useState(deposit.recieveAddress.address)
     const [amount,setAmount]=useState(deposit.amount || 0)
     const [loading, setLoading] = React.useState({
         confirmTxid : false,
@@ -47,24 +46,6 @@ const CryptoDeposit = ({deposit}) => {
             setLoading((prev)=>({...prev,confirmTxid :  false}))
         }
     }
-
-    const fetchMainAddress=async()=>{
-        try {
-            setLoading((prev)=>({...prev,loadAddress :  true}))
-            const response =  await usersGet('/main-address')
-            if(response.address) { 
-                setAddress(response.address)
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading((prev)=>({...prev,loadAddress :  false}))
-        }
-    }
-
-    useEffect(()=>{
-        fetchMainAddress()
-    },[])
 
     return (
     <div>
