@@ -3,6 +3,7 @@ import { Button, Drawer, Input, List, Typography, Space, Divider, Card, Col, Row
 import { ArrowLeft, History } from 'lucide-react';
 import { formatDate } from '../../../services/formatData';
 import { usersGet } from '../../../services/userApi';
+import EmptyBox from '../common/EmptyBox'
 
 const { Text, Paragraph } = Typography;
 
@@ -60,7 +61,7 @@ const App = ({ open,setOpenDrawer }) => {
       }
     >
       <div className="space-y-4">
-      {withdrawHistory.map((value, index) => (
+      { withdrawHistory.length ?  withdrawHistory.map((value, index) => (
       <Card key={index} bordered className="shadow-md">
         <Row gutter={[8, 4]}>
           <Col span={12}>
@@ -79,8 +80,8 @@ const App = ({ open,setOpenDrawer }) => {
           <Text className='text-xs ml-1 mr-2' strong>Address: </Text> <Text className='text-xs'>{value.recieveAddress}</Text>
         </Row>
       </Card>
-    ))}
-    <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>  
+    )) : <EmptyBox/> }
+    {/* <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>   */}
     </div>
     </Drawer>
   );

@@ -3,6 +3,7 @@ import { Drawer, Typography, Card, Row, Col, Tag } from 'antd';
 import { ArrowLeft } from 'lucide-react';
 import { usersGet } from '../../../services/userApi';
 import { formatDate } from '../../../services/formatData';
+import EmptyBox from '../common/EmptyBox';
 const { Text } = Typography;
 
 const getStatusTag = (status) => {
@@ -55,7 +56,7 @@ const App = ({  open,setOpenDrawer }) => {
           <Text strong className="text-base">Exchange History</Text>
       }
     >
-    { orders.map((value, index) => (
+    { orders.length ? orders.map((value, index) => (
       <Card key={index} bordered className="shadow-md my-2">
         <Row gutter={[8, 4]}>
           <Col span={12}>
@@ -74,8 +75,8 @@ const App = ({  open,setOpenDrawer }) => {
           <Text className='text-xs ml-1 mr-2' strong>Address: </Text> <Text className='text-xs'>{value.recieveAddress}</Text>
         </Row>
       </Card>
-    ))}
-    <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>  
+    )) : <EmptyBox/>}
+    {/* <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>   */}
     </Drawer>
   );
 };

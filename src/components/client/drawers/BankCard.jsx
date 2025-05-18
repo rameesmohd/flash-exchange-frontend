@@ -11,6 +11,7 @@ import {usersDelete, usersGet, usersPost} from '../../../services/userApi'
 import {formatDate} from '../../../services/formatData'
 import { useDispatch, useSelector } from 'react-redux';
 import { setBankCardSelected } from '../../../redux/ClientSlice';
+import EmptyBox from '../common/EmptyBox'
 
 const App = ({  open,setOpenDrawer  }) => {
   const [loading, setLoading] = useState(false);
@@ -111,6 +112,7 @@ const App = ({  open,setOpenDrawer  }) => {
     {
     !showAddBankCard ? <>
     {
+      bankCard.length ?
       bankCard.map((value,index)=>
       <Badge.Ribbon key={index+index} text="Selected" className={selectedBankCard._id == value._id ?'':'hidden'} placement='end' color="green">
       <Card 
@@ -139,8 +141,8 @@ const App = ({  open,setOpenDrawer  }) => {
       </div>
     </Card>
     </Badge.Ribbon>
-    )} 
-    <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>  
+    ) : <EmptyBox/>} 
+    {/* <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>   */}
     </> :
     <Card  bordered={false} bodyStyle={{padding:5}} className="max-w-md mx-auto border-none rounded-xl">
       <Form form={form} layout="vertical" onFinish={handleFinish}>

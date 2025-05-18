@@ -41,10 +41,7 @@ const Exchange = () => {
   const [openBankCard,setOpenBankCard]=useState({
     open :false,
     confirm : false
-  })
-
-  console.log(selectedFund);
-  
+  })  
   
   useEffect(()=>{
     if(!selectedFund){
