@@ -19,7 +19,11 @@ const AppContent = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route element={<Layout />}>
+        <Route element={
+          <div className="flex justify-center bg-neutral-100 min-h-screen">
+            <Layout />
+          </div>
+        }>
           <Route path="/" element={<Landing />} />
           <Route path="/home" element={<PrivateRoute element={<Home />}/>} />
           <Route path="/exchange" element={<PrivateRoute element={<Exchange />}/>} />

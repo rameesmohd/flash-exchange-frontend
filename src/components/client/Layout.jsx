@@ -11,7 +11,8 @@ const tabs = [
 
 const Layout = () => {
   return (
-    <div className="flex flex-col h-[100dvh] sm:max-w-[375px]  mx-auto bg-gray-50 shadow-lg">
+    // <div className="flex flex-col h-[100dvh] sm:max-w-[375px]  mx-auto bg-gray-50 shadow-lg">
+    <div className="flex flex-col w-full max-w-[375px] min-h-[100dvh] mx-auto bg-gray-50 shadow-lg">
       {/* Top Navbar */}
      
 

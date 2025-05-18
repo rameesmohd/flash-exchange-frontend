@@ -4,6 +4,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    scrollbar-gutter: stable;
   }
   
 input,
@@ -11,7 +12,25 @@ textarea {
   font-size: 16px;
 }
 
+
 * {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+}
+
+
+.custom-table .ant-table-thead > tr > th {
+  background: linear-gradient(to right, #2563eb, #4f46e5); /* from-blue-600 to-indigo-600 */
+  color: white;
+  font-size: 0.8rem; /* text-lg */
+  font-weight: 600;    /* font-semibold */
+  padding-top: 2px;   /* py-3 */
+  padding-bottom: 2px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+  transition: filter 0.3s ease;
+}
+
+.custom-table .ant-table-thead > tr > th:hover {
+  filter: brightness(1.05); /* hover:brightness-105 */
 }

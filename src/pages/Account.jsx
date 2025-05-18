@@ -22,6 +22,7 @@ import Deposit from '../components/client/drawers/Deposit'
 import Withdraw from '../components/client/drawers/Withdraw'
 import { useDispatch, useSelector } from 'react-redux';
 import { userLogout } from '../redux/ClientSlice';
+import Invite from '../components/client/Invite';
 
 const Account = () => {
   const { userData } = useSelector((state)=>state.User)
@@ -34,7 +35,8 @@ const Account = () => {
     myReferrrals : false,
     resetPass : false,
     deposit : false,
-    withdraw : false
+    withdraw : false,
+    invite : false
   })
 
   const options = [
@@ -94,15 +96,13 @@ const Account = () => {
         </div>
        </div>
       </div>
-
       <Card size="small" className="rounded-lg border-none bg-black my-2">
         <div className="justify-between text-xs text-gray-500 mb-2">
           <div className='text-lg font-bold text-white'>Invite your friends</div>
           <div className='text-gray-300 text-xs'>Earn upto 5% commission</div>
         </div>
-        <Button size='small' className='text-xs text-white bg-violet-400 border-none rounded-lg'>Get Started</Button>
+        <Button onClick={()=>setOpenDrawer((prev)=>({...prev,invite : true}))} size='small' className='text-xs text-white bg-violet-400 border-none rounded-lg'>Get Started</Button>
       </Card>
-
       <div>
           {
             options.map((value,index)=>
@@ -126,19 +126,17 @@ const Account = () => {
       >
         Sign Out
       </Button>
-
     </div>
-
-    {  <Deposit open={openDrawer.deposit} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,deposit : false}))}/>}
-    { <Withdraw open={openDrawer.withdraw} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdraw : false}))}/>    } 
-    { <Statement open={openDrawer.statement} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,statement : false}))}/> }
-    { <BankCard open={openDrawer.bankcard} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,bankcard : false}))} /> }
-    { <DepositHistory open={openDrawer.depositHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,depositHistory : false}))} /> }
-    { <ExchangeHistory open={openDrawer.exchangeHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,exchangeHistory : false}))} /> }
-    { <WithdrawHistory open={openDrawer.withdrawHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdrawHistory : false}))}/> }
-    { <MyReferrals open={openDrawer.myReferrrals} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,myReferrrals : false}))}/> }    
-    { <ResetPass open={openDrawer.resetPass} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,resetPass : false}))}/> } 
-
+      <Deposit open={openDrawer.deposit} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,deposit : false}))}/>
+      <Withdraw open={openDrawer.withdraw} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdraw : false}))}/>    
+      <Statement open={openDrawer.statement} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,statement : false}))}/> 
+      <BankCard open={openDrawer.bankcard} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,bankcard : false}))} /> 
+      <DepositHistory open={openDrawer.depositHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,depositHistory : false}))} /> 
+      <ExchangeHistory open={openDrawer.exchangeHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,exchangeHistory : false}))} /> 
+      <WithdrawHistory open={openDrawer.withdrawHistory} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,withdrawHistory : false}))}/> 
+      <MyReferrals open={openDrawer.myReferrrals} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,myReferrrals : false}))}/>   
+      <ResetPass open={openDrawer.resetPass} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,resetPass : false}))}/> 
+      <Invite open={openDrawer.invite} onClose={()=>setOpenDrawer((prev)=>({...prev,invite : false}))}/>
     </PageWrapper>
   )
 }

@@ -94,6 +94,8 @@ const App = ({ open,setOpenDrawer }) => {
       destroyOnClose
       placement="right"
       open={open}
+      size='large sm:default'
+      getContainer={false} // render in parent DOM tree
       // loading={loading}
       onClose={setOpenDrawer}
       closeIcon={<ArrowLeft size={20} />}

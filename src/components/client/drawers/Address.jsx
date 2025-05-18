@@ -72,6 +72,7 @@ const App = ({ open,setOpenDrawer }) => {
     <Drawer
       closable
       destroyOnClose
+      getContainer={false} // render in parent DOM tree
       placement="right"
       open={open}
       loading={loading.drawer}

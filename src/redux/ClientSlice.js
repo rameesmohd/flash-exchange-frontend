@@ -5,7 +5,6 @@ export const userSlice = createSlice({
   initialState: {
     isAuthenticated: false,
     userData: null,
-
     selectedFund : null,
     selectedAddress:{},
     selectedBankCard : {},
