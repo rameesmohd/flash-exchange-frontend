@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { message, Typography, Table } from "antd";
 import { GoCopy } from "react-icons/go";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 
 const { Text } = Typography;
 
@@ -50,21 +50,6 @@ const Invite = ({ open, onClose }) => {
     });
   };
 
-   useEffect(() => {
-    if (open) {
-      // Prevent background scroll
-      document.body.style.overflow = 'hidden';
-    } else {
-      // Re-enable scroll
-      document.body.style.overflow = '';
-    }
-
-    // Cleanup if unmounted
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [open]);
-
   return (
     <AnimatePresence>
       {open && (
@@ -81,7 +66,8 @@ const Invite = ({ open, onClose }) => {
 
           {/* Bottom Modal */}
           <motion.div
-             className="fixed bottom-0 left-0 right-0 z-[1101] bg-white rounded-t-3xl p-6 overflow-y-auto"
+            getContainer={false}
+            className="fixed bottom-0 left-0 right-0 z-[1101] bg-white rounded-t-3xl p-6 overflow-y-auto"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
