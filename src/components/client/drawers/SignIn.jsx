@@ -24,7 +24,7 @@ const App = ({ open, setOpenDrawer }) => {
     setSuccessMsg('');
     try {
       setLoading(true);
-      const response = await axiosInstance.post('/signup', { phone, email, otp });
+      const response = await axiosInstance.post('/signin', { email, otp });
       if (response?.data?.success) {
         setSuccessMsg(response.data.message || 'Signed in successfully');
         dispatch(setIsAuthenticated())
@@ -66,12 +66,12 @@ const App = ({ open, setOpenDrawer }) => {
       <Title level={2}>E Value Trade</Title>
       <Text className="my-0 py-0 font-semibold text-xl">Welcome back</Text>
       <br />
-      <Text className="my-0 py-0 font-semibold text-xs">
+      {/* <Text className="my-0 py-0 font-semibold text-xs">
         Just one step to complete sign in
-      </Text>
+      </Text> */}
 
       <div className="mt-5">
-        <div className="flex flex-col space-y-1 my-2">
+        {/* <div className="flex flex-col space-y-1 my-2">
           <Text type="secondary">Phone Number</Text>
           <Space.Compact>
             <Input
@@ -88,7 +88,7 @@ const App = ({ open, setOpenDrawer }) => {
               placeholder="Enter phone number"
             />
           </Space.Compact>
-        </div>
+        </div> */}
 
         <div className="flex flex-col space-y-1 my-2">
           <Text type="secondary">Email</Text>
@@ -128,9 +128,9 @@ const App = ({ open, setOpenDrawer }) => {
           type="primary"
           loading={loading}
           onClick={createOrLoginUser}
-          disabled={!phone || !email || !otp}
+          disabled={!email || !otp}
         >
-          Sign up
+          Sign in
         </Button>
       </div>
     </Drawer>

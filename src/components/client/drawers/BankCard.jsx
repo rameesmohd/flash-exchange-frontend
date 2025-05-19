@@ -68,10 +68,10 @@ const App = ({  open,setOpenDrawer  }) => {
   }
 
   useEffect(()=>{
-    if(!showAddBankCard){
+    if(!showAddBankCard && open){
       fetchBankCards()
     }
-  },[showAddBankCard])
+  },[open,showAddBankCard])
 
   const showDeleteConfirm = (id) => {
     confirm({

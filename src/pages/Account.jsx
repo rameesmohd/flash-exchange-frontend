@@ -21,7 +21,7 @@ import MyReferrals from '../components/client/drawers/MyReferrals'
 import Deposit from '../components/client/drawers/Deposit'
 import Withdraw from '../components/client/drawers/Withdraw'
 import { useDispatch, useSelector } from 'react-redux';
-import { userLogout } from '../redux/ClientSlice';
+import { logoutUser } from '../services/userApi';
 import Invite from '../components/client/Invite';
 
 const Account = () => {
@@ -78,9 +78,8 @@ const Account = () => {
     }
   ]
 
-  const dispatch = useDispatch()
-  const logoutUser =()=>{
-    dispatch(userLogout())
+  const logout =async()=>{
+    await logoutUser()
   }
 
   return (
@@ -122,7 +121,7 @@ const Account = () => {
         className="bg-black top-10 h-10 w-full text-white rounded-md"
         size="large"
         block
-        onClick={()=>logoutUser()}
+        onClick={()=>logout()}
       >
         Sign Out
       </Button>

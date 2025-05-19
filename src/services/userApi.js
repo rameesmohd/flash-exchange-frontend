@@ -84,8 +84,13 @@ const usersDelete = async (url) => {
   };
   
 //   // Custom logout function for user
-const logoutUser = () => {
-    store.dispatch(userLogout());
+const logoutUser = async() => {
+    try {      
+      await axiosInstance.get('/logout');
+      store.dispatch(userLogout());
+    } catch (error) {
+      console.log(error);
+    }
 };
 
 export { 

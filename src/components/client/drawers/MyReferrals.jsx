@@ -50,7 +50,7 @@ const ReferralDrawer = ({ open, setOpenDrawer }) => {
       closable
       destroyOnClose
       placement="right"
- 
+      getContainer={false} // render in parent DOM tree
       size="large sm:default"
       open={open}
       onClose={() => setOpenDrawer(false)}
