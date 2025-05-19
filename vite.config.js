@@ -11,7 +11,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'robots.txt'],
       manifest: {
         name: 'My App',
-        short_name: 'App',
+        short_name: 'E Value',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
