@@ -23,7 +23,8 @@ const Layout = () => {
 
       {/* Bottom Tab Bar */}
       <nav className="flex justify-around items-center bg-white border-t p-2 z-30">
-        {tabs.map((tab) => (
+        { 
+        tabs.map((tab) => (
           <NavLink
               to={tab.path}
               end
@@ -37,7 +38,8 @@ const Layout = () => {
             <div className="text-xl">{tab.icon}</div>
             <span>{tab.label}</span>
           </NavLink>
-        ))}
+        ))
+        }
       </nav>
     </div>
   );
