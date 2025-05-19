@@ -86,7 +86,7 @@ const App = ({ open,setOpenDrawer }) => {
     }
   
     return () => clearInterval(interval);
-  }, [timer.counter]);
+  }, [timer]);
   
   return (
     <Drawer
