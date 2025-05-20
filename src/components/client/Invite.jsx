@@ -95,7 +95,7 @@ const Invite = ({ open, onClose }) => {
               >
                 <p>Invite code</p>
                 <p className="flex items-center">
-                  {userData.inviteCode || ''} <GoCopy className="mx-1" />
+                  {userData.referralCode || ''} <GoCopy className="mx-1" />
                 </p>
               </button>
             </div>

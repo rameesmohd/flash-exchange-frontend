@@ -6,9 +6,10 @@ import { ArrowRightOutlined } from '@ant-design/icons';
 import Signup from '../components/client/drawers/Signup'
 import SignIn from '../components/client/drawers/SignIn'
 import PageWrapper from '../components/client/PageWrapper'
+import crypto3dImg from '../../public/set-of-internet-virtual-cryptocurrency-icons-3d-bitcoin-3d-tether-3d-etherium-illustration-free-vector.jpg'
 const { Title, Text } = Typography;
 
-const Home = () => {
+const Landing = ({home}) => {
   const [openDrawer,setopenDrawer]=useState({
     signin  :false,
     signup : false
@@ -16,7 +17,8 @@ const Home = () => {
 
   return (
   <PageWrapper>
-    <div className="w-full mx-auto bg-gray-50 ">
+    {home ? 
+    <div className="w-full mx-auto bg-white ">
     {/* Header Image */}
     <Image
       src={landingimage}
@@ -64,11 +66,25 @@ const Home = () => {
         </div>
       </Card>
       </div>
+    </div> : 
+    <div className="w-full h-full flex px-4 pt-32 justify-center mx-auto bg-white ">
+      <div className='text-center'>
+        <img src={crypto3dImg} alt="" />
+        <Title level={4}>Welcome to E Value Trade</Title>
+        <Text className='text-xs'>You are our most trusted ally,paving  the way for a promising <br /> future together</Text>
+        <Button onClick={()=>setopenDrawer((prev=>({...prev,signin : true})))} type="" block size="large" className="text-black mt-5">
+          Login
+        </Button>
+        <Button onClick={()=>setopenDrawer((prev=>({...prev,signup : true})))} type="primary" block size="large" className="bg-black mt-3">
+          Create an account
+        </Button>
+      </div>
     </div>
+    }
     <Signup open={openDrawer.signup} setOpenDrawer={()=>setopenDrawer((prev=>({...prev,signup : false})))}/> 
     <SignIn open={openDrawer.signin} setOpenDrawer={()=>setopenDrawer((prev=>({...prev,signin : false})))}/> 
   </PageWrapper>
   );
 };
 
-export default Home;
+export default Landing;

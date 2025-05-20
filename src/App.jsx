@@ -12,8 +12,14 @@ import { useSelector } from "react-redux";
 const AppContent = () => {
   const location = useLocation();
   const isAuthenticated = useSelector((state) => state.User.isAuthenticated)
-  const PrivateRoute = ({ element, ...rest }) => {
-    return isAuthenticated ? element : <Navigate to="/" />;
+  const isHomePath = location.pathname === "/home";
+
+  const PrivateRoute = ({ element }) => {
+    return isAuthenticated ? (
+      element
+    ) : (
+      <Landing home={isHomePath} />
+    );
   };
   
   return (
@@ -24,7 +30,7 @@ const AppContent = () => {
             <Layout />
           </div>
         }>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<Landing home={true}/>} />
           <Route path="/home" element={<PrivateRoute element={<Home />}/>} />
           <Route path="/exchange" element={<PrivateRoute element={<Exchange />}/>} />
           <Route path="/account" element={<PrivateRoute element={<Account />}/>} />
