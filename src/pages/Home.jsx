@@ -52,7 +52,7 @@ const Home = () => {
       <div className="p-4">
 
         {/* Notification Bar */}
-        <div className="w-full p-2 flex items-center text-sm rounded-md bg-gray-200 mb-4">
+        <div className="w-full p-2 flex items-center text-sm rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:brightness-105 transition-all mb-4">
           <HiOutlineSpeakerWave className="mx-2" size={20} /> 
           00:02 87****5445 sold $791.4
         </div>

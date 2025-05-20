@@ -1,55 +1,75 @@
 import React, { useState } from 'react';
 import { Drawer, Input, Typography, Space, Button, message } from 'antd';
 import { ArrowLeft } from 'lucide-react';
-const { Text, Title } = Typography;
-import userAxios from './../../../axios/userAxios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setIsAuthenticated, setUserData } from '../../../redux/ClientSlice';
+import { usersPost } from '../../../services/userApi';
+
+const { Text, Title } = Typography;
 
 const App = ({ open, setOpenDrawer }) => {
-  const axiosInstance = userAxios();
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
-  const [phone, setPhone] = useState('');
+  const [sendingOtp, setSendingOtp] = useState(false);
+
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
+  const [otpId, setOtpId] = useState('');
+
   const [errMsg, setErrMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Send OTP to email
+  const handleSendOtp = async () => {
+    setErrMsg('');
+    try {
+      setSendingOtp(true);
+      const response = await usersPost('/send-otp', { email });
+      if (response?.success && response?.otpId) {
+        message.success('OTP sent successfully');
+        setOtpId(response.otpId);
+      } else {
+        message.error(response?.message || 'Failed to send OTP');
+      }
+    } catch (error) {
+      message.error(error.response?.message || 'Server error');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
 
   const createOrLoginUser = async () => {
     setErrMsg('');
     setSuccessMsg('');
     try {
       setLoading(true);
-      const response = await axiosInstance.post('/signin', { email, otp });
-      if (response?.data?.success) {
-        setSuccessMsg(response.data.message || 'Signed in successfully');
-        dispatch(setIsAuthenticated())
-        dispatch(setUserData(response.data.user))
-        navigate('/home')
+
+      const response = await usersPost('/signin', {
+        email,
+        otpId,
+        otp,
+      });
+
+      if (response?.success) {
+        message.success('Signed in successfully');
+        dispatch(setIsAuthenticated());
+        dispatch(setUserData(response.user));
+        navigate('/home');
+        setOpenDrawer(false);
       } else {
-        setErrMsg(response.data.message || 'Something went wrong');
-        message.error(response.data.message || 'Error');
+        setErrMsg(response.message || 'Something went wrong');
       }
     } catch (error) {
-      if (error.response) {
-        setErrMsg(error.response.data.message || 'Server Error');
-      } else if (error.request) {
-        setErrMsg('No response from server. Please check your connection.');
-      } else {
-        setErrMsg('Unexpected error: ' + error.message);
-      }
+      setErrMsg(
+        error.response?.data.message ||
+          'Unexpected error occurred while signing in.'
+      );
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-  };
-
-  const handleSendOtp = () => {
-    // Implement your OTP send logic here (e.g., call /send-otp endpoint)
-    message.success('OTP sent to your mobile');
   };
 
   return (
@@ -58,38 +78,15 @@ const App = ({ open, setOpenDrawer }) => {
       destroyOnClose
       placement="right"
       size="large sm:default"
-      getContainer={false} // render in parent DOM tree
+      getContainer={false}
       open={open}
       onClose={() => setOpenDrawer()}
       closeIcon={<ArrowLeft size={20} />}
     >
       <Title level={2}>E Value Trade</Title>
       <Text className="my-0 py-0 font-semibold text-xl">Welcome back</Text>
-      <br />
-      {/* <Text className="my-0 py-0 font-semibold text-xs">
-        Just one step to complete sign in
-      </Text> */}
 
       <div className="mt-5">
-        {/* <div className="flex flex-col space-y-1 my-2">
-          <Text type="secondary">Phone Number</Text>
-          <Space.Compact>
-            <Input
-              className="rounded-lg border-gray-300"
-              style={{ width: '20%' }}
-              value="+91"
-              disabled
-            />
-            <Input
-              className="rounded-lg border-gray-300"
-              style={{ width: '80%' }}
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Enter phone number"
-            />
-          </Space.Compact>
-        </div> */}
-
         <div className="flex flex-col space-y-1 my-2">
           <Text type="secondary">Email</Text>
           <Input
@@ -109,10 +106,10 @@ const App = ({ open, setOpenDrawer }) => {
             onChange={(e) => setOtp(e.target.value)}
             suffix={
               <Button
-                className="border-none"
-                disabled={!phone}
-                onClick={handleSendOtp}
                 type="link"
+                disabled={!email || sendingOtp}
+                onClick={handleSendOtp}
+                loading={sendingOtp}
               >
                 Send
               </Button>
@@ -128,7 +125,7 @@ const App = ({ open, setOpenDrawer }) => {
           type="primary"
           loading={loading}
           onClick={createOrLoginUser}
-          disabled={!email || !otp}
+          disabled={!email || !otp || !otpId}
         >
           Sign in
         </Button>
