@@ -69,7 +69,7 @@ const App = ({ open, setOpenDrawer }) => {
         email,
         otp,
         otpId,
-        referral: inviterCode,
+        referralCode: inviterCode,
       });
       if (response?.success) {
         setSuccessMsg(response.message || 'Signed in successfully');

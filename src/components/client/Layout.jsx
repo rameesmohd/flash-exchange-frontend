@@ -14,7 +14,9 @@ const Layout = () => {
     // <div className="flex flex-col h-[100dvh] sm:max-w-[375px]  mx-auto bg-gray-50 shadow-lg">
     <div className="flex flex-col w-full max-w-[375px] min-h-[100dvh] mx-auto bg-gray-50 shadow-lg">
       {/* Top Navbar */}
-     <div className="text-xs text-center bg-black text-gray-300">Beta Version</div>
+     <div className="text-xs text-center bg-gray-900 text-white py-1 shadow-sm">
+        Beta Release — For Testing & Feedback
+      </div>
 
       {/* Page content */}
       <main className="flex-grow relative overflow-x-hidden">
