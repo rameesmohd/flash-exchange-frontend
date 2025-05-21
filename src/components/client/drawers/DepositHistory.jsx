@@ -88,7 +88,7 @@ const App = ({ open,setOpenDrawer }) => {
       destroyOnClose
       placement="right"
       getContainer={false} // render in parent DOM tree
-      size='large sm:default'
+      width={"100%"}
       open={open}
       loading={loading}
       onClose={setOpenDrawer}

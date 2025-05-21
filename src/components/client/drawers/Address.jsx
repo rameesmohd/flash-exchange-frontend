@@ -75,6 +75,7 @@ const App = ({ open,setOpenDrawer }) => {
       getContainer={false} // render in parent DOM tree
       placement="right"
       open={open}
+      width={"100%"}
       loading={loading.drawer}
       onClose={setOpenDrawer}
       closeIcon={<ArrowLeft size={20} />}

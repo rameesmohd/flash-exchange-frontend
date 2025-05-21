@@ -74,7 +74,7 @@ const App = ({open,setOpenDrawer}) => {
       placement="right"
       open={open}
       getContainer={false} // render in parent DOM tree
-      size='large sm:default'
+      width={"100%"}
       onClose={() => setOpenDrawer(false)}
       closeIcon={<ArrowLeft size={20} />}
       title={
