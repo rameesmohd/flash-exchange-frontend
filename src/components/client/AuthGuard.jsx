@@ -14,11 +14,9 @@ const AuthGuard = ({ children }) => {
     const checkAuth = async () => {
       try {
         const response = await usersGet("/auth/verify");
-        console.log(response);
-        
         if(response.user){
-        dispatch(setUserData(response.user))
-        dispatch(setIsAuthenticated())
+          dispatch(setUserData(response.user))
+          dispatch(setIsAuthenticated())
         }
         navigate("/home");
       } catch (err) {

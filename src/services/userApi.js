@@ -86,8 +86,8 @@ const usersDelete = async (url) => {
 //   // Custom logout function for user
 const logoutUser = async() => {
     try {      
-      const response =  await axiosInstance.post('/logout');
-      console.log(response);
+      // const response =  await axiosInstance.post('/logout');
+      // console.log(response);
       store.dispatch(userLogout());
     } catch (error) {
       console.log(error);

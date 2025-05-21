@@ -21,7 +21,7 @@ import MyReferrals from '../components/client/drawers/MyReferrals'
 import Deposit from '../components/client/drawers/Deposit'
 import Withdraw from '../components/client/drawers/Withdraw'
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser } from '../services/userApi';
+import { logoutUser, usersPost } from '../services/userApi';
 import Invite from '../components/client/Invite';
 
 const Account = () => {
@@ -79,7 +79,12 @@ const Account = () => {
   ]
 
   const logout =async()=>{
-    await logoutUser()
+    try {
+      await usersPost('/logout');
+      await logoutUser()
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
