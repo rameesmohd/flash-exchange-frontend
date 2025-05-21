@@ -115,7 +115,8 @@ const App = ({ open, setOpenDrawer }) => {
       closable
       destroyOnClose
       placement="right"
-      size="large md:default"
+      // size="large md:default"
+      width={"100%"}
       getContainer={false}
       open={open}
       onClose={() => setOpenDrawer()}
