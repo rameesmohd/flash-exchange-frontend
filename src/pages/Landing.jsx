@@ -21,11 +21,12 @@ const Landing = ({home}) => {
     <div className="w-full mx-auto bg-white ">
     {/* Header Image */}
     <Image
-      src={landingimage}
+      src={"https://static.vecteezy.com/system/resources/previews/003/321/388/non_2x/tether-or-usdt-crypto-currency-themed-banner-vector.jpg"}
       preview={false}
       width="100%"
       height={200}
       style={{ objectFit: 'cover' }}
+      alt={landingimage}
     />
 
     <div className="p-4">
