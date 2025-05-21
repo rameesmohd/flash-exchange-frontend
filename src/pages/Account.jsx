@@ -38,6 +38,7 @@ const Account = () => {
     withdraw : false,
     invite : false
   })
+  const [loading,setLoading]=useState(false)
 
   const options = [
     {
@@ -80,10 +81,13 @@ const Account = () => {
 
   const logout =async()=>{
     try {
+      setLoading(true)
       await usersPost('/logout');
       await logoutUser()
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -125,6 +129,7 @@ const Account = () => {
         type="primary"
         className="bg-black top-10 h-10 w-full text-white rounded-md"
         size="large"
+        loading={loading}
         block
         onClick={()=>logout()}
       >
