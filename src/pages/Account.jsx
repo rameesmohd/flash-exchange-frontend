@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { UserOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card, Space } from 'antd';
+import { Avatar, Button, Card, Flex, Space } from 'antd';
 import profileAvatar from '../../public/profile-avatar.jpeg'
 import { LuNotebook } from "react-icons/lu";
 import { RiBankCardLine } from "react-icons/ri";
@@ -23,6 +23,7 @@ import Withdraw from '../components/client/drawers/Withdraw'
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser, usersPost } from '../services/userApi';
 import Invite from '../components/client/Invite';
+import referralImg from '../../public/business-digital-marketing-free-png.webp'
 
 const Account = () => {
   const { userData } = useSelector((state)=>state.User)
@@ -99,17 +100,22 @@ const Account = () => {
        <div>
         <div className='mx-3 text-lg font-bold'>+91 {userData.phone}</div>
         <div className='p-2'>
-        <Button onClick={()=>setOpenDrawer((prev)=>({...prev,deposit : true}))} size='small' type='primary' className='mr-2 text-white border text-xs bg-blue-600'>Deposit</Button>
+        <Button onClick={()=>setOpenDrawer((prev)=>({...prev,deposit : true}))} size='small' type='primary' className='mr-2 text-white border text-xs bg-black'>Deposit</Button>
         <Button onClick={()=>setOpenDrawer((prev)=>({...prev,withdraw : true}))} size='small' className='text-xs'>Withdraw</Button>
         </div>
        </div>
       </div>
-      <Card size="small" className="rounded-lg border-none bg-black my-2">
+      <Card size="small" className="rounded-lg border-none bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg transition-all my-2">
+        <Flex justify='space-between'>
+        <div>
         <div className="justify-between text-xs text-gray-500 mb-2">
           <div className='text-lg font-bold text-white'>Invite your friends</div>
           <div className='text-gray-300 text-xs'>Earn upto 5% commission</div>
         </div>
-        <Button onClick={()=>setOpenDrawer((prev)=>({...prev,invite : true}))} size='small' className='text-xs text-white bg-violet-400 border-none rounded-lg'>Get Started</Button>
+        <Button type='default' onClick={()=>setOpenDrawer((prev)=>({...prev,invite : true}))} size='small' className='text-xs text-white bg-violet-400 border-none rounded-lg'>Get Started</Button>
+        </div>
+        <img className='h-20' src="https://static.vecteezy.com/system/resources/previews/016/389/984/non_2x/business-digital-marketing-free-png.png" alt={referralImg} />
+        </Flex>
       </Card>
       <div>
           {
