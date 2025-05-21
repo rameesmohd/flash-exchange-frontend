@@ -26,9 +26,9 @@ const AppContent = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route element={
-          <div className="flex justify-center bg-neutral-100 min-h-screen">
+          // <div className="flex justify-center bg-neutral-100 min-h-screen">
             <Layout />
-          </div>
+          // </div>
         }>
           <Route path="/" element={<Landing home={true}/>} />
           <Route path="/home" element={<PrivateRoute element={<Home />}/>} />
