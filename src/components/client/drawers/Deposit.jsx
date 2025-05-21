@@ -34,6 +34,8 @@ const App = ({open,setOpenDrawer}) => {
     }
   }
 
+
+
   return (
     <>
       <Drawer
@@ -63,7 +65,7 @@ const App = ({open,setOpenDrawer}) => {
         <Button loading={loading} disabled={amount<100} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
       </> : <CryptoDeposit deposit={depositData}/>}
       </Drawer>
-      {openDepositHistory && <DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>}
+      <DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>
 
     </>
   );

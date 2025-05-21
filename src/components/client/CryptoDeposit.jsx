@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Flex, Spin, message, Typography, Space, Result } from 'antd';
 import usdticon from '../../../public/imageusdt.png'
 import { Textarea } from 'flowbite-react';
@@ -47,6 +47,35 @@ const CryptoDeposit = ({deposit}) => {
         }
     }
 
+    const [remainingTime, setRemainingTime] = useState(0);
+    useEffect(() => {
+      const createdAt = new Date(deposit.createdAt).getTime();
+      const expiryTime = createdAt + 20 * 60 * 1000; // 20 minutes in ms
+
+      const updateTimer = () => {
+          const now = new Date().getTime();
+          const timeLeft = Math.max(expiryTime - now, 0);
+          setRemainingTime(timeLeft);
+
+          if (timeLeft <= 0) {
+              clearInterval(timerInterval);
+          }
+      };
+
+      updateTimer(); // run immediately
+      const timerInterval = setInterval(updateTimer, 1000); // update every second
+
+      return () => clearInterval(timerInterval);
+    }, [deposit.createdAt]);
+
+    const formatTime = (milliseconds) => {
+      const totalSeconds = Math.floor(milliseconds / 1000);
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    };
+
+
     return (
     <div>
       <Row justify="center" className="my-1">
@@ -59,6 +88,7 @@ const CryptoDeposit = ({deposit}) => {
                 value={address} 
                 size={80}
                 />
+
               </div>
             </Flex>
             <Text strong className="text-lg">{amount} USDT</Text>
@@ -88,11 +118,15 @@ const CryptoDeposit = ({deposit}) => {
               Sending any other cryptocurrency or asset will result in a loss, as they cannot be recovered.
             </Text>
 
-            <div className='my-2 text-gray-600'>Txid</div>
+            <div className='my-2 text-gray-600'> 
+              <Text type="warning" className="text-sm">
+                {" "}Time left: <Text strong>{formatTime(remainingTime)}</Text> before this session expires
+              </Text>              
+              </div>
             <Textarea
                 value={txid}  
                 onChange={(e)=>setTxid(e.target.value)} 
-                placeholder='Paste here' 
+                placeholder='Paste txid here' 
                 prefix={<><img className='w-4 h-4' src={usdticon}/></>} 
                 suffix="TXID" 
             />
@@ -100,7 +134,7 @@ const CryptoDeposit = ({deposit}) => {
             <Button 
                 onClick={()=>checkPayment()}
                 loading={loading.confirmTxid}
-                disabled={txid.length < 20} 
+                 disabled={txid.length < 20 || remainingTime <= 0}
                 className='w-full h-10 my-4 bg-black text-white'
             >
                 Confirm

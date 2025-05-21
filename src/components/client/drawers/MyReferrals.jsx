@@ -17,22 +17,21 @@ import {
   DollarSign,
 } from "lucide-react";
 import { usersGet } from "../../../services/userApi";
-
+import { useSelector } from "react-redux";
+import { formatDate } from '../../../services/formatData'
 const { Text, Title } = Typography;
 
 const ReferralDrawer = ({ open, setOpenDrawer }) => {
+  const userData = useSelector((state)=>state.User.userData)
   const [loading, setLoading] = useState(false);
-  const [referrals, setReferrals] = useState([
-    {},
-    {},
-  ]);
+  const [referrals, setReferrals] = useState([]);
 
   const fetchReferrals = async () => {
     try {
       setLoading(true);
-      const response = await usersGet("/referals");
-      if (response?.result) {
-        setReferrals(response.result);
+      const response = await usersGet("/referrals");
+      if (response?.success) {
+        setReferrals(response.referrals);
       }
     } catch (error) {
       console.error("Failed to fetch referrals", error);
@@ -69,7 +68,7 @@ const ReferralDrawer = ({ open, setOpenDrawer }) => {
               <Card className="h-full" bordered>
                 <Statistic
                   title="Total Commission"
-                  value={200}
+                  value={userData.totalReferralCommission}
                   prefix={<DollarSign size={16} />}
                   precision={2}
                   valueStyle={{ color: "#3f8600" }}
@@ -100,13 +99,17 @@ const ReferralDrawer = ({ open, setOpenDrawer }) => {
                         <Col>
                           <div className="flex items-center gap-2">
                             <Avatar size="default">
-                              {ref.email?.[0] || "U"}
+                              {ref?.referee?.email?.[0] || "U"}
                             </Avatar>
                             <div>
-                              <Text strong>{ref.email || "No email"}</Text>
+                              <Text strong>{ref?.referee?.email || "No email"}</Text>
                               <br />
                               <Text type="secondary" className="text-xs">
-                                {ref.phone || "No mobile"}
+                                {ref?.level}
+                              </Text>
+                              <br />
+                              <Text type="secondary" className="text-xs">
+                                {ref?.createdAt && formatDate(ref?.createdAt)}
                               </Text>
                             </div>
                           </div>
@@ -114,7 +117,7 @@ const ReferralDrawer = ({ open, setOpenDrawer }) => {
                         <Col>
                           <Statistic
                             title="Commission"
-                            value={ref.commission || 0}
+                            value={ref.totalCommission || 0}
                             prefix="$"
                             precision={2}
                           />
@@ -131,9 +134,9 @@ const ReferralDrawer = ({ open, setOpenDrawer }) => {
             </div>
           )}
 
-          <Text type="secondary" className="block text-center mt-2">
+          {/* <Text type="secondary" className="block text-center mt-2">
             No more data
-          </Text>
+          </Text> */}
         </>
       )}
     </Drawer>
