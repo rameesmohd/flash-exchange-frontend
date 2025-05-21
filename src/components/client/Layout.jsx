@@ -12,7 +12,7 @@ const tabs = [
 const Layout = () => {
   return (
     // <div className="flex flex-col h-[100dvh] sm:max-w-[375px]  mx-auto bg-gray-50 shadow-lg">
-    <div className="flex flex-col w-full sm:max-w-[375px] h-[100dvh] mx-auto bg-gray-50 shadow-lg">
+    <div className="flex flex-col w-full sm:max-w-[375px] min-h-[100dvh] mx-auto bg-gray-50 shadow-lg">
       {/* Top Navbar */}
      <div className="text-xs text-center bg-gray-900 text-white py-1 shadow-sm">
         Beta Release — For Testing & Feedback
