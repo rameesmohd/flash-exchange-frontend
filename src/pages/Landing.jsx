@@ -18,7 +18,7 @@ const Landing = ({home}) => {
   return (
   <PageWrapper>
     {home ? 
-    <div className="w-full mx-auto bg-white ">
+    <div className="w-full mx-auto bg-white h-full">
     {/* Header Image */}
     <Image
       src={"https://static.vecteezy.com/system/resources/previews/003/321/388/non_2x/tether-or-usdt-crypto-currency-themed-banner-vector.jpg"}
@@ -50,7 +50,7 @@ const Landing = ({home}) => {
       >
         <div className="flex items-center justify-between gap-3">
           <div className="">
-            <Text className="block text-base p-1 text-gray-700">
+            <Text className="block text-base font-semibold p-1 text-gray-700">
               The average user can earn up to ₹1 Lakh
             </Text>
             <Button onClick={()=>setopenDrawer(true)} type="link" icon={<ArrowRightOutlined />}>
@@ -66,13 +66,36 @@ const Landing = ({home}) => {
           />
         </div>
       </Card>
+
+      <Card
+        className="rounded-xl my-6"
+        bodyStyle={{ padding: '12px' }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <Text className="block text-base font-semibold px-1 text-gray-700">
+              Why choose us?
+            </Text>
+            <Text className="block px-1 pt-1 text-sm text-gray-600">
+              Our platform makes it fast and easy <br /> to sell USDT for INR, with secure payouts, competitive rates.
+            </Text>
+          </div>
+          <Image
+            src={"https://static.vecteezy.com/system/resources/previews/013/391/065/large_2x/bitcoin-3d-illustration-free-png.png"}
+            preview={false}
+            width={120}
+            height={80}
+            className="rounded-lg object-cover"
+          />
+        </div>
+      </Card>
       </div>
     </div> : 
     <div className="w-full h-full flex px-4 pt-32 justify-center mx-auto bg-white ">
       <div className='text-center'>
         <img src={crypto3dImg} alt="" />
         <Title level={4}>Welcome to E Value Trade</Title>
-        <Text className='text-xs'>You are our most trusted ally,paving  the way for a promising <br /> future together</Text>
+        <Text className='text-xs'>You are our most trusted ally, paving the way for a bright and successful <br /> future together.</Text>
         <Button onClick={()=>setopenDrawer((prev=>({...prev,signin : true})))} type="" block size="large" className="text-black mt-5">
           Login
         </Button>
