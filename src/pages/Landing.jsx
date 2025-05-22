@@ -29,7 +29,7 @@ const Landing = ({home}) => {
       alt={landingimage}
     />
 
-    <div className="p-4">
+    <div className="p-4 pb-24">
       {/* Welcome Section */}
       <Title level={4} className="!mb-4 !text-gray-800 ">
         Welcome to <span className="text-black font-semibold">E Value Trade</span>
@@ -68,7 +68,7 @@ const Landing = ({home}) => {
       </Card>
 
       <Card
-        className="rounded-xl mt-6 mb-24"
+        className="rounded-xl mt-6"
         bodyStyle={{ padding: '12px' }}
       >
         <div className="flex items-center justify-between">
