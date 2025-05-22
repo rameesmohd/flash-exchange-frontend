@@ -68,7 +68,7 @@ const Landing = ({home}) => {
       </Card>
 
       <Card
-        className="rounded-xl my-6"
+        className="rounded-xl mt-6 mb-24"
         bodyStyle={{ padding: '12px' }}
       >
         <div className="flex items-center justify-between">
