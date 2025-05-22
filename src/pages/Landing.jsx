@@ -18,7 +18,7 @@ const Landing = ({home}) => {
   return (
   <PageWrapper>
     {home ? 
-    <div className="w-full mx-auto bg-white h-full">
+    <div className="w-full mx-auto bg-white h-full ">
     {/* Header Image */}
     <Image
       src={"https://static.vecteezy.com/system/resources/previews/003/321/388/non_2x/tether-or-usdt-crypto-currency-themed-banner-vector.jpg"}
@@ -29,7 +29,7 @@ const Landing = ({home}) => {
       alt={landingimage}
     />
 
-    <div className="p-4 pb-24">
+    <div className="px-4 pb-32 bg-white">
       {/* Welcome Section */}
       <Title level={4} className="!mb-4 !text-gray-800 ">
         Welcome to <span className="text-black font-semibold">E Value Trade</span>
