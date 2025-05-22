@@ -190,7 +190,7 @@ const Exchange = () => {
         // style={{ width: 120 }}
         loading={loading.rate} 
         options={allFunds}
-        value={selectedFund?.value}
+        value={selectedFund ? selectedFund?.value : ""}
         onChange={(value) => {
           const fund = allFunds.find(f => f.value === value);
           dispatch(setFund({
