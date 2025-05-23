@@ -61,7 +61,7 @@ const Home = () => {
         <Card className="rounded-lg mb-4" bodyStyle={{ padding: '16px' }}>
           <div className="mb-4">
             <p className="text-gray-500 text-sm">Total Balance ($)</p>
-            <p className="text-2xl font-bold">{user.totalBalance? user.totalBalance.toFixed(2) : 0}</p>
+            <p className="text-2xl font-bold">{ user.availableBalance&&user.processing ? (user.availableBalance+user.processing).toFixed(2) : 0}</p>
           </div>
 
           <Row gutter={16}>
