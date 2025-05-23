@@ -7,7 +7,6 @@ const { Header, Content } = Layout;
 import imgUsdt from '../../public/tether-usdt-logo.png';
 import rupeesIcon from '../../public/gold-coin-rupee-icon.svg';
 import binanceIcon from '../../public/binance-icon-512x512-yslglaeq.png';
-import wazirxIcon from '../../public/wazirx-svgrepo-com.svg';
 import PageWrapper from '../components/client/PageWrapper'
 import { useDispatch, useSelector } from 'react-redux';
 import {usersGet, usersPost} from '../services/userApi'
@@ -114,8 +113,6 @@ const Exchange = () => {
     setError('')
     setOpenBankCard((prev)=>({...prev,confirm : false}))
   },[inputs])
-
-    console.log(inputs);
 
   return (
     <PageWrapper>
