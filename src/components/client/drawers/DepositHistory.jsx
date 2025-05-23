@@ -66,6 +66,7 @@ const App = ({ open,setOpenDrawer }) => {
 
   const fetchDeposits =async()=>{
     try {
+      setLoading(true)
       const response = await usersGet('/deposit')
       setDepositHistory(response.deposits)
     } catch (error) {
@@ -73,6 +74,8 @@ const App = ({ open,setOpenDrawer }) => {
       if(error.response.data.message){
         message.error(error.response.data.message)
       }
+    } finally {
+      setLoading(false)
     }
   }
 

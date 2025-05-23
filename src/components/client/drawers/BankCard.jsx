@@ -38,12 +38,15 @@ const App = ({  open,setOpenDrawer  }) => {
 
   const fetchBankCards = async()=>{
     try {
+      setLoading(true)
       const response = await usersGet('/bank-card')
       if(response.success){
         setBankCard(response.bankCards)
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false)
     }
   }
 

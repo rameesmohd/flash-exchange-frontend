@@ -43,7 +43,7 @@ const App = ({open,setOpenDrawer}) => {
         destroyOnClose
         placement="right"
         width={"100%"}
-        getContainer={false} // render in parent DOM tree
+        getContainer={false}
         // bodyStyle={{padding : 5}}
         open={open}
         loading={loading}
@@ -56,14 +56,20 @@ const App = ({open,setOpenDrawer}) => {
           </div>
         }
       >
-      {!showAddress? <>
-        <img className='object-cover w-full' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9oO-e1ye0LxSXNVFLtClVr4hAX5ZlOYlDYg&s"} alt={usdticon} />
-        <div className='my-2 text-gray-600'>Network</div>
-        <Button className='w-480' icon={<img className='w-4 h-4' src={trxicon}></img>}>Tron (TRC-20)</Button>
-        <div className='my-2 text-gray-600'>Amount</div>
-        <Input size='large' onChange={(e)=>setAmount(e.target.value)} placeholder='Please enter the amount' prefix={<><img className='w-4 h-4' src={usdticon}/></>} suffix="USDT" />
-        <Button loading={loading} disabled={amount<100} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
-      </> : <CryptoDeposit deposit={depositData}/>}
+      {
+        !showAddress? <>
+          <img 
+            className='object-cover w-full' 
+            src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9oO-e1ye0LxSXNVFLtClVr4hAX5ZlOYlDYg&s"} 
+            alt={usdticon} 
+          />
+            <div className='my-2 text-gray-600'>Network</div>
+            <Button className='w-480' icon={<img className='w-4 h-4' src={trxicon}></img>}>Tron (TRC-20)</Button>
+            <div className='my-2 text-gray-600'>Amount</div>
+            <Input size='large' onChange={(e)=>setAmount(e.target.value)} placeholder='Please enter the amount' prefix={<><img className='w-4 h-4' src={usdticon}/></>} suffix="USDT" />
+            <Button loading={loading} disabled={amount<100} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
+          </> : <CryptoDeposit deposit={depositData}/> 
+      }
       </Drawer>
       <DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>
 

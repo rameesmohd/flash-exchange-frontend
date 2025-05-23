@@ -115,6 +115,8 @@ const Exchange = () => {
     setOpenBankCard((prev)=>({...prev,confirm : false}))
   },[inputs])
 
+    console.log(inputs);
+
   return (
     <PageWrapper>
     <Layout className="bg-gray-50">
@@ -131,9 +133,9 @@ const Exchange = () => {
     {/* {loading.rate && <Spin fullscreen/>} */}
     {/* Crypto Balance */}
     <Card size="small" className="rounded-md">
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-xs text-gray-500 my-2">
         <span>Crypto</span>
-        <span>Available: {user.availableBalance || 0} USDT</span>
+        <span>Available: {user?.availableBalance || 0} USDT</span>
       </div>
       <div className="flex justify-between items-center">
         <div className="flex items-center">
@@ -152,6 +154,7 @@ const Exchange = () => {
               if (value === '' || isNaN(value)) {
                 setInputs({ usdt: '', fiat: '' });
               } else {
+                console.log(value ,'value');
                 setInputs({
                   usdt: value,
                   fiat: (parseFloat(value) * selectedFund.rate).toFixed(2)
@@ -160,14 +163,15 @@ const Exchange = () => {
             }}
             onBlur={() => {
               // Format to 2 decimals when user finishes typing
-              setInputs(prev => ({ ...prev, usdt: Number(prev.usdt).toFixed(2) }));
+              if(inputs.usdt>0)
+                setInputs(prev => ({ ...prev, usdt: Number(prev.usdt).toFixed(2) }));
             }}
             placeholder="0.00"
           />
   
           </div>
           {/* <div className="font-semibold text-gray-700 text-lg">0.00</div> */}
-          <Text type="secondary" className="text-xs cursor-pointer text-blue-500">Deposit</Text>
+                {/* <Text type="secondary" className="text-xs cursor-pointer text-blue-500">Deposit</Text> */}
         </div>
       </div>
     </Card>
@@ -190,7 +194,7 @@ const Exchange = () => {
         // style={{ width: 120 }}
         loading={loading.rate} 
         options={allFunds}
-        value={selectedFund ? selectedFund?.value : ""}
+        value={selectedFund ? selectedFund.label : ""}
         onChange={(value) => {
           const fund = allFunds.find(f => f.value === value);
           dispatch(setFund({
@@ -216,7 +220,7 @@ const Exchange = () => {
           value={inputs.fiat}
           onChange={(e) => {
             const value = e.target.value;
-            if (value === '' || isNaN(value)) {
+            if (value === '' || isNaN(value )) {
               setInputs({ fiat: '', usdt: '' });
             } else {
               setInputs({
