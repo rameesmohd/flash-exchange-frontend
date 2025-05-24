@@ -1,17 +1,33 @@
-import React ,{Suspense}from 'react'
-import ReactDOM from 'react-dom/client'
+// index.jsx
+import React, { Suspense, lazy, useState, useEffect } from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import { Provider } from 'react-redux';
+import { store } from './redux/Store';
+import { Spin } from 'antd';
 import App from './App.jsx'
-import './index.css'
-import { Provider } from 'react-redux'
-import { store } from './redux/Store.js'
-import { Spin } from 'antd'
+
+// Full-screen Fallback Spinner
+const Fallback = () => (
+  <div
+    style={{
+      position: 'fixed',
+      inset: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f0f0f0',
+      zIndex: 9999,
+    }}
+  >
+    <Spin size="large" />
+  </div>
+);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // <React.StrictMode>
   <Provider store={store}>
-    <Suspense fallback={<React.Fragement className={'w-screen h-screen flex justify-center items-center'}><Spin/></React.Fragement>}>
+    <Suspense fallback={<Fallback />}>
       <App />
     </Suspense>
   </Provider>
-  // </React.StrictMode> 
-)
+);

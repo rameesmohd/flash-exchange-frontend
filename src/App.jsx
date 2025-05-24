@@ -2,7 +2,11 @@
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Layout from "./components/client/Layout";
-import Home from "./pages/Home";
+import { lazy } from 'react';
+const Home = lazy(() => import('./pages/Home'));
+// const Exchange = lazy(() => import('./pages/Exchange'));
+// const Account = lazy(() => import('./pages/Account'));
+// import Home from "./pages/Home";
 import Exchange from "./pages/Exchange";
 import Account from "./pages/Account";
 import Landing from './pages/Landing'
