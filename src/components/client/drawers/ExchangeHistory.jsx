@@ -127,7 +127,7 @@ const App = ({ open, setOpenDrawer }) => {
 
               <div className="rounded-md shadow-sm border w-full p-2 flex flex-row justify-between">
               {/* Bank Details */}
-              <div>
+              {value.bankCard.mode == "bank" && <div>
                 <Text className="text-xs mb-1 block text-gray-500" strong>
                   Bank Details:
                 </Text>
@@ -136,7 +136,15 @@ const App = ({ open, setOpenDrawer }) => {
                   <strong>IFSC:</strong> {value.bankCard.ifsc} <br />
                   <strong>Name:</strong> {value.bankCard.accountName}
                 </Text>
-              </div>
+              </div>}
+              {value.bankCard.mode == "upi" && <div>
+                <Text className="text-xs mb-1 block text-gray-500" strong>
+                  Bank Details:
+                </Text>
+                <Text className="text-xs block text-gray-700">
+                  <strong>UPI:</strong> {value.bankCard.upi} <br />
+                </Text>
+              </div>}
 
               {/* Fund Details */}
               <div>

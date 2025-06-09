@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Drawer, Input, List, Typography, Space, Divider, Card, Badge,Modal } from 'antd';
+import { Button, Drawer, Input, List, Typography, Space, Divider, Card, Badge,Modal, Radio } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 const { confirm } = Modal;
 import { Form } from 'antd';
@@ -21,7 +21,13 @@ const App = ({  open,setOpenDrawer  }) => {
   const dispatch = useDispatch()
   const {selectedBankCard} = useSelector((state)=>state.User)
   const [form] = Form.useForm();
-
+  const options = [
+    { label: 'Bank Account', value: 'bank' },
+    { label: 'Upi', value: 'upi' },
+  ];
+  const [mode,setMode]=useState(options[0].value)
+  console.log(mode);
+  
   const handleFinish = async(values) => {
     try {
       setLoading(true)
@@ -93,6 +99,7 @@ const App = ({  open,setOpenDrawer  }) => {
     });
   };
 
+
   return (
     <Drawer
       closable
@@ -117,31 +124,38 @@ const App = ({  open,setOpenDrawer  }) => {
     {
       bankCard.length ?
       bankCard.map((value,index)=>
-      <Badge.Ribbon key={index+index} text="Selected" className={selectedBankCard._id == value._id ?'':'hidden'} placement='end' color="green">
+      <Badge.Ribbon key={index+index} text="Selected" className={selectedBankCard?._id == value?._id ?'':'hidden'} placement='end' color="green">
       <Card 
       key={index}
       type="inner"
       title={
         <div className={`flex items-center text-gray-400 text-xs font-normal`}>
           <CiClock1 className="mr-1" />
-          {value.createdAt && formatDate(value.createdAt)}
+          {value?.createdAt && formatDate(value?.createdAt)}
         </div>
       }
       headStyle={{ padding: '4px 12px' }} // Fine-tune this if needed
       extra={ 
-      <Button  className={selectedBankCard._id == value._id ? 'hidden':''} onClick={()=>showDeleteConfirm(value._id)} type="dashed">
+      <Button  className={selectedBankCard?._id == value._id ? 'hidden':''} onClick={()=>showDeleteConfirm(value._id)} type="dashed">
         Delete
       </Button>
       }
       bodyStyle={{ padding: '8px 12px' }}
       style={{ borderRadius: '8px' }}
-      className={`${ selectedBankCard._id == value._id ? 'border-gray-800 border-double':''} mb-3 text-sm`}
+      className={`${ selectedBankCard?._id == value?._id ? 'border-gray-800 border-double':''} mb-3 text-sm`}
       >
-      <div className='cursor-pointer' onClick={()=>handleSelect(value)}>
-        <p>Account No: {value.accountNumber}</p>
-        <p>IFSC: {value.ifsc}</p>
-        <p>Account Name: {value.accountName}</p>
+      {
+       value.mode === "bank" ? 
+        <div className='cursor-pointer' onClick={()=>handleSelect(value)}>
+        <p>Account No: {value?.accountNumber}</p>
+        <p>IFSC: {value?.ifsc}</p>
+        <p>Account Name: {value?.accountName}</p>
       </div>
+      :
+       <div className='cursor-pointer h-10 flex items-center' onClick={()=>handleSelect(value)}>
+        <p>Upi: {value?.upi}</p>
+      </div>
+      }
     </Card>
     </Badge.Ribbon>
     ) : <EmptyBox/>} 
@@ -150,29 +164,56 @@ const App = ({  open,setOpenDrawer  }) => {
     <Card  bordered={false} bodyStyle={{padding:5}} className="max-w-md mx-auto border-none rounded-xl">
       <Form form={form} layout="vertical" onFinish={handleFinish}>
         <Form.Item
-          label="Account Number"
-          name="accountNumber"
-          initialValue=""
-          rules={[{ required: true, message: 'Please enter account number' }]}
+          label=""
+          name="mode"
+          initialValue="bank" // set the default here
+          rules={[{ required: true, message: 'Please select one' }]}
         >
-          <Input type='default' size='large'/>
+          <Radio.Group onChange={(e)=>setMode(e.target.value)} options={options} optionType="default" />
         </Form.Item>
-        <Form.Item
-          label="IFSC Code"
-          name="ifsc"
-          initialValue=""
-          rules={[{ required: true, message: 'Please enter IFSC code' }]}
-        >
-          <Input type='default' size='large'/>
-        </Form.Item>
-        <Form.Item
-          label="Account Name"
-          name="accountName"
-          initialValue=""
-          rules={[{ required: true, message: 'Please enter account name' }]}
-        >
-          <Input type='default' size='large'/>
-        </Form.Item>
+        {
+          mode == options[0].value &&
+            <>
+            <Form.Item
+              label="Account Number"
+              name="accountNumber"
+              initialValue=""
+              rules={[{ required: true, message: 'Please enter account number' }]}
+            >
+              <Input type='default' size='large'/>
+            </Form.Item>
+            <Form.Item
+              label="IFSC Code"
+              name="ifsc"
+              initialValue=""
+              rules={[{ required: true, message: 'Please enter IFSC code' }]}
+            >
+              <Input type='default' size='large'/>
+            </Form.Item>
+            <Form.Item
+              label="Account Name"
+              name="accountName"
+              initialValue=""
+              rules={[{ required: true, message: 'Please enter account name' }]}
+            >
+            <Input type='default' size='large'/>
+          </Form.Item>
+            </>
+        }
+
+        {
+          mode == options[1].value &&
+            <>
+            <Form.Item
+              label="Upi"
+              name="upi"
+              initialValue=""
+              rules={[{ required: true, message: 'Please enter upi id' }]}
+            >
+            <Input type='default' size='large'/>
+          </Form.Item>
+          </>
+        }
         <Form.Item>
           <Button type="primary" className='bg-black text-white' htmlType="submit" block>
             Add
