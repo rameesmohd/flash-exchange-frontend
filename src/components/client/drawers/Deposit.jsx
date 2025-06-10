@@ -17,6 +17,7 @@ const App = ({open,setOpenDrawer}) => {
   const [amount,setAmount]=useState(0)
   const [showAddress,setShowAddress]=useState(false)
   const [depositData,setDepositData]=useState({})
+  const [err,setErr]=useState('')
 
   const createOrder=async()=>{
     try {
@@ -29,12 +30,12 @@ const App = ({open,setOpenDrawer}) => {
       setShowAddress(true)
     } catch (error) {
       console.log(error);
+      if(error?.response?.data?.message)
+        setErr(error.response.data.message)
     } finally {
       setLoading(false)
     }
   }
-
-
 
   return (
     <>
@@ -67,7 +68,8 @@ const App = ({open,setOpenDrawer}) => {
             <Button className='w-480' icon={<img className='w-4 h-4' src={trxicon}></img>}>Tron (TRC-20)</Button>
             <div className='my-2 text-gray-600'>Amount</div>
             <Input size='large' onChange={(e)=>setAmount(e.target.value)} placeholder='Please enter the amount' prefix={<><img className='w-4 h-4' src={usdticon}/></>} suffix="USDT" />
-            <Button loading={loading} disabled={amount<100} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
+            { err && <Text type='danger' className='text-xs'>{err}</Text> }
+            <Button loading={loading} disabled={amount<1} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
           </> : <CryptoDeposit deposit={depositData}/> 
       }
       </Drawer>
