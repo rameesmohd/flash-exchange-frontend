@@ -56,9 +56,6 @@ const Exchange = () => {
     setError("")
   },[inputs])
 
-  console.log(allFunds , 'qqqqqqqqqqqqqqqqqqqqq');
-  console.log(selectedFund , 'sssssssss');
-  
   const fetchRate = async()=>{
     try {
       setLoading((prev)=>({...prev,rate: true}))
