@@ -152,7 +152,7 @@ const Exchange = () => {
               if (value === '' || isNaN(value)) {
                 setInputs({ usdt: '', fiat: '' });
               } else {
-                console.log(value ,'value');
+                // console.log(value ,'value');
                 setInputs({
                   usdt: value,
                   fiat: (parseFloat(value) * selectedFund.rate).toFixed(2)
@@ -308,7 +308,7 @@ const Exchange = () => {
       open={isOpen}
       onClose={() => dispatch(closePinModal())}
       onSubmit={(pin) => {
-        console.log("PIN received in parent onSubmit:", pin);
+        // console.log("PIN received in parent onSubmit:", pin);
         handleSubmitOrder(pin);
         dispatch(closePinModal());
       }}
