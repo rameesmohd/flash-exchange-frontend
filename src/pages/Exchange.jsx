@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Layout,Typography, Input, Divider, Spin, Select } from 'antd';
+import { Card, Button, Layout,Typography, Input, Divider, Spin, Select, Alert } from 'antd';
 import { CgArrowsExchangeAlt } from 'react-icons/cg';
 import { QuestionCircleOutlined, BookOutlined } from '@ant-design/icons';
 const {Text,Title} = Typography
@@ -56,6 +56,9 @@ const Exchange = () => {
     setError("")
   },[inputs])
 
+  console.log(allFunds , 'qqqqqqqqqqqqqqqqqqqqq');
+  console.log(selectedFund , 'sssssssss');
+  
   const fetchRate = async()=>{
     try {
       setLoading((prev)=>({...prev,rate: true}))
@@ -66,7 +69,8 @@ const Exchange = () => {
           label: `${fund.type}: ₹${fund.rate}/USDT`,
           rate : fund.rate,
           _id: fund._id,
-          status : fund.status
+          status : fund.status,
+          message : fund.message || ""
         }));
         setAllFunds(options)
         setOtherExchangeRate(response.otherExchangeRates)
@@ -187,8 +191,6 @@ const Exchange = () => {
         <span>Fiat Currency</span>
         <span>  
       <Select
-        // defaultValue="Select fund"
-        // style={{ width: 120 }}
         loading={loading.rate} 
         options={allFunds}
         value={selectedFund ? selectedFund.label : ""}
@@ -200,6 +202,7 @@ const Exchange = () => {
             _id: fund._id,
             status: fund.status,
             label: fund.label,
+            message : fund?.message
           }));
         }}
       /> </span>
@@ -227,12 +230,27 @@ const Exchange = () => {
             }
           }}
           onBlur={() => {
-            // Format to 2 decimals when user finishes typing
             setInputs(prev => ({ ...prev, fiat: Number(prev.fiat).toFixed(2) }));
           }}
         />
       </div>
     </Card>
+    { 
+      selectedFund?.message && <Alert
+        style={{paddingLeft : 12,paddingRight : 12 ,paddingTop : 6,paddingBottom :6}}
+        // message="Informational Notes"
+        description={
+          <>
+          <span className='font-semibold'>
+              Accepted Bank Cards : UPI, Bank Account
+          </span>
+          <br />
+          {selectedFund?.message}  
+          </>
+        }
+        type="info"
+      /> 
+    }
     <Text type='danger' className='text-xs'>{error}</Text>
     {/* Sell Button */}
     { 
@@ -262,11 +280,6 @@ const Exchange = () => {
         lastUpdate : otherExchangeRate[0]?.lastUpdated,
         icon: binanceIcon
       }, 
-      // {
-      //   name: 'Wazirx',
-      //   price: '88.13',
-      //   icon: wazirxIcon
-      // }
     ].map(({ name, price,lastUpdate, icon }) => (
         <Card key={name} size="small" className="rounded-md mb-3">
           <div className="flex justify-between items-center mb-1">
