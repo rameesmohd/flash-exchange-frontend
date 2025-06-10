@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Drawer, } from 'antd';
 const { Text } = Typography;
-import { Button, Flex, Spin, message, Typography, Space } from 'antd';
+import { Button, Typography } from 'antd';
 import { ArrowLeft, History } from 'lucide-react'; 
-import imageDeposit from '../../../../public/gradient-cryptocurrency-concept_52683-77383.jpg'
 import trxicon from '../../../../public/trxicon.png'
 import usdticon from '../../../../public/imageusdt.png'
 import { Input } from 'antd';
@@ -36,7 +35,8 @@ const App = ({open,setOpenDrawer}) => {
       setLoading(false)
     }
   }
-
+  console.log(err);
+  
   return (
     <>
       <Drawer
@@ -47,7 +47,7 @@ const App = ({open,setOpenDrawer}) => {
         getContainer={false}
         // bodyStyle={{padding : 5}}
         open={open}
-        loading={loading}
+        // loading={loading}
         onClose={() => setOpenDrawer(false)}
         closeIcon={<ArrowLeft size={20} />}
         title={
@@ -60,11 +60,11 @@ const App = ({open,setOpenDrawer}) => {
       {
         !showAddress? <>
           <img 
-            className='object-cover w-full' 
-            src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9oO-e1ye0LxSXNVFLtClVr4hAX5ZlOYlDYg&s"} 
-            alt={usdticon} 
+              className='object-cover w-full' 
+              src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9oO-e1ye0LxSXNVFLtClVr4hAX5ZlOYlDYg&s"} 
+              alt={usdticon} 
           />
-            <div className='my-2 text-gray-600'>Network</div>
+          <div className='my-2 text-gray-600'>Network</div>
             <Button className='w-480' icon={<img className='w-4 h-4' src={trxicon}></img>}>Tron (TRC-20)</Button>
             <div className='my-2 text-gray-600'>Amount</div>
             <Input size='large' onChange={(e)=>setAmount(e.target.value)} placeholder='Please enter the amount' prefix={<><img className='w-4 h-4' src={usdticon}/></>} suffix="USDT" />

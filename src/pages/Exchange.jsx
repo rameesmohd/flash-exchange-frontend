@@ -67,7 +67,8 @@ const Exchange = () => {
           rate : fund.rate,
           _id: fund._id,
           status : fund.status,
-          message : fund.message || ""
+          message : fund.message || "",
+          paymentMode : fund.paymentMode
         }));
         setAllFunds(options)
         setOtherExchangeRate(response.otherExchangeRates)
@@ -199,7 +200,8 @@ const Exchange = () => {
             _id: fund._id,
             status: fund.status,
             label: fund.label,
-            message : fund?.message
+            message : fund?.message,
+            paymentMode : fund?.paymentMode
           }));
         }}
       /> </span>
@@ -233,13 +235,13 @@ const Exchange = () => {
       </div>
     </Card>
     { 
-      selectedFund?.message && <Alert
+      <Alert
         style={{paddingLeft : 12,paddingRight : 12 ,paddingTop : 6,paddingBottom :6}}
         // message="Informational Notes"
         description={
           <>
-          <span className='font-semibold'>
-              Accepted Bank Cards : UPI, Bank Account
+          <span className='font-semibold capitalize'>
+              Accepted Bank Cards : {selectedFund?.paymentMode}
           </span>
           <br />
           {selectedFund?.message}  
