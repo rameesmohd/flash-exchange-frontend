@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setBankCardSelected } from '../../../redux/ClientSlice';
 import EmptyBox from '../common/EmptyBox'
 
-const App = ({  open,setOpenDrawer  }) => {
+const App = ({  open,setOpenDrawer,filterMode = null }) => {
   const [loading, setLoading] = useState(false);
   const [loaderDelete,setLoaderDelete]=useState(false)
   const [showAddBankCard,setAddShowBankCard]=useState(false)
@@ -26,8 +26,8 @@ const App = ({  open,setOpenDrawer  }) => {
     { label: 'Upi', value: 'upi' },
   ];
   const [mode,setMode]=useState(options[0].value)
-  console.log(mode);
-  
+  const [error,setError]=useState('')
+
   const handleFinish = async(values) => {
     try {
       setLoading(true)
@@ -37,6 +37,9 @@ const App = ({  open,setOpenDrawer  }) => {
       }
     } catch (error) {
       console.log(error);
+      if(error?.response?.data?.message){
+          setError(error.response.data.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -45,7 +48,7 @@ const App = ({  open,setOpenDrawer  }) => {
   const fetchBankCards = async()=>{
     try {
       setLoading(true)
-      const response = await usersGet('/bank-card')
+      const response = await usersGet(`/bank-card?mode=${filterMode}`)
       if(response.success){
         setBankCard(response.bankCards)
       }
@@ -80,6 +83,7 @@ const App = ({  open,setOpenDrawer  }) => {
     if(!showAddBankCard && open){
       fetchBankCards()
     }
+    setError('')
   },[open,showAddBankCard])
 
   const showDeleteConfirm = (id) => {
@@ -124,7 +128,7 @@ const App = ({  open,setOpenDrawer  }) => {
     {
       bankCard.length ?
       bankCard.map((value,index)=>
-      <Badge.Ribbon key={index+index} text="Selected" className={selectedBankCard?._id == value?._id ?'':'hidden'} placement='end' color="green">
+      <Badge.Ribbon key={index+index} text="Selected" className={selectedBankCard?._id == value?._id ?'':'hidden'} placement='end' color="black">
       <Card 
       key={index}
       type="inner"
@@ -136,7 +140,7 @@ const App = ({  open,setOpenDrawer  }) => {
       }
       headStyle={{ padding: '4px 12px' }} // Fine-tune this if needed
       extra={ 
-      <Button  className={selectedBankCard?._id == value._id ? 'hidden':''} onClick={()=>showDeleteConfirm(value._id)} type="dashed">
+      <Button loading={loaderDelete}  className={selectedBankCard?._id == value._id ? 'hidden':''} onClick={()=>showDeleteConfirm(value._id)} type="dashed">
         Delete
       </Button>
       }
@@ -214,6 +218,7 @@ const App = ({  open,setOpenDrawer  }) => {
           </Form.Item>
           </>
         }
+        {error&&<Text className='text-xs' type='danger'>{error}</Text>}
         <Form.Item>
           <Button type="primary" className='bg-black text-white' htmlType="submit" block>
             Add

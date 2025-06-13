@@ -49,8 +49,8 @@ const CryptoDeposit = ({deposit}) => {
 
     const [remainingTime, setRemainingTime] = useState(0);
     useEffect(() => {
-      const createdAt = new Date(deposit.createdAt).getTime();
-      const expiryTime = createdAt + 20 * 60 * 1000; // 20 minutes in ms
+      const updatedAt = new Date(deposit.updatedAt).getTime();
+      const expiryTime = updatedAt + 20 * 60 * 1000; // 20 minutes in ms
 
       const updateTimer = () => {
           const now = new Date().getTime();
@@ -66,7 +66,7 @@ const CryptoDeposit = ({deposit}) => {
       const timerInterval = setInterval(updateTimer, 1000); // update every second
 
       return () => clearInterval(timerInterval);
-    }, [deposit.createdAt]);
+    }, [deposit.updatedAt]);
 
     const formatTime = (milliseconds) => {
       const totalSeconds = Math.floor(milliseconds / 1000);

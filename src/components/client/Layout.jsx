@@ -13,9 +13,9 @@ const Layout = () => {
     <div className="flex flex-col w-full sm:max-w-[375px] h-[100dvh] overflow-hidden mx-auto bg-neutral-100 shadow-lg">
       
       {/* Top Notice Bar */}
-      <div className="text-xs text-center bg-gray-900 text-white py-1 shadow-sm">
+      {/* <div className="text-xs text-center bg-gray-900 text-white py-1 shadow-sm">
         Beta Release — For Testing & Feedback
-      </div>
+      </div> */}
 
       {/* Main Page Content */}
       <main className="flex-grow relative overflow-y-auto pb-16">

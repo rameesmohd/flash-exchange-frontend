@@ -39,7 +39,8 @@ const Exchange = () => {
   const [otherExchangeRate,setOtherExchangeRate]=useState([])
   const [openBankCard,setOpenBankCard]=useState({
     open :false,
-    confirm : false
+    confirm : false,
+    mode : null
   })  
   
   useEffect(()=>{
@@ -50,11 +51,8 @@ const Exchange = () => {
       usdt : '',
       fiat : ''
     })
+    setOpenBankCard((prev)=>({...prev,mode:selectedFund?.paymentMode}))
   },[allFunds,selectedFund])
-
-  useEffect(()=>{
-    setError("")
-  },[inputs])
 
   const fetchRate = async()=>{
     try {
@@ -304,6 +302,7 @@ const Exchange = () => {
     <BankCard 
       open={openBankCard.open} 
       setOpenDrawer={()=>setOpenBankCard((prev)=>({...prev,open : false ,confirm : true}))}
+      filterMode={openBankCard.mode}
     />
     <TransactionPinModal
       key={isOpen ? 'open' : 'closed'}
