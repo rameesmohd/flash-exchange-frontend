@@ -12,7 +12,7 @@ const getStatusTag = (status) => {
   switch (status) {
     case 'pending':
       return <Tag color="orange">Pending</Tag>;
-    case 'completed':
+    case 'success':
       return <Tag color="green">Completed</Tag>;
     case 'failed':
       return <Tag color="red">Failed</Tag>;
@@ -127,6 +127,17 @@ const App = ({ open, setOpenDrawer }) => {
               </Col>
 
               <div className="rounded-md shadow-sm border w-full p-2 flex flex-row justify-between">
+              {/* Fund Details */}
+              <div className='w-[50%] border-r'>
+                <Text className="text-xs mb-1 block text-gray-500" strong>
+                  Fund Info:
+                </Text>
+                <Text className="text-xs block text-gray-700 capitalize">
+                  <strong>Type:</strong> {value.fund.type} <br />
+                  <strong>Rate:</strong> ₹{value.fund.rate} <br />
+                  <strong>Status:</strong> {value.fund.status}
+                </Text>
+              </div>
               {/* Bank Details */}
               {value.bankCard.mode == "bank" && <div>
                 <Text className="text-xs mb-1 block text-gray-500" strong>
@@ -138,27 +149,16 @@ const App = ({ open, setOpenDrawer }) => {
                   <strong>Name:</strong> {value.bankCard.accountName}
                 </Text>
               </div>}
-              {value.bankCard.mode == "upi" && <div>
+              {value.bankCard.mode == "upi" && <div className='w-full h-auto pl-1'>
                 <Text className="text-xs mb-1 block text-gray-500" strong>
                   Bank Details:
                 </Text>
                 <Text className="text-xs block text-gray-700">
-                  <strong>UPI:</strong> {value.bankCard.upi} <br />
+                  <strong>UPI:</strong> {value.bankCard.upi}<br />
                 </Text>
               </div>}
-              {/* Fund Details */}
-              <div>
-                <Text className="text-xs mb-1 block text-gray-500" strong>
-                  Fund Info:
-                </Text>
-                <Text className="text-xs block text-gray-700 capitalize">
-                  <strong>Type:</strong> {value.fund.type} <br />
-                  <strong>Rate:</strong> ₹{value.fund.rate} <br />
-                  <strong>Status:</strong> {value.fund.status}
-                </Text>
               </div>
-              </div>
-              {
+              {/* {
                 value.receipts && value.receipts.length>0 && 
                 <>
                   <div className='w-full text-xs font-semibold mb-1'>Receipts</div> 
@@ -177,7 +177,7 @@ const App = ({ open, setOpenDrawer }) => {
                 </div>
               </>
               }
-              Or
+              Or */}
               {
                 value.receipts && value.receipts.length>0 && 
                 <>
