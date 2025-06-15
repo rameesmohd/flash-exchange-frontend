@@ -97,9 +97,9 @@ const Account = () => {
     <div className='p-4'>
       <div className='flex'>
        <Avatar size={72} icon={<><img src={profileAvatar} alt="" /></>} />
-       <div className='mx-3 text-sm font-semibold'>
-        <div>+91 {userData.phone}</div>
-        <div className='py-1'>{userData.email}</div>
+       <div className='mx-3 text-sm'>
+        <div className='text-lg font-semibold'>+91 {userData.phone}</div>
+        <div className='pb-1'>{userData.email}</div>
         <div className=''>
         <Button onClick={()=>setOpenDrawer((prev)=>({...prev,deposit : true}))} size='small' type='primary' className='mr-2 text-white border text-xs bg-black'>Deposit</Button>
         <Button onClick={()=>setOpenDrawer((prev)=>({...prev,withdraw : true}))} size='small' className='text-xs'>Withdraw</Button>
