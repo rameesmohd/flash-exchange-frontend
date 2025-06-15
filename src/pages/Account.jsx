@@ -21,7 +21,7 @@ import MyReferrals from '../components/client/drawers/MyReferrals'
 import Deposit from '../components/client/drawers/Deposit'
 import Withdraw from '../components/client/drawers/Withdraw'
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser, usersPost } from '../services/userApi';
+import { logoutUser, usersGet, usersPost } from '../services/userApi';
 import Invite from '../components/client/Invite';
 import referralImg from '../../public/business-digital-marketing-free-png.webp'
 
@@ -83,7 +83,7 @@ const Account = () => {
   const logout =async()=>{
     try {
       setLoading(true)
-      await usersPost('/logout');
+      await usersGet('/logout');
       await logoutUser()
     } catch (error) {
       console.log(error);
