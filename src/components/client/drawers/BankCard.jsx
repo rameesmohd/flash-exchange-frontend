@@ -150,15 +150,15 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
       >
       {
        value.mode === "bank" ? 
-        <div className='cursor-pointer' onClick={()=>handleSelect(value)}>
-        <p>Account No: {value?.accountNumber}</p>
-        <p>IFSC: {value?.ifsc}</p>
-        <p>Account Name: {value?.accountName}</p>
-      </div>
-      :
-       <div className='cursor-pointer h-10 flex items-center' onClick={()=>handleSelect(value)}>
-        <p>Upi: {value?.upi}</p>
-      </div>
+        <div className='cursor-pointer text-sm' onClick={()=>handleSelect(value)}>
+          <p>Account No: <span className='font-semibold'>{value?.accountNumber}</span></p>
+          <p>IFSC: <span className='font-semibold'>{value?.ifsc}</span></p>
+          <p>Account Name: <span className='font-semibold'>{value?.accountName}</span></p>
+        </div> :
+        <div className='cursor-pointer h-10 items-center text-sm' onClick={()=>handleSelect(value)}>
+          <p>Name: <span className='font-semibold'>{value?.name || "N/A"}</span></p> 
+          <p>UPI ID: <span className='font-semibold'>{value?.upi || "N/A"}</span></p>
+        </div>
       }
     </Card>
     </Badge.Ribbon>
@@ -208,8 +208,8 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
 
         {
           mode == options[1].value &&
-            <>
-            <Form.Item
+          <>
+          <Form.Item
               label="Name"
               name="accountName"
               initialValue=""
@@ -217,12 +217,12 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
             >
             <Input type='default' placeholder='John' size='large'/>
           </Form.Item>
-            <Form.Item
-              label="UPI ID"
-              name="upi"
-              initialValue=""
-              rules={[{ required: true, message: 'Please enter upi id' }]}
-            >
+          <Form.Item
+            label="UPI ID"
+            name="upi"
+            initialValue=""
+            rules={[{ required: true, message: 'Please enter upi id' }]}
+          >
             <Input type='default' placeholder="evalue@okaxis" size='large'/>
           </Form.Item>
           </>
