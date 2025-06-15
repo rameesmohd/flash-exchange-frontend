@@ -77,7 +77,7 @@ const App = ({ open,setOpenDrawer }) => {
               </Text>
             </div>
           </Col>
-          <Text className='text-xs ml-1 mr-2' strong>Address: </Text> <Text className='text-xs'>{value.recieveAddress}</Text>
+          <Text className='text-xs ml-1 mr-1' strong>Address: </Text> <Text className='text-xs'>{value.receiveAddress}</Text>
         </Row>
       </Card>
     )) : <EmptyBox/> }

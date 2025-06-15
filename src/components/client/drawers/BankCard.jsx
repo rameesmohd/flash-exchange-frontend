@@ -179,12 +179,20 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
           mode == options[0].value &&
             <>
             <Form.Item
+              label="Holder Name"
+              name="accountName"
+              initialValue=""
+              rules={[{ required: true, message: 'Please enter account name' }]}
+            >
+            <Input type='default' placeholder='John' size='large'/>
+          </Form.Item>
+            <Form.Item
               label="Account Number"
               name="accountNumber"
               initialValue=""
               rules={[{ required: true, message: 'Please enter account number' }]}
             >
-              <Input type='default' size='large'/>
+              <Input type='default' placeholder='' size='large'/>
             </Form.Item>
             <Form.Item
               label="IFSC Code"
@@ -192,16 +200,9 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
               initialValue=""
               rules={[{ required: true, message: 'Please enter IFSC code' }]}
             >
-              <Input type='default' size='large'/>
+              <Input type='default' placeholder='' size='large'/>
             </Form.Item>
-            <Form.Item
-              label="Account Name"
-              name="accountName"
-              initialValue=""
-              rules={[{ required: true, message: 'Please enter account name' }]}
-            >
-            <Input type='default' size='large'/>
-          </Form.Item>
+    
             </>
         }
 
@@ -209,12 +210,20 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
           mode == options[1].value &&
             <>
             <Form.Item
-              label="Upi"
+              label="Name"
+              name="accountName"
+              initialValue=""
+              rules={[{ required: true, message: 'Please enter upi name' }]}
+            >
+            <Input type='default' placeholder='John' size='large'/>
+          </Form.Item>
+            <Form.Item
+              label="UPI ID"
               name="upi"
               initialValue=""
               rules={[{ required: true, message: 'Please enter upi id' }]}
             >
-            <Input type='default' size='large'/>
+            <Input type='default' placeholder="evalue@okaxis" size='large'/>
           </Form.Item>
           </>
         }
