@@ -43,6 +43,7 @@ const App = ({ open,setOpenDrawer }) => {
       setLoading((prev)=>({...prev,addAddress : true}))
       const respose = await usersPost('/address',{address:newAddress})
       if(respose.success){
+        fetchAddress()
         setShowAddAddress(false)
       } else{
         setAddAddressErr(respose.message)
