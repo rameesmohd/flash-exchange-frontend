@@ -184,7 +184,7 @@ const App = ({ open, setOpenDrawer }) => {
                   <div className='w-full text-xs font-semibold mb-1'>Receipts</div> 
                 <div className='flex rounded-md flex-wrap'>
                   {
-                    value.receipts.map((value)=><div className='border p-2 mr-1 mb-1 rounded-md shadow-sm'> 
+                    value.receipts.map((value,index)=><div key={index} className='border p-2 mr-1 mb-1 rounded-md shadow-sm'> 
                     <Image
                       width={50}
                       height={50}

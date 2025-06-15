@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col } from 'antd';
+import { Card, Row, Col, Typography } from 'antd';
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { RiLuggageDepositLine, RiBankCardLine } from "react-icons/ri";
 import { BiMoneyWithdraw } from "react-icons/bi";
@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import { usersGet } from '../services/userApi';
 import { setFund } from '../redux/ClientSlice';
+const {Title} = Typography
 
 const Home = () => {
   const [depositDrawer,setDepositDrawer]=useState(false)
@@ -41,7 +42,12 @@ const Home = () => {
     <PageWrapper>
       {/* Top Header */}
       <header className="p-4 bg-white shadow flex justify-between items-center text-lg font-bold">
-        E Value Trade
+      <Title level={4} className="!mb-0"> 
+        <div className='flex items-center'>
+        <img src="/LOGO.svg" alt="Logo" className="h-8 inline mr-2"/>
+        eValueTrade
+        </div>
+      </Title>
         <div className="flex space-x-3">
           <HelpCircle size={22} />
           <NotebookIcon onClick={()=>setShowExchangeHistory(true)} size={22} />

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Layout,Typography, Input, Divider, Spin, Select, Alert } from 'antd';
+import { Card, Button, Layout,Typography, Input, Divider, Spin, Select, Alert,Space } from 'antd';
 import { CgArrowsExchangeAlt } from 'react-icons/cg';
-import { QuestionCircleOutlined, BookOutlined } from '@ant-design/icons';
 const {Text,Title} = Typography
 const { Header, Content } = Layout;
 import imgUsdt from '../../public/tether-usdt-logo.png';
@@ -13,11 +12,10 @@ import {usersGet, usersPost} from '../services/userApi'
 import { NotebookIcon } from 'lucide-react';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import BankCard from '../components/client/drawers/BankCard'
-import { setFund, setUserData } from '../redux/ClientSlice';
+import { setFund, setUserData,setBankCardSelected } from '../redux/ClientSlice';
 import { formatDate } from '../services/formatData';
 import { closePinModal, openPinModal } from '../redux/PinModalSlice';
 import TransactionPinModal from '../components/client/TransactionPinModal';
-
 const Exchange = () => {
   const user = useSelector((state)=>state.User.userData)
   const { isOpen } = useSelector((state) => state.PinModal);
@@ -42,6 +40,10 @@ const Exchange = () => {
     confirm : false,
     mode : null
   })  
+
+  useEffect(()=>{
+    dispatch(setBankCardSelected({}))
+  },[])
   
   useEffect(()=>{
     if(!selectedFund){
@@ -79,9 +81,13 @@ const Exchange = () => {
   }
 
   const handleSubmitOrder=async(pin)=>{
-        if(Number(inputs.usdt) < 10, Number(inputs.fiat) < 10){
-          return setError("Invalid values")
-        }
+      const usdtAmount = Number(inputs.usdt);
+      const fiatAmount = Number(inputs.fiat);
+
+      if (usdtAmount < 100 || fiatAmount < 9000) {
+        return setError("Minimum amount is 100 USDT or equivalent in fiat.");
+      }
+
       try {
         setLoading((prev)=>({...prev,submit :true}))
         const response = await usersPost('/order',{
@@ -119,7 +125,12 @@ const Exchange = () => {
     <Layout className="bg-gray-50">
     {/* Header */}
     <Header className="bg-white shadow-md px-4 flex justify-between items-center">
-      <Title level={4} className="!mb-0">Flash Exchange</Title>
+      <Title level={4} className="!mb-0"> 
+        <div className='flex items-center'>
+        <img src="/LOGO.svg" alt="Logo" className="h-8 inline mr-2"/>
+        Flash Exchange
+        </div>
+      </Title>
       <div className="flex items-center gap-3">
           <NotebookIcon onClick={()=>setShowExchangeHistory(true)} size={22} />
       </div>
@@ -212,7 +223,7 @@ const Exchange = () => {
         <Input
           type=""
           size="small"
-          className="w-24 border-none text-right text-gray-700 font-semibold text-lg hover:shadow-none placeholder:text-gray-700 placeholder:font-semibold placeholder:text-lg"
+          className="w-36 border-none text-right text-gray-700 font-semibold text-lg hover:shadow-none placeholder:text-gray-700 placeholder:font-semibold placeholder:text-lg"
           placeholder="0.00"
           value={inputs.fiat}
           onChange={(e) => {
@@ -234,21 +245,20 @@ const Exchange = () => {
     </Card>
     { 
       <Alert
-        style={{paddingLeft : 12,paddingRight : 12 ,paddingTop : 6,paddingBottom :6}}
+        style={{paddingLeft : 12,paddingRight : 12 ,paddingTop : 6,paddingBottom :6,marginTop : 8,marginBottom : 6}}
         // message="Informational Notes"
         description={
           <>
           <span className='font-semibold capitalize'>
-              Accepted Bank Cards : {selectedFund?.paymentMode}
+              Accepted Methods : {selectedFund?.paymentMode}
           </span>
           <br />
           {selectedFund?.message}  
           </>
         }
-        type="info"
+        type="warning"
       /> 
     }
-    <Text type='danger' className='text-xs'>{error}</Text>
     {/* Sell Button */}
     { 
     !openBankCard.confirm ? 
@@ -256,14 +266,48 @@ const Exchange = () => {
       SELL USDT
     </Button>: 
     <>
+    { 
+        Object.keys(selectedBankCard).length>0 &&
+       <Alert
+        style={{paddingLeft : 12,paddingRight : 12 ,paddingTop : 6,paddingBottom :6}}
+        message={<div className='font-semibold'>Bank Card</div>}
+        description={ selectedBankCard.mode === 'upi' ? (
+            <Space direction="vertical" size={4}>
+              <Text strong>
+                UPI ID: <Text code>{selectedBankCard.upi || 'N/A'}</Text>
+              </Text>
+              <Text>
+                <Text strong>Name:</Text> {selectedBankCard?.name || 'N/A'}
+              </Text>
+              {console.log(selectedBankCard)}
+            </Space>
+          ) : selectedBankCard.mode === 'bank' ? (
+            <Space direction="vertical" size={4}>
+              <Text strong>
+                Bank Account: <Text code>{selectedBankCard.accountNumber || 'N/A'}</Text>
+              </Text>
+              <Text>
+                <Text strong>IFSC:</Text> <Text code>{selectedBankCard.ifsc || 'N/A'}</Text>
+              </Text>
+              <Text>
+                <Text strong>Name:</Text> {selectedBankCard?.accountName || 'N/A'}
+              </Text>
+              {console.log(selectedBankCard)}
+            </Space>
+          ) : null
+        }
+        type="info"
+      /> 
+    }
+    <Text type='danger' className='text-xs'>{error}</Text>
     <Button loading={loading.submit} 
-    // onClick={()=>handleSubmitOrder()} 
+    disabled={Object.keys(selectedBankCard).length === 0}
     onClick={() => dispatch(openPinModal())}
     type="primary" style={{marginTop : 5}} className="bg-black w-full text-white rounded-md" size="large">
       Confirm
     </Button>
     <Button onClick={()=>setOpenBankCard((prev)=>({...prev,open : true}))} type="default" style={{marginTop : 5}} className="w-full rounded-md" size="large">
-      Change Bank Card
+      {Object.keys(selectedBankCard).length === 0 ? "Select" :"Change"} Bank Card
     </Button>
     </> 
     }

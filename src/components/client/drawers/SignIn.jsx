@@ -83,8 +83,8 @@ const App = ({ open, setOpenDrawer }) => {
       onClose={() => setOpenDrawer()}
       closeIcon={<ArrowLeft size={20} />}
     >
-      <Title level={2}>E Value Trade</Title>
-      <Text className="my-0 py-0 font-semibold text-xl">Welcome back</Text>
+      <Title level={2}>eValueTrade</Title>
+      <Text className="my-0 py-0 font-semibold text-xl">Welcome Back</Text>
 
       <div className="mt-5">
         <div className="flex flex-col space-y-1 my-2">

@@ -122,8 +122,8 @@ const App = ({ open, setOpenDrawer }) => {
       onClose={() => setOpenDrawer()}
       closeIcon={<ArrowLeft size={20} />}
     >
-      <Title level={2}>E Value Trade</Title>
-      <Text className="my-0 py-0 font-semibold text-xl">Welcome back</Text>
+      <Title level={2}>eValueTrade</Title>
+      <Text className="my-0 py-0 font-semibold text-xl">Welcome Back</Text>
       <br />
       <Text className="my-0 py-0 font-semibold text-xs">
         Just one step to complete sign in
