@@ -128,7 +128,7 @@ const Exchange = () => {
       <Title level={4} className="!mb-0"> 
         <div className='flex items-center'>
         <img src="/LOGO.svg" alt="Logo" className="h-8 inline mr-2"/>
-        Flash Exchange
+         eValueTrade
         </div>
       </Title>
       <div className="flex items-center gap-3">

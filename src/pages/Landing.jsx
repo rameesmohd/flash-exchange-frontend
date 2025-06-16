@@ -94,8 +94,8 @@ const Landing = ({home}) => {
     <div className="w-full h-full flex px-4 pt-32 justify-center mx-auto bg-white ">
       <div className='text-center'>
         <img src={crypto3dImg} alt="" />
-        <Title level={4}>Welcome to E Value Trade</Title>
-        <Text className='text-xs'>You are our most trusted ally, paving the way for a bright and successful <br /> future together.</Text>
+        <Title level={4}>Welcome to eValueTrade</Title>
+        <Text className='text-xs text-center'>You are our most trusted ally, paving the way for a bright and successful future together.</Text>
         <Button onClick={()=>setopenDrawer((prev=>({...prev,signin : true})))} type="" block size="large" className="text-black mt-5">
           Login
         </Button>

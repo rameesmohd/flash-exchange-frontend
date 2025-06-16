@@ -17,6 +17,13 @@ const App = ({ open, setOpenDrawer }) => {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [otpId, setOtpId] = useState('');
   const [errMsg, setErrMsg] = useState('');
+  const [timer, setTimer] = useState(0);
+
+  useEffect(() => {
+    if (timer === 0) return;
+    const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
 
   const email = Form.useWatch('email', form);
 
@@ -28,6 +35,7 @@ const App = ({ open, setOpenDrawer }) => {
       if (response?.success && response?.otpId) {
         setOtpId(response.otpId);
         message.success('OTP sent successfully');
+        setTimer(30);
       } else {
         message.error(response?.message || 'Failed to send OTP');
       }
@@ -121,9 +129,9 @@ const App = ({ open, setOpenDrawer }) => {
                   size="small"
                   onClick={handleSendOtp}
                   loading={sendingOtp}
-                  disabled={!email}
+                  disabled={timer > 0}
                 >
-                  Send
+                   {timer > 0 ? `Resend in ${timer}s` : 'Send'}
                 </Button>
               }
             />

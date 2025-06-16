@@ -5,6 +5,7 @@ import { Button, Typography } from 'antd';
 import { ArrowLeft, History } from 'lucide-react'; 
 import trxicon from '../../../../public/trxicon.png'
 import usdticon from '../../../../public/imageusdt.png'
+import usdtImg from '../../../../public/image.png'
 import { Input } from 'antd';
 import DepositHistory from '../drawers/DepositHistory'
 import { usersPost } from '../../../services/userApi';
@@ -61,7 +62,8 @@ const App = ({open,setOpenDrawer}) => {
         !showAddress? <>
           <img 
               className='object-cover w-full' 
-              src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9oO-e1ye0LxSXNVFLtClVr4hAX5ZlOYlDYg&s"} 
+              // src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9oO-e1ye0LxSXNVFLtClVr4hAX5ZlOYlDYg&s"} 
+              src={usdtImg}
               alt={usdticon} 
           />
           <div className='my-2 text-gray-600'>Network</div>
