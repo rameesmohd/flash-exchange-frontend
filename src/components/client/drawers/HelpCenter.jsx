@@ -46,7 +46,12 @@ const HelpCenter = ({ open, setOpenDrawer }) => {
           Stay updated with live USDT/INR rates, offers, and key announcements. <br />
           👉 <Link href="https://t.me/evaluetrade" target="_blank">t.me/evaluetrade</Link>
         </Paragraph>
+
         <Divider />
+
+        <Paragraph className='font-semibold'>
+          We’re just a message away. Let’s trade smarter, together.
+        </Paragraph>
       </div>
     </Drawer>
   );
