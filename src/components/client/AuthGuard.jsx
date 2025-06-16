@@ -4,6 +4,7 @@ import { Spinner } from "flowbite-react";
 import { setIsAuthenticated, setUserData } from "../../redux/ClientSlice";
 import { useDispatch } from "react-redux";
 import { usersGet } from "../../services/userApi";
+import FullPageLoader from './common/FullPageLoader'
 
 const AuthGuard = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,7 @@ const AuthGuard = ({ children }) => {
     checkAuth();
   }, []);
 
-  if (loading) return <Spinner/>
+   if (loading) return <FullPageLoader />;
 
   return children;
 };

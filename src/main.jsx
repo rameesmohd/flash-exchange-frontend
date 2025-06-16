@@ -6,27 +6,12 @@ import { Provider } from 'react-redux';
 import { store } from './redux/Store';
 import { Spin } from 'antd';
 import App from './App.jsx'
+import FullPageLoader from './components/client/common/FullPageLoader.jsx'
 
-// Full-screen Fallback Spinner
-const Fallback = () => (
-  <div
-    style={{
-      position: 'fixed',
-      inset: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f0f0f0',
-      zIndex: 9999,
-    }}
-  >
-    <Spin size="large" />
-  </div>
-);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <Suspense fallback={<Fallback />}>
+    <Suspense fallback={<FullPageLoader />}>
       <App />
     </Suspense>
   </Provider>
