@@ -31,8 +31,8 @@ const Landing = ({home}) => {
 
     <div className="px-4 pb-32 bg-white">
       {/* Welcome Section */}
-      <Title level={4} className="!mb-4 !text-gray-800 ">
-        Welcome to <span className="text-black font-semibold">E Value Trade</span>
+      <Title level={4} className="!mb-4 mt-2 !text-gray-800 ">
+        Welcome to <span className="text-black font-semibold">eValueTrade</span>
       </Title>
 
       <Button onClick={()=>setopenDrawer((prev=>({...prev,signin : true})))} type="" block size="large" className="text-black">
