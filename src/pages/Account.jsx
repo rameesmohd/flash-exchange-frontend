@@ -114,7 +114,7 @@ const Account = () => {
        <Avatar size={72} icon={<><img src={profileAvatar} alt="" /></>} />
        <div className='mx-3 text-sm'>
         <div className='text-lg font-semibold'>+91 {maskPhone(userData.phone)}</div>
-        <div className='pb-2 text-xs'>{maskEmail(userData.email)}</div>
+        <div className='pb-2 text-xs no-underline'>{maskEmail(userData.email)}</div>
         <div className=''>
         <Button onClick={()=>setOpenDrawer((prev)=>({...prev,deposit : true}))} size='small' type='primary' className='mr-2 text-white border text-xs bg-black'>Deposit</Button>
         <Button onClick={()=>setOpenDrawer((prev)=>({...prev,withdraw : true}))} size='small' className='text-xs'>Withdraw</Button>
