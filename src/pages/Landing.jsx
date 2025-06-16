@@ -53,7 +53,7 @@ const Landing = ({home}) => {
             <Text className="block text-base font-semibold p-1 text-gray-700">
               The average user can earn up to ₹1 Lakh
             </Text>
-            <Button onClick={()=>setopenDrawer(true)} type="link" icon={<ArrowRightOutlined />}>
+            <Button onClick={()=>setopenDrawer((prev=>({...prev,signup : true})))} type="link" icon={<ArrowRightOutlined />}>
               Get Started
             </Button>
           </div>
