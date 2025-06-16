@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser, usersGet, usersPost } from '../services/userApi';
 import Invite from '../components/client/Invite';
 import referralImg from '../../public/business-digital-marketing-free-png.webp'
+import HelpCenter from '../components/client/drawers/HelpCenter';
 
 const Account = () => {
   const { userData } = useSelector((state)=>state.User)
@@ -37,7 +38,8 @@ const Account = () => {
     resetPass : false,
     deposit : false,
     withdraw : false,
-    invite : false
+    invite : false,
+    helpCenter : false
   })
   const [loading,setLoading]=useState(false)
 
@@ -92,20 +94,34 @@ const Account = () => {
     }
   }
 
+  const maskPhone = (phone) => {
+  if (!phone || phone.length < 10) return phone;
+  return phone.slice(0, 2) + '****' + phone.slice(-4);
+  };
+
+  const maskEmail = (email) => {
+    if (!email) return '';
+    const [user, domain] = email.split('@');
+    const visibleUser = user.length > 2 ? user.slice(0, 2) + '****' : user + '****';
+    return `${visibleUser}@${domain}`;
+  };
+
+
   return (
     <PageWrapper>
     <div className='p-4'>
-      <div className='flex'>
+      <div className='flex my-1'>
        <Avatar size={72} icon={<><img src={profileAvatar} alt="" /></>} />
        <div className='mx-3 text-sm'>
-        <div className='text-lg font-semibold'>+91 {userData.phone}</div>
-        <div className='pb-1'>{userData.email}</div>
+        <div className='text-lg font-semibold'>+91 {maskPhone(userData.phone)}</div>
+        <div className='pb-2 text-xs'>{maskEmail(userData.email)}</div>
         <div className=''>
         <Button onClick={()=>setOpenDrawer((prev)=>({...prev,deposit : true}))} size='small' type='primary' className='mr-2 text-white border text-xs bg-black'>Deposit</Button>
         <Button onClick={()=>setOpenDrawer((prev)=>({...prev,withdraw : true}))} size='small' className='text-xs'>Withdraw</Button>
         </div>
        </div>
       </div>
+      
       <Card size="small" className="rounded-lg border-none bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg transition-all my-2">
         <Flex justify='space-between'>
         <div>
@@ -113,11 +129,12 @@ const Account = () => {
           <div className='text-lg font-bold text-white'>Invite your friends</div>
           <div className='text-gray-300 text-xs'>Earn upto 5% commission</div>
         </div>
-        <Button type='default' onClick={()=>setOpenDrawer((prev)=>({...prev,invite : true}))} size='small' className='text-xs text-white bg-violet-400 border-none rounded-lg'>Get Started</Button>
+        <Button type='default' onClick={()=>setOpenDrawer((prev)=>({...prev,invite : true}))} size='small' className='text-xs text-white border-sky-600 rounded-md'>Get Started</Button>
         </div>
         <img className='h-20' src="https://static.vecteezy.com/system/resources/previews/016/389/984/non_2x/business-digital-marketing-free-png.png" alt={referralImg} />
         </Flex>
       </Card>
+    
       <div>
           {
             options.map((value,index)=>
@@ -131,10 +148,21 @@ const Account = () => {
               </div>
             )
           }
+
       </div>
+                <Button
+          type=""
+          className="h-10 w-full mb-2  rounded-md border-none bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg transition-all my-2"
+          size="large"
+          loading={loading}
+          block
+          onClick={()=>setOpenDrawer((prev)=>({...prev,helpCenter : true}))}
+        >
+        💬 Help Center
+      </Button>
       <Button
         type="primary"
-        className="bg-black top-10 h-10 w-full text-white rounded-md"
+        className="bg-black mt-3 h-10 w-full text-white rounded-md"
         size="large"
         loading={loading}
         block
@@ -153,6 +181,7 @@ const Account = () => {
       <MyReferrals open={openDrawer.myReferrrals} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,myReferrrals : false}))}/>   
       <ResetPass open={openDrawer.resetPass} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,resetPass : false}))}/> 
       <Invite open={openDrawer.invite} onClose={()=>setOpenDrawer((prev)=>({...prev,invite : false}))}/>
+      <HelpCenter open={openDrawer.helpCenter} setOpenDrawer={()=>setOpenDrawer((prev)=>({...prev,helpCenter : false}))}/>
     </PageWrapper>
   )
 }

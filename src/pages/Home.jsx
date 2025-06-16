@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import { usersGet } from '../services/userApi';
 import { setFund } from '../redux/ClientSlice';
+import HelpCenter from '../components/client/drawers/HelpCenter';
 const {Title} = Typography
 
 const Home = () => {
@@ -19,6 +20,7 @@ const Home = () => {
   const [withdrawDrawer,setWithdrawDrawer] = useState(false)
   const [bankCard,setBankCard]=useState(false)
   const [exchangeHistory,setShowExchangeHistory]=useState(false)
+  const [showHelpCenter,setShowHelpCenter]=useState(false)
   const { userData } = useSelector((value)=>value.User)
   const user=userData
   const dispatch = useDispatch()
@@ -49,7 +51,7 @@ const Home = () => {
         </div>
       </Title>
         <div className="flex space-x-3">
-          <HelpCircle size={22} />
+          <HelpCircle onClick={()=>setShowHelpCenter(true)} size={22} />
           <NotebookIcon onClick={()=>setShowExchangeHistory(true)} size={22} />
         </div>
       </header>
@@ -109,9 +111,10 @@ const Home = () => {
         open={exchangeHistory} 
         setOpenDrawer={()=>setShowExchangeHistory(false)}
       /> 
-       <DepositDrawer open={depositDrawer} setOpenDrawer={()=>setDepositDrawer(false)}/> 
-       <WithdrawDrawer open={withdrawDrawer} setOpenDrawer={()=>setWithdrawDrawer(false)}/> 
-       <BankCard open={bankCard} setOpenDrawer={()=>setBankCard(false)}/> 
+      <DepositDrawer open={depositDrawer} setOpenDrawer={()=>setDepositDrawer(false)}/> 
+      <WithdrawDrawer open={withdrawDrawer} setOpenDrawer={()=>setWithdrawDrawer(false)}/> 
+      <BankCard open={bankCard} setOpenDrawer={()=>setBankCard(false)}/> 
+      <HelpCenter open={showHelpCenter} setOpenDrawer={()=>setShowHelpCenter(false)}/>
     </PageWrapper>
   );
 };
