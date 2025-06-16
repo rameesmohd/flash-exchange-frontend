@@ -5,16 +5,17 @@ import { Textarea } from 'flowbite-react';
 import { Card, Row, Col } from 'antd';
 import QRCode from 'qrcode.react';
 import { CopyOutlined } from '@ant-design/icons';
-import { usersPatch } from '../../services/userApi';
+import { usersDelete, usersPatch } from '../../services/userApi';
 import { useNavigate } from 'react-router-dom';
 const { Text } = Typography;
 
-const CryptoDeposit = ({deposit}) => {
+const CryptoDeposit = ({deposit,onCancel}) => {
     const [address,setAddress]=useState(deposit.recieveAddress.address)
     const [amount,setAmount]=useState(deposit.amount || 0)
     const [loading, setLoading] = React.useState({
         confirmTxid : false,
-        loadAddress  :false
+        loadAddress  :false,
+        cancel : false
     });
     const [showSuccess,setShowSuccess] = useState(false)
     const [txid,setTxid]=useState("")
@@ -28,6 +29,10 @@ const CryptoDeposit = ({deposit}) => {
         message.error('Failed to copy address.');
     });
     };
+
+    useEffect(()=>{
+      setErrMsg('')
+    },[txid])
 
     const checkPayment =async()=>{
         try {
@@ -45,6 +50,21 @@ const CryptoDeposit = ({deposit}) => {
         } finally {
             setLoading((prev)=>({...prev,confirmTxid :  false}))
         }
+    }
+
+    const cancelPayment=async()=>{
+      try {
+        setLoading((prev)=>({...prev,cancel :  true}))
+        const response =  await usersDelete(`/deposit?id=${deposit._id}`)
+        if(response.success) { 
+          setErrMsg(response?.message)
+          onCancel()
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading((prev)=>({...prev,cancel :  false}))
+      }
     }
 
     const [remainingTime, setRemainingTime] = useState(0);
@@ -138,6 +158,14 @@ const CryptoDeposit = ({deposit}) => {
                 className='w-full h-10 my-4 bg-black text-white'
             >
                 Confirm
+            </Button> 
+
+            <Button 
+                onClick={()=>cancelPayment()}
+                loading={loading.cancel}
+                className='w-full border-none  h-10 '
+            >
+              Cancel
             </Button> 
             </div></>}
              { showSuccess &&  <Result

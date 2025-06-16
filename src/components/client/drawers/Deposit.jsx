@@ -72,7 +72,7 @@ const App = ({open,setOpenDrawer}) => {
             <Input size='large' onChange={(e)=>setAmount(e.target.value)} placeholder='Please enter the amount' prefix={<><img className='w-4 h-4' src={usdticon}/></>} suffix="USDT" />
             { err && <Text type='danger' className='text-xs'>{err}</Text> }
             <Button loading={loading} disabled={amount<1} onClick={createOrder} className='w-full h-10 my-4 bg-black text-white'>Deposit</Button>
-          </> : <CryptoDeposit deposit={depositData}/> 
+          </> : <CryptoDeposit onCancel={()=>setShowAddress(false)} deposit={depositData}/> 
       }
       </Drawer>
       <DepositHistory open={openDepositHistory} setOpenDrawer={()=>setOpenDepositHistory(false)}/>

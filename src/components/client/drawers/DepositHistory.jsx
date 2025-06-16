@@ -21,9 +21,9 @@ const getStatusTag = (status) => {
       return <Tag>{status}</Tag>;
   }
 };
-
+``
 const DepositHistoryList = ({ depositHistory }) => {
-  const [openDeposit,setOpenDepsit]= useState({
+  const [openDeposit,setOpenDeposit]= useState({
     show : false,
     data : {}
   })
@@ -46,7 +46,7 @@ const DepositHistoryList = ({ depositHistory }) => {
               </Text>
               {
                 value.status==="pending" && 
-                <span onClick={()=>setOpenDepsit((prev)=>({...prev,show :true,data : value}))} className="flex justify-end items-center text-blue-700 underline font-semibold cursor-pointer">
+                <span onClick={()=>setOpenDeposit((prev)=>({...prev,show :true,data : value}))} className="flex justify-end items-center text-blue-700 underline font-semibold cursor-pointer">
                   Open <MdNavigateNext className="ml-1 mt-1" />
                 </span>
               }
@@ -57,7 +57,7 @@ const DepositHistoryList = ({ depositHistory }) => {
     ))}
     <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>  
   </div>: 
-  openDeposit.show && <CryptoDeposit deposit={openDeposit.data}/>
+  openDeposit.show && <CryptoDeposit deposit={openDeposit.data} onCancel={()=>setOpenDeposit((prev)=>({...prev,show : false}))}/>
 )};
 
 const App = ({ open,setOpenDrawer }) => {
