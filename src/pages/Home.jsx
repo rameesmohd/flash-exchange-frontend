@@ -11,8 +11,9 @@ import BankCard from '../components/client/drawers/BankCard'
 import { useDispatch, useSelector } from 'react-redux';
 import ExchangeHistory from '../components/client/drawers/ExchangeHistory'
 import { usersGet } from '../services/userApi';
-import { setFund } from '../redux/ClientSlice';
+import { setFund,setNotifications} from '../redux/ClientSlice';
 import HelpCenter from '../components/client/drawers/HelpCenter';
+import { motion, AnimatePresence } from "framer-motion";
 const {Title} = Typography
 
 const Home = () => {
@@ -21,7 +22,7 @@ const Home = () => {
   const [bankCard,setBankCard]=useState(false)
   const [exchangeHistory,setShowExchangeHistory]=useState(false)
   const [showHelpCenter,setShowHelpCenter]=useState(false)
-  const { userData } = useSelector((value)=>value.User)
+  const { userData,notifications } = useSelector((value)=>value.User)
   const user=userData
   const dispatch = useDispatch()
 
@@ -36,9 +37,33 @@ const Home = () => {
     }
   }
 
+  const [index, setIndex] = useState(0);
+  
+  const getNotifications = async()=>{
+    try {
+      const response = await usersGet('/notifications')
+      if(response.success) {
+        dispatch(setNotifications(response.notifications))
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(()=>{
     // fetchfunds()
+    getNotifications()
   },[])
+
+  useEffect(() => {
+    if (notifications.length === 0) return;
+
+    const interval = setInterval(() => {
+      setIndex(prev => (prev + 1) % notifications.length);
+    }, 10000); // Change every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [notifications]);
 
   return (
     <PageWrapper>
@@ -62,7 +87,18 @@ const Home = () => {
         {/* Notification Bar */}
         <div className="w-full p-2 flex items-center text-sm rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:brightness-105 transition-all mb-4">
           <HiOutlineSpeakerWave className="mx-2" size={20} /> 
-          00:02 87****5445 sold $791.4
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5 }}
+              className="ml-8 absolute"
+            >
+              {notifications[index]?.message}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Balance Card */}
