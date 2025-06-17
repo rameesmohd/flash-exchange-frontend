@@ -69,17 +69,21 @@ const Home = () => {
         <Card className="rounded-lg mb-4" bodyStyle={{ padding: '16px' }}>
           <div className="mb-4">
             <p className="text-gray-500 text-sm">Total Balance ($)</p>
-            <p className="text-2xl font-bold">{ user?.availableBalance&&user?.processing ? (user.availableBalance+user.processing).toFixed(2) : 0.00}</p>
+            <p className="text-2xl font-bold">
+              {user?.availableBalance != null && user?.processing != null
+                ? (Number(user.availableBalance) + Number(user.processing)).toFixed(2)
+                : "0.00"}
+            </p>
           </div>
 
           <Row gutter={16}>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Available ($)</p>
-              <p className="font-bold text-lg">{user?.availableBalance ? user.availableBalance.toFixed(2) : 0.00}</p>
+              <p className="font-bold text-lg">{user?.availableBalance!= null ? user.availableBalance.toFixed(2) : 0.00}</p>
             </Col>
             <Col span={12}>
               <p className="text-gray-500 text-sm">Processing ($)</p>
-              <p className="font-bold text-lg">{user?.processing ? user.processing.toFixed(2) : 0.00}</p>
+              <p className="font-bold text-lg">{user?.processing!= null ? user.processing.toFixed(2) : 0.00}</p>
             </Col>
           </Row>
         </Card>

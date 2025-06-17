@@ -85,6 +85,7 @@ const App = ({ open, setOpenDrawer }) => {
       destroyOnClose
       placement="right"
       width="100%"
+      className='px-4'
       getContainer={false}
       open={open}
       onClose={() => setOpenDrawer()}
@@ -104,7 +105,7 @@ const App = ({ open, setOpenDrawer }) => {
       >
         <Form.Item className="mb-3" label="Phone Number" name="phone" rules={[{ required: true, pattern: /^\d{10}$/, message: 'Enter a valid 10-digit phone number' }]}> 
           <Space.Compact className='w-full'>
-            <Input type='' size='large' disabled value="+91" style={{ width: '20%' }} />
+            <Input type='' size='middle' disabled value="+91" style={{ width: '20%' }} />
             <Input type='' style={{ width: '80%' }} placeholder="Enter phone number" />
           </Space.Compact>
         </Form.Item>

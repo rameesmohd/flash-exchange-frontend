@@ -249,9 +249,8 @@ const Exchange = () => {
         // message="Informational Notes"
         description={
           <>
-          <span className='font-semibold capitalize'>
-              Accepted Methods : {selectedFund?.paymentMode}
-          </span>
+          <Text className='font-semibold'>Accepted Methods: <span className=' uppercase'>{selectedFund?.paymentMode}</span></Text>
+     
           <br />
           {selectedFund?.message}  
           </>

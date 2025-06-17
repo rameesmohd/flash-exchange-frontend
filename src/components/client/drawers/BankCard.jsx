@@ -23,7 +23,7 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
   const [form] = Form.useForm();
   const options = [
     { label: 'Bank Account', value: 'bank' },
-    { label: 'Upi', value: 'upi' },
+    { label: 'UPI', value: 'upi' },
   ];
   const [mode,setMode]=useState(options[0].value)
   const [error,setError]=useState('')
