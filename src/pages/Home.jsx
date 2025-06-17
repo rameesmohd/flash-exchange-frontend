@@ -65,6 +65,15 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [notifications]);
 
+  const formatTime = (isoTime) => {
+  const localDate = new Date(isoTime);
+    return localDate.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   return (
     <PageWrapper>
       {/* Top Header */}
@@ -96,7 +105,14 @@ const Home = () => {
               transition={{ duration: 0.5 }}
               className="ml-8 absolute"
             >
-              {notifications[index]?.message}
+              {
+                notifications[index]&& 
+                <>
+                {
+                  formatTime(notifications[index].timestamp)} {notifications[index].phone} sold ${notifications[index].amount
+                }
+                </>
+              }
             </motion.div>
           </AnimatePresence>
         </div>
