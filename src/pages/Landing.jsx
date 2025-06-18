@@ -21,7 +21,8 @@ const Landing = ({home}) => {
     <div className="w-full mx-auto bg-white h-full ">
     {/* Header Image */}
     <Image
-      src={"https://static.vecteezy.com/system/resources/previews/003/321/388/non_2x/tether-or-usdt-crypto-currency-themed-banner-vector.jpg"}
+      // src={"https://static.vecteezy.com/system/resources/previews/003/321/388/non_2x/tether-or-usdt-crypto-currency-themed-banner-vector.jpg"}
+      src='https://res.cloudinary.com/dj5inosqh/image/upload/v1750281670/jruwcyz9wwz8n5qfqq6s.jpg'
       preview={false}
       width="100%"
       height={200}
