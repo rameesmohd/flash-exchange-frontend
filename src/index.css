@@ -19,9 +19,7 @@ html, body, #root {
   background: #f0f0f0; /* match spinner bg */
 }
 
-input,
-textarea,
-select {
+input, button, select, textarea {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
 }

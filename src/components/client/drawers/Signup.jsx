@@ -105,8 +105,8 @@ const App = ({ open, setOpenDrawer }) => {
       >
         <Form.Item className="mb-3" label="Phone Number" name="phone" rules={[{ required: true, pattern: /^\d{10}$/, message: 'Enter a valid 10-digit phone number' }]}> 
           <Space.Compact className='w-full'>
-            <Input type='' size='middle' disabled value="+91" style={{ width: '20%' }} />
-            <Input type='' style={{ width: '80%' }} placeholder="Enter phone number" />
+            <Input type='' size='large' disabled value="+91" style={{ width: '20%' }} />
+            <Input type='' size='large' style={{ width: '80%' }} placeholder="Enter phone number" />
           </Space.Compact>
         </Form.Item>
 
@@ -116,9 +116,12 @@ const App = ({ open, setOpenDrawer }) => {
 
         <Form.Item className="mb-3" label="OTP" name="otp" rules={[{ required: true, message: 'Enter the OTP' }]}> 
           <Input
+            size='large'
             placeholder="Enter OTP"
             suffix={
               <Button
+                size='small'
+                className='py-0 m-0'
                 type="link"
                 onClick={handleSendOtp}
                 disabled={timer > 0}
