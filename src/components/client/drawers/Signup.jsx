@@ -118,6 +118,19 @@ const App = ({ open, setOpenDrawer }) => {
           <Input
             size='large'
             placeholder="Enter OTP"
+            maxLength={6}
+            type='number'
+            rules={[
+            { required: true, message: 'Enter your 6-digit PIN' },
+            {
+              validator: (_, value) => {
+                if (!value || value.length !== 6) {
+                  return Promise.reject(new Error('PIN must be exactly 6 digits'));
+                }
+                return Promise.resolve();
+              },
+            }
+            ]}
             suffix={
               <Button
                 size='small'
@@ -137,7 +150,17 @@ const App = ({ open, setOpenDrawer }) => {
           className="mb-3"
           label="Transaction PIN"
           name="transactionPin"
-          rules={[{ required: true, message: 'Enter your 6-digit PIN' }]}
+          rules={[
+            { required: true, message: 'Enter your 6-digit PIN' },
+            {
+              validator: (_, value) => {
+                if (!value || value.length !== 6) {
+                  return Promise.reject(new Error('PIN must be exactly 6 digits'));
+                }
+                return Promise.resolve();
+              },
+            }
+          ]}
         >
           <Input.Password
             type=''
@@ -158,6 +181,7 @@ const App = ({ open, setOpenDrawer }) => {
 
         <Form.Item>
           <Button
+            disabled={!otpId}
             block
             type="primary"
             htmlType="submit"

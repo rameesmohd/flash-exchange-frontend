@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, Typography, Card, Row, Col, Tag } from 'antd';
+import { Drawer, Typography, Card, Row, Col, Tag, Progress } from 'antd';
 import { Image } from 'antd';
 import { ArrowLeft,DownloadIcon } from 'lucide-react';
 import { usersGet } from '../../../services/userApi';
@@ -94,7 +94,7 @@ const App = ({ open, setOpenDrawer }) => {
     >
       {orders.length ? (
         orders.map((value, index) => (
-          <Card key={index} bordered className="shadow-md my-2">
+          <Card key={index} bodyStyle={{padding : 13}} bordered className="shadow-md my-2">
             <Row gutter={[8, 4]}>
               <Col span={10}>
                 <Text className="text-xs" strong>ID:</Text>{' '}
@@ -126,7 +126,7 @@ const App = ({ open, setOpenDrawer }) => {
                 </div>
               </Col>
 
-              <div className="rounded-md shadow-sm border w-full p-2 flex flex-row justify-between">
+              <div className="rounded-md bg-slate-50 shadow-sm border w-full p-2 flex flex-row justify-between">
               {/* Fund Details */}
               <div className='w-[50%] border-r'>
                 <Text className="text-xs mb-1 block text-gray-500" strong>
@@ -151,9 +151,10 @@ const App = ({ open, setOpenDrawer }) => {
               </div>}
               {value.bankCard.mode == "upi" && <div className='w-full h-auto pl-1'>
                 <Text className="text-xs mb-1 block text-gray-500" strong>
-                  Bank Details:
+                  UPI Details:
                 </Text>
                 <Text className="text-xs block text-gray-700">
+                  <strong>Name:</strong> {value.bankCard.accountName}<br />
                   <strong>UPI:</strong> {value.bankCard.upi}<br />
                 </Text>
               </div>}
@@ -178,10 +179,14 @@ const App = ({ open, setOpenDrawer }) => {
               </>
               }
               Or */}
+                <Progress percent={value.fulfilledRatio * 100} size="small" />
               {
                 value.receipts && value.receipts.length>0 && 
                 <>
-                  <div className='w-full text-xs font-semibold mb-1'>Receipts</div> 
+                  <div className='w-full text-xs font-semibold mb-1 flex justify-between'>
+                    <Text>Receipts</Text>
+                    <Text>₹{value.fulfilledFiat}/{value.fiat}</Text>  
+                  </div> 
                 <div className='flex rounded-md flex-wrap'>
                   {
                     value.receipts.map((value,index)=><div key={index} className='border p-2 mr-1 mb-1 rounded-md shadow-sm'> 

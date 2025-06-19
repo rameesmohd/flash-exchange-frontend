@@ -156,7 +156,7 @@ const App = ({  open,setOpenDrawer,filterMode = null }) => {
           <p>Account Name: <span className='font-semibold'>{value?.accountName}</span></p>
         </div> :
         <div className='cursor-pointer h-10 items-center text-sm' onClick={()=>handleSelect(value)}>
-          <p>Name: <span className='font-semibold'>{value?.name || "N/A"}</span></p> 
+          <p>Name: <span className='font-semibold'>{value?.accountName || "N/A"}</span></p> 
           <p>UPI ID: <span className='font-semibold'>{value?.upi || "N/A"}</span></p>
         </div>
       }

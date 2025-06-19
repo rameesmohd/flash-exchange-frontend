@@ -276,7 +276,7 @@ const Exchange = () => {
                 UPI ID: <Text code>{selectedBankCard.upi || 'N/A'}</Text>
               </Text>
               <Text>
-                <Text strong>Name:</Text> {selectedBankCard?.name || 'N/A'}
+                <Text strong>Name:</Text> {selectedBankCard?.accountName || 'N/A'}
               </Text>
               {console.log(selectedBankCard)}
             </Space>
