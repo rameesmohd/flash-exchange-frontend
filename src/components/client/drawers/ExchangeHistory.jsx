@@ -9,7 +9,182 @@ import EmptyBox from '../common/EmptyBox';
 const { Text } = Typography;
 
 /* ══════════════════════════════════════════════════════════════════
-   CANVAS RECEIPT RENDERER
+   STRATEGY:
+   • Preview  → pure React/JSX rendered in the DOM  (always crisp)
+   • Download → canvas drawn offscreen at 3× scale   (high-res PNG)
+   No canvas is ever shown on screen, so blur is impossible.
+══════════════════════════════════════════════════════════════════ */
+
+/* ─── Receipt preview component (JSX) ─────────────────────────── */
+
+const STATUS_MAP = {
+  success: { bg: '#14532d', color: '#86efac', label: '✓  Completed' },
+  pending: { bg: '#78350f', color: '#fde68a', label: '◎  Pending'   },
+  failed:  { bg: '#7f1d1d', color: '#fca5a5', label: '✕  Failed'    },
+};
+
+const ReceiptPreview = ({ order }) => {
+  const st      = STATUS_MAP[order.status] || STATUS_MAP.pending;
+  const isBank  = order.bankCard?.mode === 'bank';
+  const dateStr = order.createdAt
+    ? new Date(order.createdAt).toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: true,
+      })
+    : '—';
+
+  const BARS = [3,5,2,7,4,6,2,8,3,5,7,2,4,6,3,5,2,7,4,6,2,5,3,4,7,2,6,3,5,4];
+
+  return (
+    <div style={{
+      background: '#fff', borderRadius: 16, overflow: 'hidden',
+      border: '1px solid #e2e8f0', width: '100%', boxSizing: 'border-box',
+    }}>
+      {/* ── header ── */}
+      <div style={{
+        background: '#0c1628', padding: '18px 20px 18px', position: 'relative', overflow: 'hidden',
+      }}>
+        {/* decorative circles */}
+        <div style={{
+          position: 'absolute', top: -30, right: -30, width: 130, height: 130,
+          borderRadius: '50%', background: 'rgba(26,58,110,0.45)',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: -20, left: -10, width: 80, height: 80,
+          borderRadius: '50%', background: 'rgba(18,42,82,0.4)',
+        }} />
+        {/* accent stripe */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+          background: 'rgba(34,85,164,0.55)',
+        }} />
+
+        {/* label row */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          marginBottom: 10, position: 'relative',
+        }}>
+          <span style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: '2.5px',
+            color: '#5a85c0', textTransform: 'uppercase', whiteSpace: 'nowrap',
+          }}>Transaction Receipt</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
+        </div>
+
+        {/* amount */}
+        <div style={{
+          fontSize: 32, fontWeight: 700, color: '#fff',
+          letterSpacing: '-0.5px', lineHeight: 1, marginBottom: 14,
+          position: 'relative',
+        }}>
+          ₹{Number(order.fiat).toLocaleString('en-IN')}
+        </div>
+
+        {/* status badge */}
+        <div style={{
+          display: 'inline-block', padding: '5px 14px', borderRadius: 20,
+          fontSize: 12, fontWeight: 700, letterSpacing: '0.3px',
+          background: st.bg, color: st.color, position: 'relative',
+        }}>
+          {st.label}
+        </div>
+      </div>
+
+      {/* ── wave ── */}
+      <div style={{ background: '#0c1628', lineHeight: 0 }}>
+        <svg viewBox="0 0 360 22" style={{ display: 'block', width: '100%' }}>
+          <path d="M0,0 C65,22 130,22 180,11 C230,0 295,0 360,22 L360,22 L0,22 Z" fill="#ffffff"/>
+        </svg>
+      </div>
+
+      {/* ── body ── */}
+      <div style={{ padding: '8px 20px 16px', background: '#fff' }}>
+
+        {/* section label */}
+        <SectionLabel>Transaction Details</SectionLabel>
+
+        <TagRow label="Order ID" value={`#${order.orderId}`} />
+        <TagRow label="UTR" value={order.TXID ? `#${order.TXID}` : 'Pending'} />
+        <PlainRow label="Date & Time" value={dateStr} />
+        <PlainRow label="Amount (INR)" value={`₹${Number(order.fiat).toLocaleString('en-IN')}`} mono last />
+
+        <SectionLabel>{isBank ? 'Bank Details' : 'UPI Details'}</SectionLabel>
+
+        {isBank ? (<>
+          <PlainRow label="Account Name" value={order.bankCard.accountName} />
+          <PlainRow label="Account No."  value={order.bankCard.accountNumber} mono />
+          <PlainRow label="IFSC"         value={order.bankCard.ifsc} mono last />
+        </>) : (<>
+          <PlainRow label="Name"   value={order.bankCard?.accountName} />
+          <PlainRow label="UPI ID" value={order.bankCard?.upi} mono last />
+        </>)}
+
+        {/* dashed line */}
+        <div style={{
+          borderTop: '1.5px dashed #e2e8f0', margin: '16px 0 12px',
+        }} />
+
+        {/* barcode */}
+        <div style={{ display: 'flex', gap: 2, justifyContent: 'center', marginBottom: 8 }}>
+          {BARS.map((w, i) => (
+            <div key={i} style={{
+              width: w, height: 22, borderRadius: 1,
+              background: `rgba(156,163,175,${0.38 + (i % 3) * 0.18})`,
+            }} />
+          ))}
+        </div>
+
+        {/* ref */}
+        <div style={{
+          textAlign: 'center', fontSize: 9, color: '#cbd5e1',
+          fontFamily: 'monospace', letterSpacing: '1.5px',
+        }}>
+          {order.orderId}–{order._id?.slice(-6).toUpperCase()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SectionLabel = ({ children }) => (
+  <div style={{
+    fontSize: 9, fontWeight: 700, letterSpacing: '2px', color: '#94a3b8',
+    textTransform: 'uppercase', padding: '12px 0 6px',
+    borderBottom: '1px solid #edf2f7', marginBottom: 2,
+  }}>
+    {children}
+  </div>
+);
+
+const PlainRow = ({ label, value, mono, last }) => (
+  <div style={{
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '8px 0', borderBottom: last ? 'none' : '1px solid #f1f5f9',
+  }}>
+    <span style={{ fontSize: 12, color: '#94a3b8' }}>{label}</span>
+    <span style={{
+      fontSize: 12, color: '#111827', fontWeight: 600, textAlign: 'right',
+      maxWidth: '60%', wordBreak: 'break-word',
+      fontFamily: mono ? 'monospace' : 'inherit',
+    }}>{value}</span>
+  </div>
+);
+
+const TagRow = ({ label, value, last }) => (
+  <div style={{
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '8px 0', borderBottom: last ? 'none' : '1px solid #f1f5f9',
+  }}>
+    <span style={{ fontSize: 12, color: '#94a3b8' }}>{label}</span>
+    <span style={{
+      background: '#dbeafe', borderRadius: 5, padding: '3px 9px',
+      fontFamily: 'monospace', fontSize: 11, color: '#1e40af', fontWeight: 700,
+    }}>{value}</span>
+  </div>
+);
+
+/* ══════════════════════════════════════════════════════════════════
+   CANVAS RECEIPT — only used for download/share (never shown)
 ══════════════════════════════════════════════════════════════════ */
 
 const SCALE = 3;
@@ -20,15 +195,14 @@ const MONO  = 'ui-monospace, "SF Mono", "Courier New", monospace';
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y,     x + w, y + r);
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
   ctx.lineTo(x + w, y + h - r);
   ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
   ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h,     x, y + h - r);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
   ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y,         x + r, y);
+  ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
 }
 
@@ -37,194 +211,115 @@ function measure(ctx, text, font) {
   return ctx.measureText(String(text)).width;
 }
 
-/* ── Header ─────────────────────────────────────────────────────
-   Layout (top → bottom, all values in logical px):
-     y+0   → top accent stripe (2px)
-     y+14  → "TRANSACTION RECEIPT" label  (9px font)
-     y+32  → Amount  (32px font)
-     y+76  → status badge  (26px tall)
-     y+116 → end of header (14px padding below badge)
-──────────────────────────────────────────────────────────────── */
 function drawHeader(ctx, order, y) {
-  const BADGE_H = 26;
-  const BADGE_R = 13;
-  const LABEL_Y  = 14;
-  const AMOUNT_Y = 32;
-  const BADGE_Y  = 76;
-  const H        = BADGE_Y + BADGE_H + 14;   // = 116
+  const BADGE_H = 26, BADGE_R = 13;
+  const LABEL_Y = 14, AMOUNT_Y = 32, BADGE_Y = 76;
+  const H = BADGE_Y + BADGE_H + 14;
 
-  /* measure badge text */
   const STATUS = {
-    success: { bg:'#14532d', fg:'#86efac', text:'✓  Completed' },
-    pending: { bg:'#78350f', fg:'#fde68a', text:'◎  Pending'   },
-    failed:  { bg:'#7f1d1d', fg:'#fca5a5', text:'✕  Failed'    },
+    success: { bg: '#14532d', fg: '#86efac', text: '✓  Completed' },
+    pending: { bg: '#78350f', fg: '#fde68a', text: '◎  Pending'   },
+    failed:  { bg: '#7f1d1d', fg: '#fca5a5', text: '✕  Failed'    },
   };
   const st = STATUS[order.status] || STATUS.pending;
   ctx.font = `700 12px ${FONT}`;
-  const badgeTW = measure(ctx, st.text, `700 12px ${FONT}`);
-  const badgeW  = badgeTW + 30;
+  const badgeW = measure(ctx, st.text, `700 12px ${FONT}`) + 30;
 
-  /* ── draw background (clipped to header rect) ── */
   ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, y, W, H);
-  ctx.clip();
+  ctx.beginPath(); ctx.rect(0, y, W, H); ctx.clip();
 
-  ctx.fillStyle = '#0c1628';
-  ctx.fillRect(0, y, W, H);
+  ctx.fillStyle = '#0c1628'; ctx.fillRect(0, y, W, H);
 
-  /* top-right radial glow */
   const g1 = ctx.createRadialGradient(W * 0.88, y, 0, W * 0.88, y, W * 0.65);
-  g1.addColorStop(0, 'rgba(28,60,124,0.95)');
-  g1.addColorStop(1, 'rgba(12,22,40,0)');
+  g1.addColorStop(0, 'rgba(28,60,124,0.95)'); g1.addColorStop(1, 'rgba(12,22,40,0)');
   ctx.fillStyle = g1; ctx.fillRect(0, y, W, H);
 
-  /* bottom-left radial glow */
   const g2 = ctx.createRadialGradient(0, y + H, 0, 0, y + H, W * 0.5);
-  g2.addColorStop(0, 'rgba(20,44,92,0.85)');
-  g2.addColorStop(1, 'rgba(12,22,40,0)');
+  g2.addColorStop(0, 'rgba(20,44,92,0.85)'); g2.addColorStop(1, 'rgba(12,22,40,0)');
   ctx.fillStyle = g2; ctx.fillRect(0, y, W, H);
 
-  /* decorative circle top-right */
-  ctx.beginPath();
-  ctx.arc(W - 36, y - 22, 82, 0, Math.PI * 2);
+  ctx.beginPath(); ctx.arc(W - 36, y - 22, 82, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(24,52,104,0.5)'; ctx.fill();
 
-  /* decorative circle bottom-left (small, stays inside) */
-  ctx.beginPath();
-  ctx.arc(-8, y + H + 4, 46, 0, Math.PI * 2);
+  ctx.beginPath(); ctx.arc(-8, y + H + 4, 46, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(16,38,80,0.42)'; ctx.fill();
 
-  /* diagonal lines */
-  ctx.save();
-  ctx.globalAlpha = 0.04; ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.9;
+  ctx.save(); ctx.globalAlpha = 0.04; ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.9;
   ctx.beginPath(); ctx.moveTo(0, y + H); ctx.lineTo(W, y); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(50, y + H); ctx.lineTo(W, y + 28); ctx.stroke();
   ctx.restore();
 
-  /* top accent stripe */
-  ctx.fillStyle = 'rgba(34,85,164,0.55)';
-  ctx.fillRect(0, y, W, 2);
+  ctx.fillStyle = 'rgba(34,85,164,0.55)'; ctx.fillRect(0, y, W, 2);
+  ctx.restore();
 
-  ctx.restore(); /* end background clip */
-
-  /* ── text layer (no clip needed — everything fits inside H) ── */
-
-  /* "TRANSACTION RECEIPT" label */
-  ctx.font = `700 9px ${FONT}`;
-  ctx.fillStyle = '#5a85c0';
-  ctx.textBaseline = 'top';
-  ctx.textAlign = 'left';
+  ctx.font = `700 9px ${FONT}`; ctx.fillStyle = '#5a85c0';
+  ctx.textBaseline = 'top'; ctx.textAlign = 'left';
   ctx.fillText('TRANSACTION RECEIPT', PAD, y + LABEL_Y);
-
-  /* decorative line after label */
   const lw = measure(ctx, 'TRANSACTION RECEIPT', `700 9px ${FONT}`);
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(PAD + lw + 8, y + LABEL_Y + 5);
-  ctx.lineTo(W - PAD, y + LABEL_Y + 5);
-  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD + lw + 8, y + LABEL_Y + 5); ctx.lineTo(W - PAD, y + LABEL_Y + 5); ctx.stroke();
 
-  /* amount */
-  ctx.font = `700 32px ${FONT}`;
-  ctx.fillStyle = '#ffffff';
-  ctx.textBaseline = 'top';
-  ctx.fillText(`₹${Number(order.fiat).toLocaleString('en-IN')}`, PAD, y + AMOUNT_Y);
+  ctx.font = `700 32px ${FONT}`; ctx.fillStyle = '#fff';
+  ctx.textBaseline = 'top'; ctx.fillText(`₹${Number(order.fiat).toLocaleString('en-IN')}`, PAD, y + AMOUNT_Y);
 
-  /* badge */
-  const bX = PAD;
-  const bY = y + BADGE_Y;
-  roundRect(ctx, bX, bY, badgeW, BADGE_H, BADGE_R);
+  roundRect(ctx, PAD, y + BADGE_Y, badgeW, BADGE_H, BADGE_R);
   ctx.fillStyle = st.bg; ctx.fill();
-  ctx.font = `700 12px ${FONT}`;
-  ctx.fillStyle = st.fg;
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-  ctx.fillText(st.text, bX + 15, bY + BADGE_H / 2);
+  ctx.font = `700 12px ${FONT}`; ctx.fillStyle = st.fg;
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  ctx.fillText(st.text, PAD + 15, y + BADGE_Y + BADGE_H / 2);
 
   return H;
 }
 
 function drawWave(ctx, y) {
   const H = 22;
-  ctx.fillStyle = '#0c1628';
-  ctx.fillRect(0, y, W, H);
+  ctx.fillStyle = '#0c1628'; ctx.fillRect(0, y, W, H);
   ctx.beginPath();
   ctx.moveTo(0, y);
   ctx.bezierCurveTo(W * 0.18, y + H, W * 0.36, y + H, W * 0.5, y + H / 2);
-  ctx.bezierCurveTo(W * 0.64, y,     W * 0.82, y,     W, y + H);
-  ctx.lineTo(W, y + H); ctx.lineTo(0, y + H);
-  ctx.closePath();
-  ctx.fillStyle = '#ffffff'; ctx.fill();
+  ctx.bezierCurveTo(W * 0.64, y, W * 0.82, y, W, y + H);
+  ctx.lineTo(W, y + H); ctx.lineTo(0, y + H); ctx.closePath();
+  ctx.fillStyle = '#fff'; ctx.fill();
   return H;
 }
 
 function drawSectionLabel(ctx, label, y) {
   const H = 30;
-  ctx.font = `700 9px ${FONT}`;
-  ctx.fillStyle = '#94a3b8';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
+  ctx.font = `700 9px ${FONT}`; ctx.fillStyle = '#94a3b8';
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
   ctx.fillText(label.toUpperCase(), PAD, y + H / 2 - 2);
-  ctx.strokeStyle = '#edf2f7';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(PAD, y + H - 1); ctx.lineTo(W - PAD, y + H - 1);
-  ctx.stroke();
+  ctx.strokeStyle = '#edf2f7'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD, y + H - 1); ctx.lineTo(W - PAD, y + H - 1); ctx.stroke();
   return H;
 }
 
 function drawRow(ctx, label, value, y, mono, last = false) {
   const H = 36, mid = y + H / 2;
-  ctx.font = `400 12px ${FONT}`;
-  ctx.fillStyle = '#94a3b8';
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-  ctx.fillText(label, PAD, mid);
-  ctx.font = `600 12px ${mono ? MONO : FONT}`;
-  ctx.fillStyle = '#111827';
-  ctx.textAlign = 'right';
-  ctx.fillText(String(value ?? ''), W - PAD, mid);
-  ctx.textAlign = 'left';
-  if (!last) {
-    ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD, y + H); ctx.lineTo(W - PAD, y + H); ctx.stroke();
-  }
+  ctx.font = `400 12px ${FONT}`; ctx.fillStyle = '#94a3b8';
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.fillText(label, PAD, mid);
+  ctx.font = `600 12px ${mono ? MONO : FONT}`; ctx.fillStyle = '#111827';
+  ctx.textAlign = 'right'; ctx.fillText(String(value ?? ''), W - PAD, mid); ctx.textAlign = 'left';
+  if (!last) { ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PAD, y + H); ctx.lineTo(W - PAD, y + H); ctx.stroke(); }
   return H;
 }
 
 function drawTagRow(ctx, label, value, y, last = false) {
   const H = 36, mid = y + H / 2;
-  ctx.font = `400 12px ${FONT}`;
-  ctx.fillStyle = '#94a3b8';
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-  ctx.fillText(label, PAD, mid);
-
+  ctx.font = `400 12px ${FONT}`; ctx.fillStyle = '#94a3b8';
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.fillText(label, PAD, mid);
   ctx.font = `700 11px ${MONO}`;
   const tw = measure(ctx, value, `700 11px ${MONO}`);
-  const tW = tw + 20, tH = 22;
-  const tX = W - PAD - tW, tY = mid - tH / 2;
-
-  roundRect(ctx, tX, tY, tW, tH, 5);
-  ctx.fillStyle = '#dbeafe'; ctx.fill();
-  ctx.fillStyle = '#1e40af';
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
-  ctx.fillText(value, W - PAD - 9, mid);
-  ctx.textAlign = 'left';
-
-  if (!last) {
-    ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD, y + H); ctx.lineTo(W - PAD, y + H); ctx.stroke();
-  }
+  const tW = tw + 20, tH = 22, tX = W - PAD - tW, tY = mid - tH / 2;
+  roundRect(ctx, tX, tY, tW, tH, 5); ctx.fillStyle = '#dbeafe'; ctx.fill();
+  ctx.fillStyle = '#1e40af'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+  ctx.fillText(value, W - PAD - 9, mid); ctx.textAlign = 'left';
+  if (!last) { ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PAD, y + H); ctx.lineTo(W - PAD, y + H); ctx.stroke(); }
   return H;
 }
 
 function drawDashedLine(ctx, y) {
-  ctx.save();
-  ctx.setLineDash([5, 5]);
-  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
-  ctx.restore();
+  ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke(); ctx.restore();
 }
 
 function drawBarcode(ctx, y) {
@@ -233,25 +328,19 @@ function drawBarcode(ctx, y) {
   let bx = (W - totalW) / 2;
   bars.forEach((bw, i) => {
     ctx.fillStyle = `rgba(156,163,175,${0.38 + (i % 3) * 0.18})`;
-    ctx.fillRect(bx, y, bw, 22);
-    bx += bw + 2;
+    ctx.fillRect(bx, y, bw, 22); bx += bw + 2;
   });
 }
 
-/* ── header height — fixed, matches drawHeader constants ── */
-function headerHeight() {
-  return 116; // BADGE_Y(76) + BADGE_H(26) + padding(14)
-}
-
 function drawReceipt(order) {
-  const isBank   = order.bankCard?.mode === 'bank';
-  const HDR_H    = headerHeight();
-  const WAVE_H   = 22;
-  const TOP_PAD  = 10;
-  const SEC1_H   = 30 + 36 * 4;            // label + 4 rows
-  const SEC2_H   = 30 + 36 * (isBank ? 3 : 2);
-  const BOT      = 20 + 1 + 14 + 22 + 12 + 14 + 6;  // gap+dash+gap+barcode+gap+ref+gap
-  const TOTAL_H  = HDR_H + WAVE_H + TOP_PAD + SEC1_H + 14 + SEC2_H + BOT;
+  const isBank  = order.bankCard?.mode === 'bank';
+  const HDR_H   = 116;
+  const WAVE_H  = 22;
+  const TOP_PAD = 10;
+  const SEC1_H  = 30 + 36 * 4;
+  const SEC2_H  = 30 + 36 * (isBank ? 3 : 2);
+  const BOT     = 20 + 1 + 14 + 22 + 12 + 14 + 6;
+  const TOTAL_H = HDR_H + WAVE_H + TOP_PAD + SEC1_H + 14 + SEC2_H + BOT;
 
   const canvas = document.createElement('canvas');
   canvas.width  = W * SCALE;
@@ -259,41 +348,23 @@ function drawReceipt(order) {
   const ctx = canvas.getContext('2d');
   ctx.scale(SCALE, SCALE);
 
-  /* white card base */
-  roundRect(ctx, 0, 0, W, TOTAL_H, 16);
-  ctx.fillStyle = '#ffffff'; ctx.fill();
+  roundRect(ctx, 0, 0, W, TOTAL_H, 16); ctx.fillStyle = '#fff'; ctx.fill();
 
-  /* clip to card */
-  ctx.save();
-  roundRect(ctx, 0, 0, W, TOTAL_H, 16);
-  ctx.clip();
+  ctx.save(); roundRect(ctx, 0, 0, W, TOTAL_H, 16); ctx.clip();
 
   let cy = 0;
-
-  /* header */
   cy += drawHeader(ctx, order, cy);
-
-  /* wave */
   cy += drawWave(ctx, cy);
-
-  /* body */
   cy += TOP_PAD;
-
   cy += drawSectionLabel(ctx, 'Transaction Details', cy);
   cy += drawTagRow(ctx, 'Order ID', `#${order.orderId}`, cy);
   cy += drawTagRow(ctx, 'UTR', order.TXID ? `#${order.TXID}` : 'Pending', cy);
-
   const dateStr = order.createdAt
-    ? new Date(order.createdAt).toLocaleString('en-IN', {
-        day:'2-digit', month:'short', year:'numeric',
-        hour:'2-digit', minute:'2-digit', hour12:true,
-      })
+    ? new Date(order.createdAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true })
     : '—';
   cy += drawRow(ctx, 'Date & Time', dateStr, cy, false);
   cy += drawRow(ctx, 'Amount (INR)', `₹${Number(order.fiat).toLocaleString('en-IN')}`, cy, true, true);
-
   cy += 14;
-
   cy += drawSectionLabel(ctx, isBank ? 'Bank Details' : 'UPI Details', cy);
   if (isBank) {
     cy += drawRow(ctx, 'Account Name', order.bankCard.accountName,  cy, false);
@@ -303,29 +374,16 @@ function drawReceipt(order) {
     cy += drawRow(ctx, 'Name',   order.bankCard?.accountName, cy, false);
     cy += drawRow(ctx, 'UPI ID', order.bankCard?.upi,         cy, true, true);
   }
-
-  /* dashed separator */
-  cy += 20;
-  drawDashedLine(ctx, cy); cy += 1;
-
-  /* barcode */
-  cy += 14;
-  drawBarcode(ctx, cy); cy += 22;
-
-  /* ref code */
+  cy += 20; drawDashedLine(ctx, cy); cy += 1;
+  cy += 14; drawBarcode(ctx, cy); cy += 22;
   cy += 12;
-  ctx.font = `400 9px ${MONO}`;
-  ctx.fillStyle = '#cbd5e1';
+  ctx.font = `400 9px ${MONO}`; ctx.fillStyle = '#cbd5e1';
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   ctx.fillText(`${order.orderId}–${order._id?.slice(-6).toUpperCase()}`, W / 2, cy);
-  cy += 14;
 
-  ctx.restore(); // card clip
-
-  /* card border */
+  ctx.restore();
   ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
-  roundRect(ctx, 0, 0, W, TOTAL_H, 16);
-  ctx.stroke();
+  roundRect(ctx, 0, 0, W, TOTAL_H, 16); ctx.stroke();
 
   return canvas;
 }
@@ -334,7 +392,7 @@ function canvasToBlob(canvas) {
   return new Promise(res => canvas.toBlob(res, 'image/png', 1));
 }
 
-/* ══ UI STYLES ══ */
+/* ══ STYLES ══ */
 const STYLES = `
 .eh-list { display:flex; flex-direction:column; gap:10px; padding:4px 0 24px; }
 .eh-card { background:#fff; border:1px solid #f0f2f5; border-radius:12px; overflow:hidden; transition:box-shadow .18s, border-color .18s; }
@@ -383,25 +441,23 @@ const STYLES = `
 .slip-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1200; display:flex; align-items:flex-end; justify-content:center; animation:slipFadeIn .2s ease; }
 @keyframes slipFadeIn { from{opacity:0} to{opacity:1} }
 @media (min-width:540px) { .slip-backdrop { align-items:center; padding:20px; } }
-.slip-sheet { width:100%; max-width:400px; background:#fff; border-radius:22px 22px 0 0; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 -4px 30px rgba(0,0,0,.15); animation:sheetUp .28s cubic-bezier(.32,1,.4,1); }
+.slip-sheet { width:100%; max-width:420px; background:#f8fafc; border-radius:22px 22px 0 0; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 -4px 30px rgba(0,0,0,.15); animation:sheetUp .28s cubic-bezier(.32,1,.4,1); }
 @keyframes sheetUp { from{transform:translateY(80px);opacity:0} to{transform:translateY(0);opacity:1} }
 @media (min-width:540px) { .slip-sheet { border-radius:22px; animation:slipFadeIn .2s ease; box-shadow:0 20px 60px rgba(0,0,0,.22); } }
-.slip-topbar { flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:10px 16px 4px; position:relative; }
+.slip-topbar { flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:10px 16px 4px; position:relative; background:#f8fafc; }
 .slip-handle { width:36px; height:4px; background:#e2e8f0; border-radius:99px; }
 @media (min-width:540px) { .slip-handle { display:none; } }
-.slip-close { position:absolute; right:16px; top:8px; width:28px; height:28px; border-radius:50%; background:#f1f5f9; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
-.slip-close:hover { background:#e2e8f0; }
-.slip-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-.slip-preview-wrap { padding:12px; display:flex; justify-content:center; }
-.slip-preview-wrap canvas { border-radius:16px; max-width:100%; display:block; height:auto; }
-.slip-actions { flex-shrink:0; display:flex; gap:8px; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:#fff; border-top:1px solid #f1f5f9; }
+.slip-close { position:absolute; right:16px; top:8px; width:28px; height:28px; border-radius:50%; background:#e2e8f0; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+.slip-close:hover { background:#d1d5db; }
+.slip-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:8px 16px 0; }
+.slip-actions { flex-shrink:0; display:flex; gap:8px; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:#f8fafc; border-top:1px solid #e2e8f0; }
 .slip-act-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px 0; border-radius:11px; border:none; cursor:pointer; font-size:13px; font-weight:700; transition:opacity .15s, background .15s; -webkit-tap-highlight-color:transparent; }
 .slip-act-btn:disabled { opacity:.5; cursor:not-allowed; }
 .slip-act-btn:active:not(:disabled) { opacity:.78; }
 .slip-act-dl { background:#0f172a; color:#fff; }
 .slip-act-dl:hover:not(:disabled) { background:#1e293b; }
-.slip-act-sh { background:#f1f5f9; color:#0f172a; }
-.slip-act-sh:hover:not(:disabled) { background:#e2e8f0; }
+.slip-act-sh { background:#e2e8f0; color:#0f172a; }
+.slip-act-sh:hover:not(:disabled) { background:#d1d5db; }
 .slip-spin { width:14px; height:14px; border-radius:50%; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; animation:spin .7s linear infinite; flex-shrink:0; }
 .slip-spin.dark { border-color:rgba(0,0,0,.12); border-top-color:#111; }
 @keyframes spin { to{transform:rotate(360deg)} }
@@ -412,32 +468,21 @@ const formatTimeLeft = (ms) => {
   return `${String(Math.floor(t/3600)).padStart(2,'0')}h ${String(Math.floor((t%3600)/60)).padStart(2,'0')}m ${String(t%60).padStart(2,'0')}s`;
 };
 
-/* ─── TransactionSlip ──────────────────────────────────────────── */
+/* ─── TransactionSlip modal ────────────────────────────────────── */
 const TransactionSlip = ({ order, onClose }) => {
-  const previewRef = useRef(null);
-  const hiResRef   = useRef(null);
   const [busy, setBusy] = useState('');
 
-  useEffect(() => {
+  const getBlob = () => {
     const c = drawReceipt(order);
-    hiResRef.current = c;
-    if (previewRef.current && previewRef.current.parentElement) {
-      const maxW  = Math.min(previewRef.current.parentElement.offsetWidth - 24, W);
-      const ratio = maxW / (W * SCALE);
-      previewRef.current.width  = Math.round(c.width  * ratio);
-      previewRef.current.height = Math.round(c.height * ratio);
-      previewRef.current.getContext('2d').drawImage(c, 0, 0, previewRef.current.width, previewRef.current.height);
-    }
-  }, [order]);
-
-  const getBlob = () => canvasToBlob(hiResRef.current);
+    return canvasToBlob(c);
+  };
 
   const handleDownload = async () => {
     setBusy('dl');
     try {
       const blob = await getBlob();
       const url  = URL.createObjectURL(blob);
-      const a    = Object.assign(document.createElement('a'), { href:url, download:`receipt_${order.orderId}.png` });
+      const a    = Object.assign(document.createElement('a'), { href: url, download: `receipt_${order.orderId}.png` });
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 4000);
     } catch(e) { console.error(e); } finally { setBusy(''); }
@@ -447,33 +492,37 @@ const TransactionSlip = ({ order, onClose }) => {
     setBusy('sh');
     try {
       const blob = await getBlob();
-      const file = new File([blob], `receipt_${order.orderId}.png`, { type:'image/png' });
-      if (navigator.canShare?.({ files:[file] })) {
-        await navigator.share({ title:`Receipt #${order.orderId}`, files:[file] });
+      const file = new File([blob], `receipt_${order.orderId}.png`, { type: 'image/png' });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ title: `Receipt #${order.orderId}`, files: [file] });
       } else if (navigator.share) {
-        await navigator.share({ title:`Receipt #${order.orderId}`,
-          text:`₹${Number(order.fiat).toLocaleString('en-IN')} — #${order.orderId}` });
-      } else { await handleDownload(); return; }
+        await navigator.share({ title: `Receipt #${order.orderId}`, text: `₹${Number(order.fiat).toLocaleString('en-IN')} — #${order.orderId}` });
+      } else {
+        await handleDownload(); return;
+      }
     } catch(e) { if (e.name !== 'AbortError') console.error(e); } finally { setBusy(''); }
   };
 
   return (
-    <div className="slip-backdrop" onClick={e => e.target===e.currentTarget && onClose()}>
+    <div className="slip-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="slip-sheet">
         <div className="slip-topbar">
           <div className="slip-handle"/>
           <button className="slip-close" onClick={onClose}><X size={13} color="#374151"/></button>
         </div>
+
+        {/* ── Preview: pure React JSX — always pixel-perfect ── */}
         <div className="slip-scroll">
-          <div className="slip-preview-wrap"><canvas ref={previewRef}/></div>
-          <div style={{height:12}}/>
+          <ReceiptPreview order={order} />
+          <div style={{ height: 12 }}/>
         </div>
+
         <div className="slip-actions">
           <button className="slip-act-btn slip-act-dl" onClick={handleDownload} disabled={!!busy}>
-            {busy==='dl' ? <><div className="slip-spin"/>Saving…</> : <><DownloadIcon size={14}/>Save Image</>}
+            {busy === 'dl' ? <><div className="slip-spin"/>Saving…</> : <><DownloadIcon size={14}/>Save Image</>}
           </button>
           <button className="slip-act-btn slip-act-sh" onClick={handleShare} disabled={!!busy}>
-            {busy==='sh' ? <><div className="slip-spin dark"/>Preparing…</> : <><Share2 size={14}/>Share</>}
+            {busy === 'sh' ? <><div className="slip-spin dark"/>Preparing…</> : <><Share2 size={14}/>Share</>}
           </button>
         </div>
       </div>
@@ -487,7 +536,7 @@ const OrderCard = ({ value, timeLeft, onViewSlip }) => {
   const pct = Math.round((value.fulfilledRatio || 0) * 100);
   const s   = value.status;
   const dateLabel = value.createdAt
-    ? new Date(value.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+    ? new Date(value.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : '';
 
   return (
@@ -565,13 +614,13 @@ const OrderCard = ({ value, timeLeft, onViewSlip }) => {
 };
 
 /* ═══════════════════════════════════════════════════════════════ */
-const App = ({ open, setOpenDrawer,getContainer }) => {
+const App = ({ open, setOpenDrawer ,getContainer}) => {
   const [loading, setLoading]               = useState(false);
   const [orders, setOrders]                 = useState([]);
   const [remainingTimes, setRemainingTimes] = useState({});
   const [slipOrder, setSlipOrder]           = useState(null);
 
-  const fetchOrders = async ({getContainer}) => {
+  const fetchOrders = async () => {
     try {
       setLoading(true);
       const res = await usersGet('/order');
@@ -605,7 +654,7 @@ const App = ({ open, setOpenDrawer,getContainer }) => {
       <style>{STYLES}</style>
       <Drawer
         closable destroyOnClose placement="right" width="100%"
-        loading={loading} getContainer={getContainer || false} open={open} onClose={setOpenDrawer}
+        loading={loading} getContainer={getContainer || (() => document.body)} open={open} onClose={setOpenDrawer}
         closeIcon={<ArrowLeft size={20}/>}
         title={<Text strong style={{fontSize:15}}>Exchange History</Text>}
       >
