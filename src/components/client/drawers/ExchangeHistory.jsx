@@ -509,7 +509,7 @@ const TransactionSlip = ({ order, onClose }) => {
       <div className="slip-sheet">
         <div className="slip-topbar">
           <div className="slip-handle"/>
-          <button className="slip-close" onClick={onClose}><X size={13} color="#374151"/></button>
+          {/* <button className="slip-close" onClick={onClose}><X size={13} color="#374151"/></button> */}
         </div>
 
         {/* ── Preview: pure React JSX — always pixel-perfect ── */}
@@ -524,6 +524,12 @@ const TransactionSlip = ({ order, onClose }) => {
           </button>
           <button className="slip-act-btn slip-act-sh" onClick={handleShare} disabled={!!busy}>
             {busy === 'sh' ? <><div className="slip-spin dark"/>Preparing…</> : <><Share2 size={14}/>Share</>}
+          </button>
+
+           <button className="slip-act-btn slip-act-sh max-w-16" 
+            onClick={()=>onClose()}
+           >
+            {<div className="flex items-center">Close</div>}
           </button>
         </div>
       </div>
