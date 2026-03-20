@@ -8,51 +8,38 @@ const tabs = [
   { label: "Account",  icon: User,   path: "/account"  },
 ];
 
-const NAV_H = 60; // px — exact nav height so main gets the remaining space
+const NAV_H = 60;
 
 const Layout = () => {
   return (
-    /*
-      Outer div:
-        - fixed viewport height via h-[100dvh]
-        - flex column
-        - NO overflow on itself — it must NOT scroll
-    */
     <div
       className="flex flex-col w-full sm:max-w-[375px] mx-auto bg-neutral-100 shadow-lg"
-      style={{ height: '100dvh', overflow: 'hidden' }}
+      style={{ height: '100dvh', overflow: 'hidden', position: 'relative' }}
     >
-      {/* ── Page content — the ONLY scroll container ── */}
-      <main
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          WebkitOverflowScrolling: 'touch',
-          paddingBottom: NAV_H, // push content above fixed nav
-          minHeight: 0,         // critical for flex children to shrink correctly
-        }}
-      >
+      {/* ── Only scroll container ── */}
+      <main style={{
+        flex: 1,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        paddingBottom: NAV_H,
+        minHeight: 0,
+      }}>
         <Outlet />
       </main>
 
-      {/* ── Bottom Tab Navigation ── */}
-      <nav
-        style={{
-          position: 'fixed',
-          bottom: 0, left: 0, right: 0,
-          height: NAV_H,
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          background: '#ffffff',
-          borderTop: '0.5px solid #e5e7eb',
-          zIndex: 30,
-          /* centre inside the max-width shell on desktop */
-          maxWidth: 375,
-          margin: '0 auto',
-        }}
-      >
+      {/* ── Bottom nav — position:absolute so it stays inside the layout shell ── */}
+      <nav style={{
+        position: 'absolute',
+        bottom: 0, left: 0, right: 0,
+        height: NAV_H,
+        display: 'flex',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        background: '#ffffff',
+        borderTop: '0.5px solid #e5e7eb',
+        zIndex: 30,
+      }}>
         {tabs.map(({ label, icon: Icon, path }) => (
           <NavLink
             key={path}
