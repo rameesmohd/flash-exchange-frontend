@@ -14,7 +14,7 @@ const Layout = () => {
   return (
     <div
       className="flex flex-col w-full sm:max-w-[375px] mx-auto bg-neutral-100 shadow-lg"
-      style={{ height: '100dvh', overflow: 'hidden', position: 'relative' }}
+      style={{ height: '100dvh', overflow: 'hidden' }}
     >
       {/* ── Only scroll container ── */}
       <main style={{
