@@ -21,7 +21,7 @@ const getStatusTag = (status) => {
 };
 
 
-const App = ({ open,setOpenDrawer }) => {
+const App = ({ open,setOpenDrawer ,getContainer}) => {
   const [loading, setLoading] = useState(false);
   const [withdrawHistory,setWithdrawHistory]=useState([])
 
@@ -52,7 +52,7 @@ const App = ({ open,setOpenDrawer }) => {
       placement="right"
       width={"100%"}
       open={open}
-      getContainer={false} // render in parent DOM tree
+      getContainer={getContainer || false} // render in parent DOM tree
       loading={loading}
       onClose={setOpenDrawer}
       closeIcon={<ArrowLeft size={20} />}

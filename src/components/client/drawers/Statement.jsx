@@ -6,7 +6,7 @@ import { CiClock1 } from "react-icons/ci";
 
 const { Text, Paragraph } = Typography;
 
-const App = ({ open,setOpenDrawer }) => {
+const App = ({ open,setOpenDrawer,getContainer }) => {
   const [loading, setLoading] = useState(false);
 
   return (
@@ -15,7 +15,7 @@ const App = ({ open,setOpenDrawer }) => {
       destroyOnClose
       placement="right"
       width={"100%"}
-      getContainer={false} // render in parent DOM tree
+      getContainer={getContainer || false} // render in parent DOM tree
       open={open}
       loading={loading}
       onClose={() => setOpenDrawer()}

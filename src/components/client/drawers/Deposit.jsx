@@ -11,7 +11,7 @@ import DepositHistory from '../drawers/DepositHistory'
 import { usersPost } from '../../../services/userApi';
 import CryptoDeposit from '../CryptoDeposit';
 
-const App = ({open,setOpenDrawer}) => {
+const App = ({open,setOpenDrawer,getContainer}) => {
   const [loading, setLoading] = React.useState(false);
   const [openDepositHistory,setOpenDepositHistory]=useState(false)
   const [amount,setAmount]=useState(0)
@@ -45,7 +45,7 @@ const App = ({open,setOpenDrawer}) => {
         destroyOnClose
         placement="right"
         width={"100%"}
-        getContainer={false}
+        getContainer={getContainer || false}
         // bodyStyle={{padding : 5}}
         open={open}
         // loading={loading}

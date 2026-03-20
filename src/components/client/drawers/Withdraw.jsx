@@ -15,7 +15,7 @@ import { closePinModal, openPinModal } from '../../../redux/PinModalSlice';
 
 const { Text, Paragraph } = Typography;
 
-const App = ({open,setOpenDrawer}) => {
+const App = ({open,setOpenDrawer,getContainer}) => {
   const { selectedAddress } = useSelector((state)=>state.User)
   const { isOpen } = useSelector((state) => state.PinModal);
 

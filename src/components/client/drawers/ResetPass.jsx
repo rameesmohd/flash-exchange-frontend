@@ -4,7 +4,7 @@ import { ArrowLeft, History } from 'lucide-react';
 import { usersGet, usersPost } from '../../../services/userApi';
 const { Text, Paragraph } = Typography;
 
-const App = ({ open,setOpenDrawer }) => {
+const App = ({ open,setOpenDrawer,getContainer }) => {
   const [loading, setLoading] = useState({
     otpSend : false,
     submit : false
@@ -95,7 +95,7 @@ const App = ({ open,setOpenDrawer }) => {
       placement="right"
       open={open}
       width={"100%"}
-      getContainer={false} // render in parent DOM tree
+      getContainer={getContainer || false} // render in parent DOM tree
       // loading={loading}
       onClose={setOpenDrawer}
       closeIcon={<ArrowLeft size={20} />}

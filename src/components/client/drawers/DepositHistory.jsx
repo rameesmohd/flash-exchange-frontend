@@ -614,7 +614,7 @@ const OrderCard = ({ value, timeLeft, onViewSlip }) => {
 };
 
 /* ═══════════════════════════════════════════════════════════════ */
-const App = ({ open, setOpenDrawer }) => {
+const App = ({ open, setOpenDrawer ,getContainer}) => {
   const [loading, setLoading]               = useState(false);
   const [orders, setOrders]                 = useState([]);
   const [remainingTimes, setRemainingTimes] = useState({});
@@ -654,7 +654,7 @@ const App = ({ open, setOpenDrawer }) => {
       <style>{STYLES}</style>
       <Drawer
         closable destroyOnClose placement="right" width="100%"
-        loading={loading} getContainer={false} open={open} onClose={setOpenDrawer}
+        loading={loading} getContainer={getContainer || false} open={open} onClose={setOpenDrawer}
         closeIcon={<ArrowLeft size={20}/>}
         title={<Text strong style={{fontSize:15}}>Exchange History</Text>}
       >

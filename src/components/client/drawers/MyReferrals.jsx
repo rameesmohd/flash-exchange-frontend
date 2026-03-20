@@ -21,7 +21,7 @@ import { useSelector } from "react-redux";
 import { formatDate } from '../../../services/formatData'
 const { Text, Title } = Typography;
 
-const ReferralDrawer = ({ open, setOpenDrawer }) => {
+const ReferralDrawer = ({ open, setOpenDrawer ,getContainer}) => {
   const userData = useSelector((state)=>state.User.userData)
   const [loading, setLoading] = useState(false);
   const [referrals, setReferrals] = useState([]);
@@ -49,7 +49,7 @@ const ReferralDrawer = ({ open, setOpenDrawer }) => {
       closable
       destroyOnClose
       placement="right"
-      getContainer={false} // render in parent DOM tree
+      getContainer={getContainer || false} // render in parent DOM tree
       width={"100%"}
       open={open}
       onClose={() => setOpenDrawer(false)}

@@ -4,14 +4,14 @@ import { ArrowLeft } from 'lucide-react';
 
 const { Text, Title, Paragraph, Link } = Typography;
 
-const HelpCenter = ({ open, setOpenDrawer }) => {
+const HelpCenter = ({ open, setOpenDrawer,getContainer }) => {
   return (
     <Drawer
       closable
       destroyOnClose
       placement="right"
       width="100%"
-      getContainer={false}
+      getContainer={getContainer || false}
       open={open}
       onClose={setOpenDrawer}
       closeIcon={<ArrowLeft size={20} />}
