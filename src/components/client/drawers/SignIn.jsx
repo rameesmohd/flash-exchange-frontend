@@ -8,7 +8,7 @@ import { usersPatch, usersPost } from '../../../services/userApi';
 
 const { Title, Text } = Typography;
 
-const App = ({ open, setOpenDrawer }) => {
+const App = ({ open, setOpenDrawer,getContainer }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -81,7 +81,7 @@ const App = ({ open, setOpenDrawer }) => {
       destroyOnClose
       placement="right"
       width="100%"
-      getContainer={false}
+      getContainer={getContainer || false}
       open={open}
       onClose={() => setOpenDrawer()}
       closeIcon={<ArrowLeft size={20} />}
