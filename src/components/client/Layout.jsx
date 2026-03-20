@@ -23,8 +23,12 @@ const Layout = () => {
         overflowX: 'hidden',
         WebkitOverflowScrolling: 'touch',
         minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column',
       }}>
-        <Outlet />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Outlet />
+        </div>
       </main>
 
       {/* ── Bottom nav ──
