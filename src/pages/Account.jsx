@@ -55,41 +55,27 @@ const Account = () => {
   };
 
   return (
-    /* No PageWrapper, no height/overflow — just a plain block that grows naturally */
     <div style={{ background:'#f0f2f7', minHeight:'100%' }}>
 
       {/* ── Profile header ── */}
-      <div style={{
-        background:'#0d1f3c', padding:'24px 20px 28px',
-        position:'relative', overflow:'hidden',
-      }}>
+      <div style={{ background:'#0d1f3c', padding:'24px 20px 28px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:-40, right:-40, width:160, height:160, borderRadius:'50%', background:'rgba(59,130,246,0.1)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', bottom:-20, left:-10, width:90,  height:90,  borderRadius:'50%', background:'rgba(255,255,255,0.04)', pointerEvents:'none' }}/>
-
+        <div style={{ position:'absolute', bottom:-20, left:-10, width:90, height:90, borderRadius:'50%', background:'rgba(255,255,255,0.04)', pointerEvents:'none' }}/>
         <div style={{ display:'flex', alignItems:'center', gap:16, position:'relative' }}>
           <div style={{ width:60, height:60, borderRadius:18, overflow:'hidden', border:'2px solid rgba(255,255,255,0.15)', flexShrink:0 }}>
             <img src={profileAvatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
           </div>
           <div style={{ flex:1, minWidth:0 }}>
-            <div style={{ fontSize:17, fontWeight:700, color:'#fff', marginBottom:2 }}>
-              +91 {maskPhone(userData?.phone)}
-            </div>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', marginBottom:12 }}>
-              {maskEmail(userData?.email)}
-            </div>
+            <div style={{ fontSize:17, fontWeight:700, color:'#fff', marginBottom:2 }}>+91 {maskPhone(userData?.phone)}</div>
+            <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', marginBottom:12 }}>{maskEmail(userData?.email)}</div>
             <div style={{ display:'flex', gap:8 }}>
-              <button onClick={() => open('deposit')} style={{ padding:'5px 16px', borderRadius:9, border:'none', background:'#2563eb', color:'#fff', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                Deposit
-              </button>
-              <button onClick={() => open('withdraw')} style={{ padding:'5px 16px', borderRadius:9, border:'1px solid rgba(255,255,255,0.2)', background:'transparent', color:'rgba(255,255,255,0.8)', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                Withdraw
-              </button>
+              <button onClick={() => open('deposit')} style={{ padding:'5px 16px', borderRadius:9, border:'none', background:'#2563eb', color:'#fff', fontSize:12, fontWeight:600, cursor:'pointer' }}>Deposit</button>
+              <button onClick={() => open('withdraw')} style={{ padding:'5px 16px', borderRadius:9, border:'1px solid rgba(255,255,255,0.2)', background:'transparent', color:'rgba(255,255,255,0.8)', fontSize:12, fontWeight:600, cursor:'pointer' }}>Withdraw</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Body ── */}
       <div style={{ padding:'16px 16px 24px', display:'flex', flexDirection:'column', gap:12 }}>
 
         {/* Referral banner */}
@@ -110,9 +96,7 @@ const Account = () => {
           {options.map(({ title, icon:Icon, key }, i) => (
             <div key={key} onClick={() => open(key)} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 18px', borderBottom: i < options.length-1 ? '0.5px solid #f1f5f9' : 'none', cursor:'pointer' }}>
               <div style={{ display:'flex', alignItems:'center', gap:13 }}>
-                <div style={{ width:34, height:34, borderRadius:10, background:'#f4f6fb', display:'flex', alignItems:'center', justifyContent:'center', color:'#374151', fontSize:16, flexShrink:0 }}>
-                  <Icon/>
-                </div>
+                <div style={{ width:34, height:34, borderRadius:10, background:'#f4f6fb', display:'flex', alignItems:'center', justifyContent:'center', color:'#374151', fontSize:16, flexShrink:0 }}><Icon/></div>
                 <span style={{ fontSize:13.5, fontWeight:500, color:'#1a1f2e' }}>{title}</span>
               </div>
               <ChevronRight size={16} color="#c4cad4"/>
@@ -123,9 +107,7 @@ const Account = () => {
         {/* Help Center */}
         <button onClick={() => open('helpCenter')} style={{ width:'100%', padding:'14px 18px', borderRadius:14, background:'#fff', border:'0.5px solid #e5e8ef', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer' }}>
           <div style={{ display:'flex', alignItems:'center', gap:13 }}>
-            <div style={{ width:34, height:34, borderRadius:10, background:'#eff6ff', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <HelpCircle size={16} color="#2563eb"/>
-            </div>
+            <div style={{ width:34, height:34, borderRadius:10, background:'#eff6ff', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}><HelpCircle size={16} color="#2563eb"/></div>
             <span style={{ fontSize:13.5, fontWeight:500, color:'#1a1f2e' }}>Help Center</span>
           </div>
           <ChevronRight size={16} color="#c4cad4"/>
@@ -133,24 +115,22 @@ const Account = () => {
 
         {/* Sign out */}
         <button onClick={logout} disabled={loading} style={{ width:'100%', padding:'14px', borderRadius:14, background:'#fff', border:'0.5px solid #fecaca', display:'flex', alignItems:'center', justifyContent:'center', gap:8, cursor:'pointer', color:'#dc2626', fontSize:14, fontWeight:600 }}>
-          <LogOut size={16}/>
-          {loading ? 'Signing out…' : 'Sign Out'}
+          <LogOut size={16}/> {loading ? 'Signing out…' : 'Sign Out'}
         </button>
-
       </div>
 
-      {/* Drawers */}
-      <Deposit         open={drawer.deposit}         setOpenDrawer={() => close('deposit')}/>
-      <Withdraw        open={drawer.withdraw}        setOpenDrawer={() => close('withdraw')}/>
-      <Statement       open={drawer.statement}       setOpenDrawer={() => close('statement')}/>
-      <BankCard        open={drawer.bankcard}        setOpenDrawer={() => close('bankcard')}/>
-      <DepositHistory  open={drawer.depositHistory}  setOpenDrawer={() => close('depositHistory')}/>
-      <ExchangeHistory open={drawer.exchangeHistory} setOpenDrawer={() => close('exchangeHistory')}/>
-      <WithdrawHistory open={drawer.withdrawHistory} setOpenDrawer={() => close('withdrawHistory')}/>
-      <MyReferrals     open={drawer.myReferrrals}    setOpenDrawer={() => close('myReferrrals')}/>
-      <ResetPass       open={drawer.resetPass}       setOpenDrawer={() => close('resetPass')}/>
-      <Invite          open={drawer.invite}          onClose={() => close('invite')}/>
-      <HelpCenter      open={drawer.helpCenter}      setOpenDrawer={() => close('helpCenter')}/>
+      {/* ── Drawers — all render into document.body via getContainer ── */}
+      <Deposit         open={drawer.deposit}         setOpenDrawer={() => close('deposit')}         getContainer={() => document.body} />
+      <Withdraw        open={drawer.withdraw}        setOpenDrawer={() => close('withdraw')}        getContainer={() => document.body} />
+      <Statement       open={drawer.statement}       setOpenDrawer={() => close('statement')}       getContainer={() => document.body} />
+      <BankCard        open={drawer.bankcard}        setOpenDrawer={() => close('bankcard')}        getContainer={() => document.body} />
+      <DepositHistory  open={drawer.depositHistory}  setOpenDrawer={() => close('depositHistory')}  getContainer={() => document.body} />
+      <ExchangeHistory open={drawer.exchangeHistory} setOpenDrawer={() => close('exchangeHistory')} getContainer={() => document.body} />
+      <WithdrawHistory open={drawer.withdrawHistory} setOpenDrawer={() => close('withdrawHistory')} getContainer={() => document.body} />
+      <MyReferrals     open={drawer.myReferrrals}    setOpenDrawer={() => close('myReferrrals')}    getContainer={() => document.body} />
+      <ResetPass       open={drawer.resetPass}       setOpenDrawer={() => close('resetPass')}       getContainer={() => document.body} />
+      <Invite          open={drawer.invite}          onClose={() => close('invite')}                getContainer={() => document.body} />
+      <HelpCenter      open={drawer.helpCenter}      setOpenDrawer={() => close('helpCenter')}      getContainer={() => document.body} />
     </div>
   );
 };

@@ -93,7 +93,7 @@ const STYLES = `
   .bc-submit:disabled { opacity:.5; cursor:not-allowed; }
 `;
 
-const App = ({ open, setOpenDrawer, filterMode = null }) => {
+const App = ({ open, setOpenDrawer, filterMode = null, getContainer }) => {
   const [loading,      setLoading]      = useState(false);
   const [delLoading,   setDelLoading]   = useState(false);
   const [showAdd,      setShowAdd]      = useState(false);
@@ -148,6 +148,7 @@ const App = ({ open, setOpenDrawer, filterMode = null }) => {
 
   useEffect(() => {
     if (open && !showAdd) fetchCards();
+    if (open) { setMode('bank'); form.resetFields(); }
     setError('');
   }, [open, showAdd]);
 
@@ -159,7 +160,7 @@ const App = ({ open, setOpenDrawer, filterMode = null }) => {
         destroyOnClose
         placement="right"
         width="100%"
-        getContainer={false}
+        getContainer={getContainer || false}
         open={open}
         loading={loading}
         onClose={setOpenDrawer}
@@ -259,14 +260,16 @@ const App = ({ open, setOpenDrawer, filterMode = null }) => {
             {/* mode toggle */}
             <div className="bc-mode-toggle">
               <button
+                type="button"
                 className={`bc-mode-btn${mode === 'bank' ? ' active' : ''}`}
-                onClick={() => { setMode('bank'); form.resetFields(); }}
+                onClick={() => { setMode('bank'); form.resetFields(); form.setFieldsValue({ mode: 'bank' }); }}
               >
                 Bank Account
               </button>
               <button
+                type="button"
                 className={`bc-mode-btn${mode === 'upi' ? ' active' : ''}`}
-                onClick={() => { setMode('upi'); form.resetFields(); }}
+                onClick={() => { setMode('upi'); form.resetFields(); form.setFieldsValue({ mode: 'upi' }); }}
               >
                 UPI
               </button>

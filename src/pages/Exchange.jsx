@@ -217,9 +217,24 @@ const Exchange = () => {
         </div>
       </div>
 
-      <ExchangeHistory open={exchangeHistory} setOpenDrawer={() => setShowExchangeHistory(false)} />
-      <BankCard open={openBankCard.open} setOpenDrawer={() => setOpenBankCard(p=>({...p,open:false,confirm:true}))} filterMode={openBankCard.mode} />
-      <TransactionPinModal key={isOpen?'open':'closed'} open={isOpen} onClose={() => dispatch(closePinModal())} onSubmit={pin => { handleSubmitOrder(pin); dispatch(closePinModal()); }} />
+      {/* ── Drawers — all portal to document.body ── */}
+      <ExchangeHistory
+        open={exchangeHistory}
+        setOpenDrawer={() => setShowExchangeHistory(false)}
+        getContainer={() => document.body}
+      />
+      <BankCard
+        open={openBankCard.open}
+        setOpenDrawer={() => setOpenBankCard(p=>({...p,open:false,confirm:true}))}
+        filterMode={openBankCard.mode}
+        getContainer={() => document.body}
+      />
+      <TransactionPinModal
+        key={isOpen?'open':'closed'}
+        open={isOpen}
+        onClose={() => dispatch(closePinModal())}
+        onSubmit={pin => { handleSubmitOrder(pin); dispatch(closePinModal()); }}
+      />
     </div>
   );
 };
