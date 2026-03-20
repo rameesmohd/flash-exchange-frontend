@@ -22,23 +22,26 @@ const Layout = () => {
         overflowY: 'auto',
         overflowX: 'hidden',
         WebkitOverflowScrolling: 'touch',
-        paddingBottom: NAV_H,
         minHeight: 0,
       }}>
         <Outlet />
       </main>
 
-      {/* ── Bottom nav — position:absolute so it stays inside the layout shell ── */}
+      {/* ── Bottom nav ──
+          position:relative keeps it in normal flow at the bottom of the flex column.
+          It never uses position:fixed/absolute so it cannot overlap portalled modals/drawers
+          which render into document.body above this stacking context entirely.
+      ── */}
       <nav style={{
-        position: 'absolute',
-        bottom: 0, left: 0, right: 0,
+        flexShrink: 0,
         height: NAV_H,
         display: 'flex',
         justifyContent: 'space-around',
         alignItems: 'center',
         background: '#ffffff',
         borderTop: '0.5px solid #e5e7eb',
-        zIndex: 30,
+        /* no z-index — stays in natural stacking order below portalled overlays */
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}>
         {tabs.map(({ label, icon: Icon, path }) => (
           <NavLink
