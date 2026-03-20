@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Drawer, Typography } from 'antd';
 import { Image } from 'antd';
 import { ArrowLeft, DownloadIcon, FileText, X, ChevronDown, Share2 } from 'lucide-react';
@@ -65,7 +66,7 @@ const ReceiptPreview = ({ order }) => {
           marginBottom: 10, position: 'relative',
         }}>
           <span style={{
-            fontSize: 9, fontWeight: 700, letterSpacing: '2.5px',
+            fontSize: 10, fontWeight: 700, letterSpacing: '2px',
             color: '#5a85c0', textTransform: 'uppercase', whiteSpace: 'nowrap',
           }}>Transaction Receipt</span>
           <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
@@ -438,10 +439,10 @@ const STYLES = `
 .eh-receipts-strip { display:flex; flex-wrap:wrap; gap:6px; width:100%; }
 .eh-receipt-thumb { border:1px solid #e2e8f0; border-radius:8px; padding:4px; display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; }
 .eh-receipt-dl { color:#64748b; display:flex; align-items:center; }
-.slip-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1200; display:flex; align-items:flex-end; justify-content:center; animation:slipFadeIn .2s ease; }
+.slip-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:2000; display:flex; align-items:flex-end; justify-content:center; animation:slipFadeIn .2s ease; }
 @keyframes slipFadeIn { from{opacity:0} to{opacity:1} }
 @media (min-width:540px) { .slip-backdrop { align-items:center; padding:20px; } }
-.slip-sheet { width:100%; max-width:420px; background:#f8fafc; border-radius:22px 22px 0 0; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 -4px 30px rgba(0,0,0,.15); animation:sheetUp .28s cubic-bezier(.32,1,.4,1); }
+.slip-sheet { width:100%; max-width:420px; background:#f8fafc; border-radius:22px 22px 0 0; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 -4px 30px rgba(0,0,0,.15); animation:sheetUp .28s cubic-bezier(.32,1,.4,1); overflow:hidden; }
 @keyframes sheetUp { from{transform:translateY(80px);opacity:0} to{transform:translateY(0);opacity:1} }
 @media (min-width:540px) { .slip-sheet { border-radius:22px; animation:slipFadeIn .2s ease; box-shadow:0 20px 60px rgba(0,0,0,.22); } }
 .slip-topbar { flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:10px 16px 4px; position:relative; background:#f8fafc; }
@@ -503,7 +504,7 @@ const TransactionSlip = ({ order, onClose }) => {
     } catch(e) { if (e.name !== 'AbortError') console.error(e); } finally { setBusy(''); }
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div className="slip-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="slip-sheet">
         <div className="slip-topbar">
@@ -526,7 +527,8 @@ const TransactionSlip = ({ order, onClose }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
