@@ -24,7 +24,7 @@ const HelpCenter = ({ open, setOpenDrawer }) => {
       <div className="px-2">
         <Title level={4}>💬 Need Help? <br /> We’re Here for You!</Title>
         <Paragraph>
-          Welcome to <Text strong>eValueTrade</Text> — You are our most trusted ally,
+          Welcome to <Text strong>FsQuickPay</Text> — You are our most trusted ally,
           paving the way for a bright and successful future together.
         </Paragraph>
 
@@ -38,13 +38,13 @@ const HelpCenter = ({ open, setOpenDrawer }) => {
         <Paragraph>
           📱 <Text strong>Telegram Support</Text> (24/7, English) <br />
           Chat directly with our support agents — fast, friendly, and always online. <br />
-          👉 <Link href="https://t.me/evaluetradesupport" target="_blank">t.me/evaluetradesupport</Link>
+          👉 <Link href="https://t.me/FsQuickPaysupport" target="_blank">t.me/FsQuickPaysupport</Link>
         </Paragraph>
 
         <Paragraph>
           📢 <Text strong>Telegram Channel</Text> <br />
           Stay updated with live USDT/INR rates, offers, and key announcements. <br />
-          👉 <Link href="https://t.me/evaluetrade" target="_blank">t.me/evaluetrade</Link>
+          👉 <Link href="https://t.me/FsQuickPay" target="_blank">t.me/FsQuickPay</Link>
         </Paragraph>
 
         <Divider />

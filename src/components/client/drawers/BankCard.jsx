@@ -1,242 +1,345 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Drawer, Input, List, Typography, Space, Divider, Card, Badge,Modal, Radio } from 'antd';
+import { Button, Drawer, Input, Typography, Modal, Radio, Form } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 const { confirm } = Modal;
-import { Form } from 'antd';
-import { ArrowLeft, History } from 'lucide-react';
-import { IoMdAdd } from 'react-icons/io';
-import { CiClock1 } from "react-icons/ci";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Clock } from 'lucide-react';
 const { Text } = Typography;
-import {usersDelete, usersGet, usersPost} from '../../../services/userApi'
-import {formatDate} from '../../../services/formatData'
+import { usersDelete, usersGet, usersPost } from '../../../services/userApi';
+import { formatDate } from '../../../services/formatData';
 import { useDispatch, useSelector } from 'react-redux';
 import { setBankCardSelected } from '../../../redux/ClientSlice';
-import EmptyBox from '../common/EmptyBox'
+import EmptyBox from '../common/EmptyBox';
 
-const App = ({  open,setOpenDrawer,filterMode = null }) => {
-  const [loading, setLoading] = useState(false);
-  const [loaderDelete,setLoaderDelete]=useState(false)
-  const [showAddBankCard,setAddShowBankCard]=useState(false)
-  const [bankCard,setBankCard]=useState([])
-  const dispatch = useDispatch()
-  const {selectedBankCard} = useSelector((state)=>state.User)
-  const [form] = Form.useForm();
-  const options = [
-    { label: 'Bank Account', value: 'bank' },
-    { label: 'UPI', value: 'upi' },
-  ];
-  const [mode,setMode]=useState(options[0].value)
-  const [error,setError]=useState('')
+const STYLES = `
+  /* ── card list ── */
+  .bc-list { display:flex; flex-direction:column; gap:0; }
 
-  const handleFinish = async(values) => {
+  .bc-row {
+    display:flex; align-items:center;
+    padding:13px 16px;
+    border-bottom:1px solid #f1f5f9;
+    cursor:pointer;
+    transition:background .12s;
+    position:relative;
+    gap:12px;
+  }
+  .bc-row:last-child { border-bottom:none; }
+  .bc-row:active { background:#f8fafc; }
+  .bc-row.selected { background:#f0f7ff; }
+
+  /* left indicator bar for selected */
+  .bc-row.selected::before {
+    content:'';
+    position:absolute; left:0; top:0; bottom:0;
+    width:3px; background:#0d1f3c; border-radius:0 2px 2px 0;
+  }
+
+  .bc-icon-wrap {
+    width:40px; height:40px; border-radius:12px;
+    background:#f4f6fb; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:#374151;
+  }
+  .bc-icon-wrap.selected { background:#0d1f3c; color:#fff; }
+
+  .bc-center { flex:1; min-width:0; }
+  .bc-title {
+    font-size:13px; font-weight:600; color:#0f172a;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .bc-sub {
+    font-size:11px; color:#94a3b8; margin-top:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .bc-date { font-size:10px; color:#cbd5e1; margin-top:1px; }
+
+  .bc-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .bc-del-btn {
+    width:30px; height:30px; border-radius:8px;
+    border:none; background:#fef2f2; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .12s;
+  }
+  .bc-del-btn:hover { background:#fee2e2; }
+
+  /* ── add form ── */
+  .bc-form-wrap { padding:4px 0; }
+  .bc-mode-toggle {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:8px; margin-bottom:20px;
+  }
+  .bc-mode-btn {
+    padding:10px; border-radius:10px; border:1.5px solid #e5e8ef;
+    background:#fff; font-size:13px; font-weight:600;
+    color:#94a3b8; cursor:pointer; transition:all .15s;
+    text-align:center;
+  }
+  .bc-mode-btn.active {
+    border-color:#0d1f3c; background:#0d1f3c; color:#fff;
+  }
+  .bc-field-label {
+    font-size:11px; font-weight:600; color:#64748b;
+    letter-spacing:.5px; text-transform:uppercase;
+    margin-bottom:5px;
+  }
+  .bc-field-wrap { margin-bottom:14px; }
+  .bc-submit {
+    width:100%; padding:13px; border-radius:12px;
+    background:#0d1f3c; color:#fff; border:none;
+    font-size:14px; font-weight:700; cursor:pointer;
+    margin-top:6px; transition:background .15s;
+  }
+  .bc-submit:hover { background:#1e3a5f; }
+  .bc-submit:disabled { opacity:.5; cursor:not-allowed; }
+`;
+
+const App = ({ open, setOpenDrawer, filterMode = null }) => {
+  const [loading,      setLoading]      = useState(false);
+  const [delLoading,   setDelLoading]   = useState(false);
+  const [showAdd,      setShowAdd]      = useState(false);
+  const [bankCards,    setBankCards]    = useState([]);
+  const [mode,         setMode]         = useState('bank');
+  const [error,        setError]        = useState('');
+  const [form]                          = Form.useForm();
+  const dispatch = useDispatch();
+  const { selectedBankCard } = useSelector((s) => s.User);
+
+  const fetchCards = async () => {
     try {
-      setLoading(true)
-      const response = await usersPost('/bank-card',values)
-      if(response.success){
-        setAddShowBankCard(false)
-      }
-    } catch (error) {
-      console.log(error);
-      if(error?.response?.data?.message){
-          setError(error.response.data.message)
-      }
-    } finally {
-      setLoading(false)
-    }
+      setLoading(true);
+      const res = await usersGet(`/bank-card?mode=${filterMode}`);
+      if (res.success) setBankCards(res.bankCards);
+    } catch(e) { console.log(e); }
+    finally { setLoading(false); }
   };
 
-  const fetchBankCards = async()=>{
+  const deleteCard = async (id) => {
     try {
-      setLoading(true)
-      const response = await usersGet(`/bank-card?mode=${filterMode}`)
-      if(response.success){
-        setBankCard(response.bankCards)
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const deleteBankCard=async(id)=>{
-    try {
-      setLoaderDelete(true)
-      const response = await usersDelete(`/bank-card?id=${id}`)
-      if(response.success){
-        setBankCard(response.bankCards)
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoaderDelete(false)
-
-    }
-  }
-
-  const handleSelect=(value)=>{
-    dispatch(setBankCardSelected(value))
-    setOpenDrawer()
-  }
-
-  useEffect(()=>{
-    if(!showAddBankCard && open){
-      fetchBankCards()
-    }
-    setError('')
-  },[open,showAddBankCard])
-
-  const showDeleteConfirm = (id) => {
-    confirm({
-      title: 'Are you sure delete this card?',
-      icon: <ExclamationCircleFilled />,
-      content: 'Once deleted card cant be recovered',
-      okText: 'Confirm',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk() {
-        deleteBankCard(id)
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
+      setDelLoading(true);
+      const res = await usersDelete(`/bank-card?id=${id}`);
+      if (res.success) setBankCards(res.bankCards);
+    } catch(e) { console.log(e); }
+    finally { setDelLoading(false); }
   };
 
+  const handleSelect = (card) => {
+    dispatch(setBankCardSelected(card));
+    setOpenDrawer();
+  };
+
+  const handleFinish = async (values) => {
+    try {
+      setLoading(true);
+      const res = await usersPost('/bank-card', values);
+      if (res.success) { form.resetFields(); setShowAdd(false); }
+    } catch(e) {
+      console.log(e);
+      if (e?.response?.data?.message) setError(e.response.data.message);
+    } finally { setLoading(false); }
+  };
+
+  const confirmDelete = (id) => confirm({
+    title: 'Delete this card?',
+    icon: <ExclamationCircleFilled />,
+    content: 'This cannot be undone.',
+    okText: 'Delete', okType: 'danger', cancelText: 'Cancel',
+    onOk: () => deleteCard(id),
+  });
+
+  useEffect(() => {
+    if (open && !showAdd) fetchCards();
+    setError('');
+  }, [open, showAdd]);
 
   return (
-    <Drawer
-      closable
-      destroyOnClose
-      placement="right"
-      width={"100%"}
-      getContainer={false} // render in parent DOM tree
-      open={open}
-      loading={loading}
-      onClose={setOpenDrawer}
-      closeIcon={<ArrowLeft size={20} />}
-      title={
-        <div className="flex justify-between items-center">
-          <Text strong className="text-base">Bank Card</Text>
-          {!showAddBankCard ? <IoMdAdd onClick={()=>setAddShowBankCard(true)} className='hover:scale-110 cursor-pointer' size={20}/> :
-          <Button size='small' onClick={()=>setAddShowBankCard(false)} type='text' className='font-semibold cursor-pointer'>Cancel</Button>}
-        </div>
-      }
-    >
-    {
-    !showAddBankCard ? <>
-    {
-      bankCard.length ?
-      bankCard.map((value,index)=>
-      <Badge.Ribbon key={index+index} text="Selected" className={selectedBankCard?._id == value?._id ?'':'hidden'} placement='end' color="black">
-      <Card 
-      key={index}
-      type="inner"
-      title={
-        <div className={`flex items-center text-gray-400 text-xs font-normal`}>
-          <CiClock1 className="mr-1" />
-          {value?.createdAt && formatDate(value?.createdAt)}
-        </div>
-      }
-      headStyle={{ padding: '4px 12px' }} // Fine-tune this if needed
-      extra={ 
-      <Button loading={loaderDelete}  className={selectedBankCard?._id == value._id ? 'hidden':''} onClick={()=>showDeleteConfirm(value._id)} type="dashed">
-        Delete
-      </Button>
-      }
-      bodyStyle={{ padding: '8px 12px' }}
-      style={{ borderRadius: '8px' }}
-      className={`${ selectedBankCard?._id == value?._id ? 'border-gray-800 border-double':''} mb-3 text-sm`}
+    <>
+      <style>{STYLES}</style>
+      <Drawer
+        closable
+        destroyOnClose
+        placement="right"
+        width="100%"
+        getContainer={false}
+        open={open}
+        loading={loading}
+        onClose={setOpenDrawer}
+        closeIcon={<ArrowLeft size={20} />}
+        title={
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <Text strong style={{ fontSize:15 }}>
+              {showAdd ? 'Add Card' : 'Bank Cards'}
+            </Text>
+            {!showAdd ? (
+              <button
+                onClick={() => setShowAdd(true)}
+                style={{
+                  width:32, height:32, borderRadius:9,
+                  background:'#f4f6fb', border:'none', cursor:'pointer',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+              >
+                <Plus size={17} color="#374151" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowAdd(false)}
+                style={{
+                  padding:'4px 12px', borderRadius:8, border:'none',
+                  background:'#f4f6fb', fontSize:12, fontWeight:600,
+                  color:'#374151', cursor:'pointer',
+                }}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        }
       >
-      {
-       value.mode === "bank" ? 
-        <div className='cursor-pointer text-sm' onClick={()=>handleSelect(value)}>
-          <p>Account No: <span className='font-semibold'>{value?.accountNumber}</span></p>
-          <p>IFSC: <span className='font-semibold'>{value?.ifsc}</span></p>
-          <p>Account Name: <span className='font-semibold'>{value?.accountName}</span></p>
-        </div> :
-        <div className='cursor-pointer h-10 items-center text-sm' onClick={()=>handleSelect(value)}>
-          <p>Name: <span className='font-semibold'>{value?.accountName || "N/A"}</span></p> 
-          <p>UPI ID: <span className='font-semibold'>{value?.upi || "N/A"}</span></p>
-        </div>
-      }
-    </Card>
-    </Badge.Ribbon>
-    ) : <EmptyBox/>} 
-    {/* <p className='txt-sm text-gray-400 text-center my-4'>No more data</p>   */}
-    </> :
-    <Card  bordered={false} bodyStyle={{padding:5}} className="max-w-md mx-auto border-none rounded-xl">
-      <Form form={form} layout="vertical" onFinish={handleFinish}>
-        <Form.Item
-          label=""
-          name="mode"
-          initialValue="bank" // set the default here
-          rules={[{ required: true, message: 'Please select one' }]}
-        >
-          <Radio.Group onChange={(e)=>setMode(e.target.value)} options={options} optionType="default" />
-        </Form.Item>
-        {
-          mode == options[0].value &&
-            <>
-            <Form.Item
-              label="Holder Name"
-              name="accountName"
-              initialValue=""
-              rules={[{ required: true, message: 'Please enter account name' }]}
-            >
-            <Input type='default' placeholder='John' size='large'/>
-          </Form.Item>
-            <Form.Item
-              label="Account Number"
-              name="accountNumber"
-              initialValue=""
-              rules={[{ required: true, message: 'Please enter account number' }]}
-            >
-              <Input type='default' placeholder='' size='large'/>
-            </Form.Item>
-            <Form.Item
-              label="IFSC Code"
-              name="ifsc"
-              initialValue=""
-              rules={[{ required: true, message: 'Please enter IFSC code' }]}
-            >
-              <Input type='default' placeholder='' size='large'/>
-            </Form.Item>
-    
-            </>
-        }
+        {!showAdd ? (
+          /* ── Card list ── */
+          bankCards.length ? (
+            <div style={{ background:'#fff', borderRadius:14, border:'0.5px solid #e5e8ef', overflow:'hidden' }}>
+              <div className="bc-list">
+                {bankCards.map((card) => {
+                  const isSelected = selectedBankCard?._id === card._id;
+                  return (
+                    <div
+                      key={card._id}
+                      className={`bc-row${isSelected ? ' selected' : ''}`}
+                      onClick={() => handleSelect(card)}
+                    >
+                      {/* icon */}
+                      <div className={`bc-icon-wrap${isSelected ? ' selected' : ''}`}>
+                        {card.mode === 'upi' ? 'UPI' : 'BNK'}
+                      </div>
 
-        {
-          mode == options[1].value &&
-          <>
-          <Form.Item
-              label="Name"
-              name="accountName"
-              initialValue=""
-              rules={[{ required: true, message: 'Please enter upi name' }]}
+                      {/* details */}
+                      <div className="bc-center">
+                        {card.mode === 'bank' ? (
+                          <>
+                            <div className="bc-title">{card.accountName}</div>
+                            <div className="bc-sub">
+                              {card.accountNumber} &nbsp;·&nbsp; {card.ifsc}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="bc-title">{card.accountName || 'N/A'}</div>
+                            <div className="bc-sub">{card.upi || 'N/A'}</div>
+                          </>
+                        )}
+                        <div className="bc-date">
+                          Added {card.createdAt ? formatDate(card.createdAt) : ''}
+                        </div>
+                      </div>
+
+                      {/* right — check or delete */}
+                      <div className="bc-right">
+                        {isSelected ? (
+                          <CheckCircle2 size={18} color="#0d1f3c" />
+                        ) : (
+                          <button
+                            className="bc-del-btn"
+                            disabled={delLoading}
+                            onClick={(e) => { e.stopPropagation(); confirmDelete(card._id); }}
+                          >
+                            <Trash2 size={13} color="#ef4444" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : <EmptyBox />
+        ) : (
+          /* ── Add form ── */
+          <div className="bc-form-wrap">
+            {/* mode toggle */}
+            <div className="bc-mode-toggle">
+              <button
+                className={`bc-mode-btn${mode === 'bank' ? ' active' : ''}`}
+                onClick={() => { setMode('bank'); form.resetFields(); }}
+              >
+                Bank Account
+              </button>
+              <button
+                className={`bc-mode-btn${mode === 'upi' ? ' active' : ''}`}
+                onClick={() => { setMode('upi'); form.resetFields(); }}
+              >
+                UPI
+              </button>
+            </div>
+
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleFinish}
+              initialValues={{ mode }}
             >
-            <Input type='default' placeholder='John' size='large'/>
-          </Form.Item>
-          <Form.Item
-            label="UPI ID"
-            name="upi"
-            initialValue=""
-            rules={[{ required: true, message: 'Please enter upi id' }]}
-          >
-            <Input type='default' placeholder="evalue@okaxis" size='large'/>
-          </Form.Item>
-          </>
-        }
-        {error&&<Text className='text-xs' type='danger'>{error}</Text>}
-        <Form.Item>
-          <Button type="primary" className='bg-black text-white' htmlType="submit" block>
-            Add
-          </Button>
-        </Form.Item>
-      </Form>
-    </Card>
-    }
-    </Drawer>
+              <Form.Item name="mode" initialValue={mode} hidden>
+                <Input />
+              </Form.Item>
+
+              {mode === 'bank' && (
+                <>
+                  <div className="bc-field-wrap">
+                    <div className="bc-field-label">Account Holder Name</div>
+                    <Form.Item name="accountName" rules={[{ required:true, message:'Required' }]} style={{ margin:0 }}>
+                      <Input size="large" placeholder="John Doe" style={{ borderRadius:10 }} />
+                    </Form.Item>
+                  </div>
+                  <div className="bc-field-wrap">
+                    <div className="bc-field-label">Account Number</div>
+                    <Form.Item name="accountNumber" rules={[{ required:true, message:'Required' }]} style={{ margin:0 }}>
+                      <Input size="large" placeholder="1234567890" style={{ borderRadius:10 }} />
+                    </Form.Item>
+                  </div>
+                  <div className="bc-field-wrap">
+                    <div className="bc-field-label">IFSC Code</div>
+                    <Form.Item name="ifsc" rules={[{ required:true, message:'Required' }]} style={{ margin:0 }}>
+                      <Input size="large" placeholder="SBIN0001234" style={{ borderRadius:10 }} />
+                    </Form.Item>
+                  </div>
+                </>
+              )}
+
+              {mode === 'upi' && (
+                <>
+                  <div className="bc-field-wrap">
+                    <div className="bc-field-label">Name</div>
+                    <Form.Item name="accountName" rules={[{ required:true, message:'Required' }]} style={{ margin:0 }}>
+                      <Input size="large" placeholder="John Doe" style={{ borderRadius:10 }} />
+                    </Form.Item>
+                  </div>
+                  <div className="bc-field-wrap">
+                    <div className="bc-field-label">UPI ID</div>
+                    <Form.Item name="upi" rules={[{ required:true, message:'Required' }]} style={{ margin:0 }}>
+                      <Input size="large" placeholder="name@okaxis" style={{ borderRadius:10 }} />
+                    </Form.Item>
+                  </div>
+                </>
+              )}
+
+              {error && (
+                <div style={{ fontSize:12, color:'#dc2626', marginBottom:10 }}>{error}</div>
+              )}
+
+              <Form.Item style={{ margin:0 }}>
+                <button
+                  type="submit"
+                  className="bc-submit"
+                  disabled={loading}
+                >
+                  {loading ? 'Saving…' : 'Add Card'}
+                </button>
+              </Form.Item>
+            </Form>
+          </div>
+        )}
+      </Drawer>
+    </>
   );
 };
 

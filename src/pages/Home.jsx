@@ -80,8 +80,8 @@ const Home = () => {
       <header className="p-4 bg-white shadow flex justify-between items-center text-lg font-bold">
       <Title level={4} className="!mb-0"> 
         <div className='flex items-center'>
-        <img src="/LOGO.svg" alt="Logo" className="h-8 inline mr-2"/>
-        eValueTrade
+        <img src="/photo_2026-03-20_13-41-06.jpg" alt="Logo" className="h-5 inline mr-2"/>
+          {/* FsQuickPay */}
         </div>
       </Title>
         <div className="flex space-x-3">
@@ -118,27 +118,64 @@ const Home = () => {
         </div>
 
         {/* Balance Card */}
-        <Card className="rounded-lg mb-4" bodyStyle={{ padding: '16px' }}>
-          <div className="mb-4">
-            <p className="text-gray-500 text-sm">Total Balance ($)</p>
-            <p className="text-2xl font-bold">
-              {user?.availableBalance != null && user?.processing != null
-                ? (Number(user.availableBalance) + Number(user.processing)).toFixed(2)
-                : "0.00"}
-            </p>
-          </div>
+        <div style={{
+          background: '#0d1f3c', borderRadius: 20, padding: '24px',
+          position: 'relative', overflow: 'hidden', marginBottom: 16,
+        }}>
+          {/* decorative circles */}
+          <div style={{ position:'absolute', top:-40, right:-40, width:160, height:160,
+            borderRadius:'50%', background:'rgba(59,130,246,0.12)', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', bottom:-20, left:-10, width:90, height:90,
+            borderRadius:'50%', background:'rgba(255,255,255,0.04)', pointerEvents:'none' }} />
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <p className="text-gray-500 text-sm">Available ($)</p>
-              <p className="font-bold text-lg">{user?.availableBalance!= null ? user.availableBalance.toFixed(2) : 0.00}</p>
-            </Col>
-            <Col span={12}>
-              <p className="text-gray-500 text-sm">Processing ($)</p>
-              <p className="font-bold text-lg">{user?.processing!= null ? user.processing.toFixed(2) : 0.00}</p>
-            </Col>
-          </Row>
-        </Card>
+        {/* total */}
+        <div style={{ fontSize:10, fontWeight:500, letterSpacing:2, color:'rgba(255,255,255,0.4)',
+          textTransform:'uppercase', marginBottom:6 }}>Total Balance</div>
+        <div style={{ display:'flex', alignItems:'baseline', gap:6, marginBottom:22 }}>
+          <span style={{ fontSize:13, color:'rgba(255,255,255,0.45)' }}>$</span>
+          <span style={{ fontSize:40, fontWeight:600, color:'#fff', letterSpacing:'-1.5px',
+            lineHeight:1, fontFamily:'ui-monospace, monospace' }}>
+            {user?.availableBalance != null && user?.processing != null
+              ? (Number(user.availableBalance) + Number(user.processing)).toFixed(2)
+              : '0.00'}
+          </span>
+        </div>
+
+      <div style={{ height:1, background:'rgba(255,255,255,0.08)', marginBottom:18 }} />
+
+      {/* sub row */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr' }}>
+        <div style={{ paddingRight:20 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', background:'#34d399' }} />
+            <span style={{ fontSize:10, fontWeight:500, letterSpacing:1.5,
+              color:'rgba(255,255,255,0.38)', textTransform:'uppercase' }}>Available</span>
+          </div>
+          <div style={{ display:'flex', alignItems:'baseline', gap:3 }}>
+            <span style={{ fontSize:11, color:'rgba(255,255,255,0.38)' }}>$</span>
+            <span style={{ fontSize:22, fontWeight:600, color:'#fff',
+              letterSpacing:'-0.5px', fontFamily:'ui-monospace, monospace' }}>
+              {user?.availableBalance != null ? user.availableBalance.toFixed(2) : '0.00'}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ paddingLeft:20, borderLeft:'1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', background:'#fbbf24' }} />
+            <span style={{ fontSize:10, fontWeight:500, letterSpacing:1.5,
+              color:'rgba(255,255,255,0.38)', textTransform:'uppercase' }}>Processing</span>
+          </div>
+          <div style={{ display:'flex', alignItems:'baseline', gap:3 }}>
+            <span style={{ fontSize:11, color:'rgba(255,255,255,0.38)' }}>$</span>
+            <span style={{ fontSize:22, fontWeight:600, color:'#fff',
+              letterSpacing:'-0.5px', fontFamily:'ui-monospace, monospace' }}>
+              {user?.processing != null ? user.processing.toFixed(2) : '0.00'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
         {/* Actions */}
         <Row gutter={16} justify="center" className="text-center">

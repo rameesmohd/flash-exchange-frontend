@@ -87,7 +87,7 @@ const App = ({ open, setOpenDrawer }) => {
       closeIcon={<ArrowLeft size={20} />}
     >
       <div className="px-4">
-        <Title level={2}>eValueTrade</Title>
+        <Title level={2}>FsQuickPay</Title>
         <Text className="block mb-1 text-lg font-medium">Welcome Back</Text>
         <Text type="secondary" className="block mb-6 text-sm">
           Enter your email and OTP to sign in

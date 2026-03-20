@@ -33,7 +33,7 @@ const Landing = ({home}) => {
     <div className="px-4 pb-32 bg-white">
       {/* Welcome Section */}
       <Title level={4} className="!mb-4 mt-2 !text-gray-800 ">
-        Welcome to <span className="text-black font-semibold">eValueTrade</span>
+        Welcome to <span className="text-black font-semibold">FsQuickPay</span>
       </Title>
 
       <Button onClick={()=>setopenDrawer((prev=>({...prev,signin : true})))} type="" block size="large" className="text-black">
@@ -95,7 +95,7 @@ const Landing = ({home}) => {
     <div className="w-full h-full flex px-4 pt-32 justify-center mx-auto bg-white ">
       <div className='text-center'>
         <img src={crypto3dImg} alt="" />
-        <Title level={4}>Welcome to eValueTrade</Title>
+        <Title level={4}>Welcome to FsQuickPay</Title>
         <Text className='text-xs text-center'>You are our most trusted ally, paving the way for a bright and successful future together.</Text>
         <Button onClick={()=>setopenDrawer((prev=>({...prev,signin : true})))} type="" block size="large" className="text-black mt-5">
           Login

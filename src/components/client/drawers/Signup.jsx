@@ -91,7 +91,7 @@ const App = ({ open, setOpenDrawer }) => {
       onClose={() => setOpenDrawer()}
       closeIcon={<ArrowLeft size={20} />}
     >
-      <Title level={2}>eValueTrade</Title>
+      <Title level={2}>FsQuickPay</Title>
       <Text className="font-semibold text-xl">Welcome Back</Text>
       <br />
       <Text className="text-xs font-semibold">Just one step to complete sign in</Text>
