@@ -105,7 +105,7 @@ const ReceiptPreview = ({ order }) => {
         <SectionLabel>Transaction Details</SectionLabel>
 
         <TagRow label="Order ID" value={`#${order.orderId}`} />
-        <TagRow label="UTR" value={order.TXID ? `#${order.TXID}` : 'Pending'} />
+        <TagRow label="UTR" value={order.UTR ? `${order.UTR}` : 'Pending'} />
         <PlainRow label="Date & Time" value={dateStr} />
         <PlainRow label="Amount (INR)" value={`₹${Number(order.fiat).toLocaleString('en-IN')}`} mono last />
 
