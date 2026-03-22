@@ -74,9 +74,8 @@ const Exchange = () => {
       const res = await usersGet('/fund');
       if (res.success && res.funds) {
         setAllFunds(res.funds.map(
-          f => ({ value:f._id, label:`${f.type}: ₹${f.rate}/USDT`, rate:f.rate, _id:f._id, status:f.status, message:f.message||'', paymentMode:f.paymentMode })
-        ).reverse()
-        );
+          f => ({ value:f._id, label:`${f.type}: ₹${f.rate}/USDT`, rate:f.rate, _id:f._id, status:f.status, message:f.message||'', paymentMode:f.paymentMode, code:f.code, fundType:f.fundType })
+        ));
         setOtherExchangeRate(res.otherExchangeRates);
       }
     } catch(e) { console.log(e); }

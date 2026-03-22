@@ -1,193 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Drawer, Typography } from 'antd';
 import { Image } from 'antd';
-import { ArrowLeft, DownloadIcon, FileText, X, ChevronDown, Share2 } from 'lucide-react';
+import { ArrowLeft, DownloadIcon, FileText, ChevronDown, Share2 } from 'lucide-react';
 import { usersGet } from '../../../services/userApi';
 import { formatDate } from '../../../services/formatData';
 import EmptyBox from '../common/EmptyBox';
 
+import GatewayReceipt from '../receipts/GatewayReceipt';
+import CleanReceipt   from '../receipts/CleanReceipt';
+import BankReceipt    from '../receipts/BankReceipt';
+
 const { Text } = Typography;
 
-/* ══════════════════════════════════════════════════════════════════
-   STRATEGY:
-   • Preview  → pure React/JSX rendered in the DOM  (always crisp)
-   • Download → canvas drawn offscreen at 3× scale   (high-res PNG)
-   No canvas is ever shown on screen, so blur is impossible.
-══════════════════════════════════════════════════════════════════ */
-
-/* ─── Receipt preview component (JSX) ─────────────────────────── */
-
-const STATUS_MAP = {
-  success: { bg: '#14532d', color: '#86efac', label: '✓  Completed' },
-  pending: { bg: '#78350f', color: '#fde68a', label: '◎  Pending'   },
-  failed:  { bg: '#7f1d1d', color: '#fca5a5', label: '✕  Failed'    },
+const ReceiptSelector = ({ order }) => {
+  switch (order?.fund?.fundType) {
+    case 'clean': return <CleanReceipt   order={order} />;
+    case 'bank':  return <BankReceipt    order={order} />;
+    default:      return <GatewayReceipt order={order} />;
+  }
 };
 
-const ReceiptPreview = ({ order }) => {
-  const st      = STATUS_MAP[order.status] || STATUS_MAP.pending;
-  const isBank  = order.bankCard?.mode === 'bank';
-  const dateStr = order.createdAt
-    ? new Date(order.createdAt).toLocaleString('en-IN', {
-        day: '2-digit', month: 'short', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', hour12: true,
-      })
-    : '—';
-
-  const BARS = [3,5,2,7,4,6,2,8,3,5,7,2,4,6,3,5,2,7,4,6,2,5,3,4,7,2,6,3,5,4];
-
-  return (
-    <div style={{
-      background: '#fff', borderRadius: 16, overflow: 'hidden',
-      border: '1px solid #e2e8f0', width: '100%', boxSizing: 'border-box',
-    }}>
-      {/* ── header ── */}
-      <div style={{
-        background: '#0c1628', padding: '18px 20px 18px', position: 'relative', overflow: 'hidden',
-      }}>
-        {/* decorative circles */}
-        <div style={{
-          position: 'absolute', top: -30, right: -30, width: 130, height: 130,
-          borderRadius: '50%', background: 'rgba(26,58,110,0.45)',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: -20, left: -10, width: 80, height: 80,
-          borderRadius: '50%', background: 'rgba(18,42,82,0.4)',
-        }} />
-        {/* accent stripe */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-          background: 'rgba(34,85,164,0.55)',
-        }} />
-
-        {/* label row */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          marginBottom: 10, position: 'relative',
-        }}>
-          <span style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: '2px',
-            color: '#5a85c0', textTransform: 'uppercase', whiteSpace: 'nowrap',
-          }}>Transaction Receipt</span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
-        </div>
-
-        {/* amount */}
-        <div style={{
-          fontSize: 32, fontWeight: 700, color: '#fff',
-          letterSpacing: '-0.5px', lineHeight: 1, marginBottom: 14,
-          position: 'relative',
-        }}>
-          ₹{Number(order.fiat).toLocaleString('en-IN')}
-        </div>
-
-        {/* status badge */}
-        <div style={{
-          display: 'inline-block', padding: '5px 14px', borderRadius: 20,
-          fontSize: 12, fontWeight: 700, letterSpacing: '0.3px',
-          background: st.bg, color: st.color, position: 'relative',
-        }}>
-          {st.label}
-        </div>
-      </div>
-
-      {/* ── wave ── */}
-      <div style={{ background: '#0c1628', lineHeight: 0 }}>
-        <svg viewBox="0 0 360 22" style={{ display: 'block', width: '100%' }}>
-          <path d="M0,0 C65,22 130,22 180,11 C230,0 295,0 360,22 L360,22 L0,22 Z" fill="#ffffff"/>
-        </svg>
-      </div>
-
-      {/* ── body ── */}
-      <div style={{ padding: '8px 20px 16px', background: '#fff' }}>
-
-        {/* section label */}
-        <SectionLabel>Transaction Details</SectionLabel>
-
-        <TagRow label="Order ID" value={`#${order.orderId}`} />
-        <TagRow label="UTR" value={order.UTR ? `${order.UTR}` : 'Pending'} />
-        <PlainRow label="Date & Time" value={dateStr} />
-        <PlainRow label="Amount (INR)" value={`₹${Number(order.fiat).toLocaleString('en-IN')}`} mono last />
-
-        <SectionLabel>{isBank ? 'Bank Details' : 'UPI Details'}</SectionLabel>
-
-        {isBank ? (<>
-          <PlainRow label="Account Name" value={order.bankCard.accountName} />
-          <PlainRow label="Account No."  value={order.bankCard.accountNumber} mono />
-          <PlainRow label="IFSC"         value={order.bankCard.ifsc} mono last />
-        </>) : (<>
-          <PlainRow label="Name"   value={order.bankCard?.accountName} />
-          <PlainRow label="UPI ID" value={order.bankCard?.upi} mono last />
-        </>)}
-
-        {/* dashed line */}
-        <div style={{
-          borderTop: '1.5px dashed #e2e8f0', margin: '16px 0 12px',
-        }} />
-
-        {/* barcode */}
-        <div style={{ display: 'flex', gap: 2, justifyContent: 'center', marginBottom: 8 }}>
-          {BARS.map((w, i) => (
-            <div key={i} style={{
-              width: w, height: 22, borderRadius: 1,
-              background: `rgba(156,163,175,${0.38 + (i % 3) * 0.18})`,
-            }} />
-          ))}
-        </div>
-
-        {/* ref */}
-        <div style={{
-          textAlign: 'center', fontSize: 9, color: '#cbd5e1',
-          fontFamily: 'monospace', letterSpacing: '1.5px',
-        }}>
-          {order.orderId}–{order._id?.slice(-6).toUpperCase()}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SectionLabel = ({ children }) => (
-  <div style={{
-    fontSize: 9, fontWeight: 700, letterSpacing: '2px', color: '#94a3b8',
-    textTransform: 'uppercase', padding: '12px 0 6px',
-    borderBottom: '1px solid #edf2f7', marginBottom: 2,
-  }}>
-    {children}
-  </div>
-);
-
-const PlainRow = ({ label, value, mono, last }) => (
-  <div style={{
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '8px 0', borderBottom: last ? 'none' : '1px solid #f1f5f9',
-  }}>
-    <span style={{ fontSize: 12, color: '#94a3b8' }}>{label}</span>
-    <span style={{
-      fontSize: 12, color: '#111827', fontWeight: 600, textAlign: 'right',
-      maxWidth: '60%', wordBreak: 'break-word',
-      fontFamily: mono ? 'monospace' : 'inherit',
-    }}>{value}</span>
-  </div>
-);
-
-const TagRow = ({ label, value, last }) => (
-  <div style={{
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '8px 0', borderBottom: last ? 'none' : '1px solid #f1f5f9',
-  }}>
-    <span style={{ fontSize: 12, color: '#94a3b8' }}>{label}</span>
-    <span style={{
-      background: '#dbeafe', borderRadius: 5, padding: '3px 9px',
-      fontFamily: 'monospace', fontSize: 11, color: '#1e40af', fontWeight: 700,
-    }}>{value}</span>
-  </div>
-);
-
 /* ══════════════════════════════════════════════════════════════════
-   CANVAS RECEIPT — only used for download/share (never shown)
+   CANVAS HELPERS
 ══════════════════════════════════════════════════════════════════ */
-
 const SCALE = 3;
 const W     = 360;
 const PAD   = 24;
@@ -196,204 +32,385 @@ const MONO  = 'ui-monospace, "SF Mono", "Courier New", monospace';
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
   ctx.closePath();
 }
-
-function measure(ctx, text, font) {
-  ctx.font = font;
-  return ctx.measureText(String(text)).width;
-}
-
-function drawHeader(ctx, order, y) {
-  const BADGE_H = 26, BADGE_R = 13;
-  const LABEL_Y = 14, AMOUNT_Y = 32, BADGE_Y = 76;
-  const H = BADGE_Y + BADGE_H + 14;
-
-  const STATUS = {
-    success: { bg: '#14532d', fg: '#86efac', text: '✓  Completed' },
-    pending: { bg: '#78350f', fg: '#fde68a', text: '◎  Pending'   },
-    failed:  { bg: '#7f1d1d', fg: '#fca5a5', text: '✕  Failed'    },
-  };
-  const st = STATUS[order.status] || STATUS.pending;
-  ctx.font = `700 12px ${FONT}`;
-  const badgeW = measure(ctx, st.text, `700 12px ${FONT}`) + 30;
-
-  ctx.save();
-  ctx.beginPath(); ctx.rect(0, y, W, H); ctx.clip();
-
-  ctx.fillStyle = '#0c1628'; ctx.fillRect(0, y, W, H);
-
-  const g1 = ctx.createRadialGradient(W * 0.88, y, 0, W * 0.88, y, W * 0.65);
-  g1.addColorStop(0, 'rgba(28,60,124,0.95)'); g1.addColorStop(1, 'rgba(12,22,40,0)');
-  ctx.fillStyle = g1; ctx.fillRect(0, y, W, H);
-
-  const g2 = ctx.createRadialGradient(0, y + H, 0, 0, y + H, W * 0.5);
-  g2.addColorStop(0, 'rgba(20,44,92,0.85)'); g2.addColorStop(1, 'rgba(12,22,40,0)');
-  ctx.fillStyle = g2; ctx.fillRect(0, y, W, H);
-
-  ctx.beginPath(); ctx.arc(W - 36, y - 22, 82, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(24,52,104,0.5)'; ctx.fill();
-
-  ctx.beginPath(); ctx.arc(-8, y + H + 4, 46, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(16,38,80,0.42)'; ctx.fill();
-
-  ctx.save(); ctx.globalAlpha = 0.04; ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.9;
-  ctx.beginPath(); ctx.moveTo(0, y + H); ctx.lineTo(W, y); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(50, y + H); ctx.lineTo(W, y + 28); ctx.stroke();
-  ctx.restore();
-
-  ctx.fillStyle = 'rgba(34,85,164,0.55)'; ctx.fillRect(0, y, W, 2);
-  ctx.restore();
-
-  ctx.font = `700 9px ${FONT}`; ctx.fillStyle = '#5a85c0';
-  ctx.textBaseline = 'top'; ctx.textAlign = 'left';
-  ctx.fillText('TRANSACTION RECEIPT', PAD, y + LABEL_Y);
-  const lw = measure(ctx, 'TRANSACTION RECEIPT', `700 9px ${FONT}`);
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(PAD + lw + 8, y + LABEL_Y + 5); ctx.lineTo(W - PAD, y + LABEL_Y + 5); ctx.stroke();
-
-  ctx.font = `700 32px ${FONT}`; ctx.fillStyle = '#fff';
-  ctx.textBaseline = 'top'; ctx.fillText(`₹${Number(order.fiat).toLocaleString('en-IN')}`, PAD, y + AMOUNT_Y);
-
-  roundRect(ctx, PAD, y + BADGE_Y, badgeW, BADGE_H, BADGE_R);
-  ctx.fillStyle = st.bg; ctx.fill();
-  ctx.font = `700 12px ${FONT}`; ctx.fillStyle = st.fg;
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-  ctx.fillText(st.text, PAD + 15, y + BADGE_Y + BADGE_H / 2);
-
-  return H;
-}
-
-function drawWave(ctx, y) {
-  const H = 22;
-  ctx.fillStyle = '#0c1628'; ctx.fillRect(0, y, W, H);
-  ctx.beginPath();
-  ctx.moveTo(0, y);
-  ctx.bezierCurveTo(W * 0.18, y + H, W * 0.36, y + H, W * 0.5, y + H / 2);
-  ctx.bezierCurveTo(W * 0.64, y, W * 0.82, y, W, y + H);
-  ctx.lineTo(W, y + H); ctx.lineTo(0, y + H); ctx.closePath();
-  ctx.fillStyle = '#fff'; ctx.fill();
-  return H;
-}
+function msr(ctx, text, font) { ctx.font = font; return ctx.measureText(String(text)).width; }
 
 function drawSectionLabel(ctx, label, y) {
   const H = 30;
-  ctx.font = `700 9px ${FONT}`; ctx.fillStyle = '#94a3b8';
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-  ctx.fillText(label.toUpperCase(), PAD, y + H / 2 - 2);
-  ctx.strokeStyle = '#edf2f7'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(PAD, y + H - 1); ctx.lineTo(W - PAD, y + H - 1); ctx.stroke();
+  ctx.font=`700 9px ${FONT}`; ctx.fillStyle='#94a3b8';
+  ctx.textBaseline='middle'; ctx.textAlign='left';
+  ctx.fillText(label.toUpperCase(), PAD, y+H/2-2);
+  ctx.strokeStyle='#edf2f7'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD,y+H-1); ctx.lineTo(W-PAD,y+H-1); ctx.stroke();
   return H;
 }
-
-function drawRow(ctx, label, value, y, mono, last = false) {
-  const H = 36, mid = y + H / 2;
-  ctx.font = `400 12px ${FONT}`; ctx.fillStyle = '#94a3b8';
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.fillText(label, PAD, mid);
-  ctx.font = `600 12px ${mono ? MONO : FONT}`; ctx.fillStyle = '#111827';
-  ctx.textAlign = 'right'; ctx.fillText(String(value ?? ''), W - PAD, mid); ctx.textAlign = 'left';
-  if (!last) { ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PAD, y + H); ctx.lineTo(W - PAD, y + H); ctx.stroke(); }
+function drawRow(ctx, label, value, y, mono, last=false) {
+  const H=36, mid=y+H/2;
+  ctx.font=`400 12px ${FONT}`; ctx.fillStyle='#94a3b8';
+  ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.fillText(label, PAD, mid);
+  ctx.font=`600 12px ${mono?MONO:FONT}`; ctx.fillStyle='#111827';
+  ctx.textAlign='right'; ctx.fillText(String(value??''), W-PAD, mid); ctx.textAlign='left';
+  if(!last){ ctx.strokeStyle='#f1f5f9'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(PAD,y+H); ctx.lineTo(W-PAD,y+H); ctx.stroke(); }
   return H;
 }
-
-function drawTagRow(ctx, label, value, y, last = false) {
-  const H = 36, mid = y + H / 2;
-  ctx.font = `400 12px ${FONT}`; ctx.fillStyle = '#94a3b8';
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.fillText(label, PAD, mid);
-  ctx.font = `700 11px ${MONO}`;
-  const tw = measure(ctx, value, `700 11px ${MONO}`);
-  const tW = tw + 20, tH = 22, tX = W - PAD - tW, tY = mid - tH / 2;
-  roundRect(ctx, tX, tY, tW, tH, 5); ctx.fillStyle = '#dbeafe'; ctx.fill();
-  ctx.fillStyle = '#1e40af'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
-  ctx.fillText(value, W - PAD - 9, mid); ctx.textAlign = 'left';
-  if (!last) { ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PAD, y + H); ctx.lineTo(W - PAD, y + H); ctx.stroke(); }
+function drawTagRow(ctx, label, value, y, last=false) {
+  const H=36, mid=y+H/2;
+  ctx.font=`400 12px ${FONT}`; ctx.fillStyle='#94a3b8';
+  ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.fillText(label, PAD, mid);
+  ctx.font=`700 11px ${MONO}`;
+  const tw=msr(ctx,value,`700 11px ${MONO}`);
+  const tW=tw+20, tH=22, tX=W-PAD-tW, tY=mid-tH/2;
+  roundRect(ctx,tX,tY,tW,tH,5); ctx.fillStyle='#dbeafe'; ctx.fill();
+  ctx.fillStyle='#1e40af'; ctx.textBaseline='middle'; ctx.textAlign='right';
+  ctx.fillText(value, W-PAD-9, mid); ctx.textAlign='left';
+  if(!last){ ctx.strokeStyle='#f1f5f9'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(PAD,y+H); ctx.lineTo(W-PAD,y+H); ctx.stroke(); }
   return H;
 }
-
 function drawDashedLine(ctx, y) {
-  ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.setLineDash([5,5]); ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke(); ctx.restore();
 }
-
 function drawBarcode(ctx, y) {
-  const bars = [3,5,2,7,4,6,2,8,3,5,7,2,4,6,3,5,2,7,4,6,2,5,3,4,7,2,6,3,5,4];
-  const totalW = bars.reduce((a, b) => a + b + 2, 0);
-  let bx = (W - totalW) / 2;
-  bars.forEach((bw, i) => {
-    ctx.fillStyle = `rgba(156,163,175,${0.38 + (i % 3) * 0.18})`;
-    ctx.fillRect(bx, y, bw, 22); bx += bw + 2;
-  });
+  const bars=[3,5,2,7,4,6,2,8,3,5,7,2,4,6,3,5,2,7,4,6,2,5,3,4,7,2,6,3,5,4];
+  const totalW=bars.reduce((a,b)=>a+b+2,0); let bx=(W-totalW)/2;
+  bars.forEach((bw,i)=>{ ctx.fillStyle=`rgba(156,163,175,${0.38+(i%3)*0.18})`; ctx.fillRect(bx,y,bw,22); bx+=bw+2; });
+}
+function drawPaymentRows(ctx, order, cy) {
+  if (order.bankCard?.mode === 'bank') {
+    cy+=drawRow(ctx,'Account Name', order.bankCard.accountName, cy, false);
+    cy+=drawRow(ctx,'Account',      order.bankCard.accountNumber, cy, true);
+    cy+=drawRow(ctx,'IFSC',         order.bankCard.ifsc, cy, true, true);
+  } else {
+    cy+=drawRow(ctx,'Name',   order.bankCard?.accountName, cy, false);
+    cy+=drawRow(ctx,'UPI ID', order.bankCard?.upi, cy, true, true);
+  }
+  return cy;
+}
+function fmtDate(order) {
+  return order.createdAt
+    ? new Date(order.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})
+    : '—';
 }
 
-function drawReceipt(order) {
-  const isBank  = order.bankCard?.mode === 'bank';
-  const HDR_H   = 116;
-  const WAVE_H  = 22;
-  const TOP_PAD = 10;
-  const SEC1_H  = 30 + 36 * 4;
-  const SEC2_H  = 30 + 36 * (isBank ? 3 : 2);
-  const BOT     = 20 + 1 + 14 + 22 + 12 + 14 + 6;
-  const TOTAL_H = HDR_H + WAVE_H + TOP_PAD + SEC1_H + 14 + SEC2_H + BOT;
-
-  const canvas = document.createElement('canvas');
-  canvas.width  = W * SCALE;
-  canvas.height = TOTAL_H * SCALE;
-  const ctx = canvas.getContext('2d');
-  ctx.scale(SCALE, SCALE);
-
-  roundRect(ctx, 0, 0, W, TOTAL_H, 16); ctx.fillStyle = '#fff'; ctx.fill();
-
-  ctx.save(); roundRect(ctx, 0, 0, W, TOTAL_H, 16); ctx.clip();
-
-  let cy = 0;
-  cy += drawHeader(ctx, order, cy);
-  cy += drawWave(ctx, cy);
-  cy += TOP_PAD;
-  cy += drawSectionLabel(ctx, 'Transaction Details', cy);
-  cy += drawTagRow(ctx, 'Order ID', `#${order.orderId}`, cy);
-  cy += drawTagRow(ctx, 'UTR', order.TXID ? `#${order.TXID}` : 'Pending', cy);
-  const dateStr = order.createdAt
-    ? new Date(order.createdAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true })
-    : '—';
-  cy += drawRow(ctx, 'Date & Time', dateStr, cy, false);
-  cy += drawRow(ctx, 'Amount (INR)', `₹${Number(order.fiat).toLocaleString('en-IN')}`, cy, true, true);
-  cy += 14;
-  cy += drawSectionLabel(ctx, isBank ? 'Bank Details' : 'UPI Details', cy);
-  if (isBank) {
-    cy += drawRow(ctx, 'Account Name', order.bankCard.accountName,  cy, false);
-    cy += drawRow(ctx, 'Account No.',  order.bankCard.accountNumber, cy, true);
-    cy += drawRow(ctx, 'IFSC',         order.bankCard.ifsc,          cy, true, true);
-  } else {
-    cy += drawRow(ctx, 'Name',   order.bankCard?.accountName, cy, false);
-    cy += drawRow(ctx, 'UPI ID', order.bankCard?.upi,         cy, true, true);
-  }
-  cy += 20; drawDashedLine(ctx, cy); cy += 1;
-  cy += 14; drawBarcode(ctx, cy); cy += 22;
-  cy += 12;
-  ctx.font = `400 9px ${MONO}`; ctx.fillStyle = '#cbd5e1';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText(`${order.orderId}–${order._id?.slice(-6).toUpperCase()}`, W / 2, cy);
-
+/* ── Canvas: Gateway (unchanged) ── */
+function drawGatewayReceipt(order) {
+  const isBank = order.bankCard?.mode === 'bank';
+  const code   = order.fund?.code || 'GW';
+  const ST = {
+    success:{bg:'#14532d',fg:'#86efac',text:'✓  Completed'},
+    pending:{bg:'#78350f',fg:'#fde68a',text:'◎  Pending'},
+    failed: {bg:'#7f1d1d',fg:'#fca5a5',text:'✕  Failed'},
+  };
+  const st=ST[order.status]||ST.pending;
+  const HDR_H=116, WAVE_H=22, TOP_PAD=10;
+  const SEC1_H=30+36*5, SEC2_H=30+36*(isBank?3:2);
+  const BOT=20+1+14+22+12+14+6;
+  const TOTAL_H=HDR_H+WAVE_H+TOP_PAD+SEC1_H+14+SEC2_H+BOT;
+  const canvas=document.createElement('canvas');
+  canvas.width=W*SCALE; canvas.height=TOTAL_H*SCALE;
+  const ctx=canvas.getContext('2d'); ctx.scale(SCALE,SCALE);
+  roundRect(ctx,0,0,W,TOTAL_H,16); ctx.fillStyle='#fff'; ctx.fill();
+  ctx.save(); roundRect(ctx,0,0,W,TOTAL_H,16); ctx.clip();
+  let cy=0;
+  (()=>{
+    const BADGE_H=26,BADGE_R=13,BADGE_Y=76,H=HDR_H;
+    ctx.save(); ctx.beginPath(); ctx.rect(0,cy,W,H); ctx.clip();
+    ctx.fillStyle='#0c1628'; ctx.fillRect(0,cy,W,H);
+    const g1=ctx.createRadialGradient(W*.88,cy,0,W*.88,cy,W*.65);
+    g1.addColorStop(0,'rgba(28,60,124,0.95)'); g1.addColorStop(1,'rgba(12,22,40,0)');
+    ctx.fillStyle=g1; ctx.fillRect(0,cy,W,H);
+    ctx.beginPath(); ctx.arc(W-36,cy-22,82,0,Math.PI*2);
+    ctx.fillStyle='rgba(24,52,104,0.5)'; ctx.fill();
+    ctx.fillStyle='rgba(34,85,164,0.55)'; ctx.fillRect(0,cy,W,2);
+    ctx.restore();
+    ctx.font=`700 9px ${MONO}`; const cw=msr(ctx,code,`700 9px ${MONO}`)+16;
+    roundRect(ctx,W-PAD-cw,cy+12,cw,18,4);
+    ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle='#93c5fd'; ctx.textBaseline='middle'; ctx.textAlign='center';
+    ctx.fillText(code,W-PAD-cw/2,cy+21); ctx.textAlign='left';
+    ctx.font=`700 9px ${FONT}`; ctx.fillStyle='#5a85c0';
+    ctx.textBaseline='top'; ctx.fillText('TRANSACTION RECEIPT',PAD,cy+14);
+    ctx.font=`700 32px ${FONT}`; ctx.fillStyle='#fff';
+    ctx.textBaseline='top'; ctx.fillText(`₹${Number(order.fiat).toLocaleString('en-IN')}`,PAD,cy+32);
+    ctx.font=`700 12px ${FONT}`;
+    const bw=msr(ctx,st.text,`700 12px ${FONT}`)+30;
+    roundRect(ctx,PAD,cy+BADGE_Y,bw,BADGE_H,BADGE_R);
+    ctx.fillStyle=st.bg; ctx.fill();
+    ctx.fillStyle=st.fg; ctx.textBaseline='middle'; ctx.textAlign='left';
+    ctx.fillText(st.text,PAD+15,cy+BADGE_Y+BADGE_H/2);
+    cy+=H;
+  })();
+  ctx.fillStyle='#0c1628'; ctx.fillRect(0,cy,W,22);
+  ctx.beginPath(); ctx.moveTo(0,cy);
+  ctx.bezierCurveTo(W*.18,cy+22,W*.36,cy+22,W*.5,cy+11);
+  ctx.bezierCurveTo(W*.64,cy,W*.82,cy,W,cy+22);
+  ctx.lineTo(W,cy+22); ctx.lineTo(0,cy+22); ctx.closePath();
+  ctx.fillStyle='#fff'; ctx.fill(); cy+=22;
+  cy+=TOP_PAD;
+  cy+=drawSectionLabel(ctx,'Transaction Details',cy);
+  cy+=drawTagRow(ctx,'Order ID',`#${order.orderId}`,cy);
+  cy+=drawTagRow(ctx,'Ref Code',code,cy);
+  cy+=drawRow(ctx,'UTR',order.UTR||'Pending',cy,true);
+  cy+=drawRow(ctx,'Date & Time',fmtDate(order),cy,false);
+  cy+=drawRow(ctx,'Amount (INR)',`₹${Number(order.fiat).toLocaleString('en-IN')}`,cy,true,true);
+  cy+=14;
+  cy+=drawSectionLabel(ctx,order.bankCard?.mode==='bank'?'Bank Details':'UPI Details',cy);
+  cy=drawPaymentRows(ctx,order,cy);
+  cy+=20; drawDashedLine(ctx,cy); cy+=1;
+  cy+=14; drawBarcode(ctx,cy); cy+=22; cy+=12;
+  ctx.font=`400 9px ${MONO}`; ctx.fillStyle='#cbd5e1';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText(`${code}–${order.orderId}–${order._id?.slice(-6).toUpperCase()}`,W/2,cy);
   ctx.restore();
-  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
-  roundRect(ctx, 0, 0, W, TOTAL_H, 16); ctx.stroke();
-
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  roundRect(ctx,0,0,W,TOTAL_H,16); ctx.stroke();
   return canvas;
 }
 
-function canvasToBlob(canvas) {
-  return new Promise(res => canvas.toBlob(res, 'image/png', 1));
+/* ── Canvas: Clean — synced to updated CleanReceipt.jsx ──
+   Changes from JSX:
+   - Removed "Ref Code" row (kept code chip in banner only)
+   - Order ID shows `#orderId-code` format
+   - No separate Ref Code row
+   - Footer ref block retained
+───────────────────────────────────────────────────────── */
+function drawCleanReceipt(order) {
+  const isBank = order.bankCard?.mode === 'bank';
+  const code   = order.fund?.code || 'CF';
+  const ST = {
+    success:{color:'#16a34a',bg:'#f0fdf4',icon:'✓',label:'Payment Successful'},
+    pending:{color:'#d97706',bg:'#fffbeb',icon:'◌',label:'Processing'},
+    failed: {color:'#dc2626',bg:'#fef2f2',icon:'✕',label:'Payment Failed'},
+  };
+  const st=ST[order.status]||ST.pending;
+  const rows2=isBank?3:2;
+  // Rows: Order ID, UTR, Amount = 3 rows (removed Ref Code row)
+  const BANNER_H=140, BODY_TOP=8;
+  const TOTAL_H=BANNER_H+BODY_TOP+30+36*3+12+30+36*rows2+14+28+16;
+  const canvas=document.createElement('canvas');
+  canvas.width=W*SCALE; canvas.height=TOTAL_H*SCALE;
+  const ctx=canvas.getContext('2d'); ctx.scale(SCALE,SCALE);
+  roundRect(ctx,0,0,W,TOTAL_H,16); ctx.fillStyle='#fff'; ctx.fill();
+  ctx.save(); roundRect(ctx,0,0,W,TOTAL_H,16); ctx.clip();
+
+  // Banner bg
+  ctx.fillStyle=st.bg; ctx.fillRect(0,0,W,BANNER_H);
+  ctx.strokeStyle=st.color+'22'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,BANNER_H); ctx.lineTo(W,BANNER_H); ctx.stroke();
+  // Fund code chip top-right
+  ctx.font=`700 9px ${MONO}`; const cw=msr(ctx,code,`700 9px ${MONO}`)+16;
+  roundRect(ctx,W-PAD-cw,12,cw,18,4); ctx.fillStyle='#f1f5f9'; ctx.fill();
+  ctx.fillStyle='#64748b'; ctx.textBaseline='middle'; ctx.textAlign='center';
+  ctx.fillText(code,W-PAD-cw/2,21); ctx.textAlign='left';
+  // Icon circle
+  ctx.beginPath(); ctx.arc(W/2,52,26,0,Math.PI*2);
+  ctx.fillStyle=st.color; ctx.fill();
+  ctx.font=`700 20px ${FONT}`; ctx.fillStyle='#fff';
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.fillText(st.icon,W/2,52);
+  // Status label
+  ctx.font=`700 12px ${FONT}`; ctx.fillStyle=st.color;
+  ctx.textBaseline='top'; ctx.fillText(st.label,W/2,85);
+  // Amount
+  ctx.font=`800 28px ${FONT}`; ctx.fillStyle='#0f172a';
+  ctx.fillText(`₹${Number(order.fiat).toLocaleString('en-IN')}`,W/2,104);
+  // Date
+  ctx.font=`400 10px ${FONT}`; ctx.fillStyle='#94a3b8';
+  const ds = order.createdAt
+    ? new Date(order.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})
+    : '—';
+  ctx.fillText(ds,W/2,133);
+  ctx.textAlign='left';
+
+  // Body
+  let cy=BANNER_H+BODY_TOP;
+  const secLabel=(label)=>{
+    ctx.font=`700 9px ${FONT}`; ctx.fillStyle='#94a3b8';
+    ctx.textBaseline='middle'; ctx.textAlign='left';
+    ctx.fillText(label.toUpperCase(),PAD,cy+14); cy+=30;
+  };
+
+  secLabel('Transaction');
+  // Order ID with code suffix: #orderId-code (matches JSX)
+  cy+=drawTagRow(ctx,'Order ID',`#${order.orderId}${code?`-${code}`:''}`,cy);
+  cy+=drawRow(ctx,'UTR Number',order.UTR||'Pending',cy,true);
+  cy+=drawRow(ctx,'Amount',`₹${Number(order.fiat).toLocaleString('en-IN')}`,cy,true,true);
+  cy+=12;
+
+  secLabel(isBank?'Bank Account':'UPI');
+  cy=drawPaymentRows(ctx,order,cy);
+
+  // Footer ref box
+  cy+=14;
+  roundRect(ctx,PAD,cy,W-PAD*2,28,8); ctx.fillStyle='#f8fafc'; ctx.fill();
+  ctx.font=`400 8px ${MONO}`; ctx.fillStyle='#94a3b8';
+  ctx.textBaseline='middle'; ctx.textAlign='center';
+  ctx.fillText(`${code} · ${order.orderId} · ${order._id?.slice(-6).toUpperCase()}`,W/2,cy+14);
+  ctx.textAlign='left';
+
+  ctx.restore();
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  roundRect(ctx,0,0,W,TOTAL_H,16); ctx.stroke();
+  return canvas;
 }
 
-/* ══ STYLES ══ */
+/* ── Canvas: Bank — synced to updated BankReceipt.jsx ──
+   Changes from JSX:
+   - No "Transaction Ref" row — removed
+   - Order ID shows `#orderId(code)` format
+   - Removed separate "Fund Code" row
+   - "Debit Amount" moved inside Transaction Details section
+   - No separate "Amount Summary" section
+   - Footer: refNo + "system generated advice"
+───────────────────────────────────────────────────────── */
+function drawBankReceipt(order) {
+  const isBank = order.bankCard?.mode === 'bank';
+  const code   = order.fund?.code || 'BT';
+  const now    = order.createdAt ? new Date(order.createdAt) : new Date();
+  const refNo  = `${code}${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${order._id?.slice(-8).toUpperCase()}`;
+  const dStr   = now.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const tStr   = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const ST = {
+    success:{color:'#15803d',label:'SUCCESS',dot:'#16a34a',bg:'#f0fdf4'},
+    pending:{color:'#b45309',label:'PENDING',dot:'#d97706',bg:'#fffbeb'},
+    failed: {color:'#b91c1c',label:'FAILED', dot:'#dc2626',bg:'#fef2f2'},
+  };
+  const st=ST[order.status]||ST.pending;
+
+  // Transaction section: Order ID, UTR, Date, Time, Status, Debit Amount = 6 rows
+  // Beneficiary: bank=4 rows, upi=2 rows
+  // No Amount Summary section anymore
+  const HDR=40, STATUS_H=28, AMT_H=46, SEC_H=24, ROW_H=30, FOOTER_H=28;
+  const benRows = isBank ? 4 : 2;
+  const TOTAL_H = HDR+STATUS_H+AMT_H+SEC_H+ROW_H*6+SEC_H+ROW_H*benRows+FOOTER_H;
+
+  const canvas=document.createElement('canvas');
+  canvas.width=W*SCALE; canvas.height=TOTAL_H*SCALE;
+  const ctx=canvas.getContext('2d'); ctx.scale(SCALE,SCALE);
+  roundRect(ctx,0,0,W,TOTAL_H,8); ctx.fillStyle='#fff'; ctx.fill();
+  ctx.save(); roundRect(ctx,0,0,W,TOTAL_H,8); ctx.clip();
+
+  // Navy header
+  ctx.fillStyle='#1e3a5f'; ctx.fillRect(0,0,W,HDR);
+  ctx.font=`800 12px ${FONT}`; ctx.fillStyle='#fff';
+  ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.fillText('FUND TRANSFER',PAD,16);
+  ctx.font=`400 8px ${FONT}`; ctx.fillStyle='#93c5fd'; ctx.fillText('NEFT / IMPS',PAD,30);
+  // Code badge
+  ctx.font=`700 10px ${MONO}`; const cw2=msr(ctx,code,`700 10px ${MONO}`)+16;
+  roundRect(ctx,W-PAD-cw2,10,cw2,20,4);
+  ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle='#bfdbfe'; ctx.textBaseline='middle'; ctx.textAlign='center';
+  ctx.fillText(code,W-PAD-cw2/2,20); ctx.textAlign='left';
+
+  // Status strip
+  let cy=HDR;
+  ctx.fillStyle=st.bg; ctx.fillRect(0,cy,W,STATUS_H);
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,cy+STATUS_H); ctx.lineTo(W,cy+STATUS_H); ctx.stroke();
+  ctx.beginPath(); ctx.arc(PAD+4,cy+STATUS_H/2,3.5,0,Math.PI*2); ctx.fillStyle=st.dot; ctx.fill();
+  ctx.font=`700 10px ${FONT}`; ctx.fillStyle=st.color;
+  ctx.textBaseline='middle'; ctx.textAlign='left';
+  ctx.fillText(`TRANSACTION ${st.label}`,PAD+12,cy+STATUS_H/2);
+  ctx.font=`400 8px ${MONO}`; ctx.fillStyle='#94a3b8';
+  ctx.textAlign='right'; ctx.fillText(`${dStr}  ${tStr}`,W-PAD,cy+STATUS_H/2);
+  ctx.textAlign='left'; cy+=STATUS_H;
+
+  // Amount highlight
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,cy,W,AMT_H);
+  ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,cy+AMT_H); ctx.lineTo(W,cy+AMT_H); ctx.stroke();
+  ctx.font=`400 10px ${FONT}`; ctx.fillStyle='#6b7280';
+  ctx.textBaseline='middle'; ctx.fillText('Amount Transferred',PAD,cy+AMT_H/2);
+  ctx.font=`800 24px ${FONT}`; ctx.fillStyle='#0f172a';
+  ctx.fillText(`₹${Number(order.fiat).toLocaleString('en-IN')}`,PAD+140,cy+AMT_H/2);
+  ctx.font=`400 9px ${FONT}`; ctx.fillStyle='#94a3b8';
+  ctx.fillText('INR',W-PAD,cy+AMT_H/2+2); cy+=AMT_H;
+
+  // Table row helper
+  const tRow=([label,value,isLast,highlight])=>{
+    ctx.fillStyle='#fafafa'; ctx.fillRect(0,cy,W*0.38,ROW_H);
+    ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(W*0.38,cy); ctx.lineTo(W*0.38,cy+ROW_H); ctx.stroke();
+    if(!isLast){ ctx.beginPath(); ctx.moveTo(0,cy+ROW_H); ctx.lineTo(W,cy+ROW_H); ctx.stroke(); }
+    ctx.font=`400 10px ${FONT}`; ctx.fillStyle='#6b7280';
+    ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.fillText(label,PAD,cy+ROW_H/2);
+    // highlight status row
+    if(highlight){
+      ctx.fillStyle=`${st.dot}10`; ctx.fillRect(W*0.38,cy,W*0.62,ROW_H);
+      ctx.beginPath(); ctx.arc(W*0.38+10,cy+ROW_H/2,3.5,0,Math.PI*2); ctx.fillStyle=st.dot; ctx.fill();
+      ctx.font=`700 10px ${FONT}`; ctx.fillStyle=st.color;
+      ctx.textAlign='right'; ctx.fillText(String(value??'—'),W-PAD,cy+ROW_H/2);
+    } else {
+      ctx.font=`500 10px ${FONT}`; ctx.fillStyle='#111827';
+      ctx.textAlign='right'; ctx.fillText(String(value??'—'),W-PAD,cy+ROW_H/2);
+    }
+    ctx.textAlign='left'; cy+=ROW_H;
+  };
+
+  // Section header helper
+  const tSection=(title)=>{
+    ctx.fillStyle='#1e3a5f'; ctx.fillRect(0,cy,W,SEC_H);
+    ctx.font=`700 8px ${FONT}`; ctx.fillStyle='#e2e8f0';
+    ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.fillText(title.toUpperCase(),PAD,cy+SEC_H/2);
+    cy+=SEC_H;
+  };
+
+  // Transaction Details — Order ID uses `#orderId(code)` to match JSX
+  tSection('Transaction Details');
+  tRow([`Order ID`, `#${order.orderId}${code?` (${code})`:''}`]);
+  tRow(['UTR Number', order.UTR||'Awaiting confirmation']);
+  tRow(['Date', dStr]);
+  tRow(['Time', tStr]);
+  tRow(['Status', st.label, false, true]);
+  tRow(['Debit Amount', `₹${Number(order.fiat).toLocaleString('en-IN')}`, true]);
+
+  // Beneficiary Details
+  tSection(isBank?'Beneficiary Details':'UPI Details');
+  if(isBank){
+    tRow(['Account Name',   order.bankCard.accountName]);
+    tRow(['Account Number', order.bankCard.accountNumber]);
+    tRow(['IFSC Code',      order.bankCard.ifsc]);
+    tRow(['Bank Mode',      'NEFT / IMPS', true]);
+  } else {
+    tRow(['Name',   order.bankCard?.accountName]);
+    tRow(['UPI ID', order.bankCard?.upi, true]);
+  }
+
+  // Footer
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,cy,W,FOOTER_H);
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+  ctx.font=`400 7px ${MONO}`; ctx.fillStyle='#94a3b8';
+  ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.fillText(refNo,PAD,cy+FOOTER_H/2);
+  ctx.textAlign='right'; ctx.fillText('System generated advice',W-PAD,cy+FOOTER_H/2);
+  ctx.textAlign='left';
+
+  ctx.restore();
+  ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=1;
+  roundRect(ctx,0,0,W,TOTAL_H,8); ctx.stroke();
+  return canvas;
+}
+
+function drawReceipt(order) {
+  switch (order?.fund?.fundType) {
+    case 'clean': return drawCleanReceipt(order);
+    case 'bank':  return drawBankReceipt(order);
+    default:      return drawGatewayReceipt(order);
+  }
+}
+function canvasToBlob(canvas) {
+  return new Promise(res => canvas.toBlob(res,'image/png',1));
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   STYLES
+══════════════════════════════════════════════════════════════════ */
 const STYLES = `
 .eh-list { display:flex; flex-direction:column; gap:10px; padding:4px 0 24px; }
 .eh-card { background:#fff; border:1px solid #f0f2f5; border-radius:12px; overflow:hidden; transition:box-shadow .18s, border-color .18s; }
@@ -430,6 +447,7 @@ const STYLES = `
 .eh-detail-row:last-child { margin-bottom:0; }
 .eh-detail-label { font-size:11px; color:#94a3b8; flex-shrink:0; }
 .eh-detail-val { font-size:11px; color:#111827; font-weight:500; text-align:right; word-break:break-all; min-width:0; overflow:hidden; }
+.eh-fund-code { display:inline-block; font-family:monospace; font-size:9px; font-weight:700; color:#64748b; background:#f1f5f9; border-radius:4px; padding:1px 5px; margin-left:4px; letter-spacing:1px; vertical-align:middle; }
 .eh-countdown { display:flex; align-items:center; gap:6px; background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:7px 11px; font-size:12px; font-weight:600; color:#ea580c; margin-bottom:10px; width:100%; box-sizing:border-box; }
 .eh-actions { display:flex; gap:8px; margin-top:10px; }
 .eh-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:9px; padding:9px 0; font-size:12px; font-weight:600; cursor:pointer; transition:background .15s, opacity .15s; -webkit-tap-highlight-color:transparent; }
@@ -445,11 +463,9 @@ const STYLES = `
 .slip-sheet { width:100%; max-width:420px; background:#f8fafc; border-radius:22px 22px 0 0; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 -4px 30px rgba(0,0,0,.15); animation:sheetUp .28s cubic-bezier(.32,1,.4,1); overflow:hidden; }
 @keyframes sheetUp { from{transform:translateY(80px);opacity:0} to{transform:translateY(0);opacity:1} }
 @media (min-width:540px) { .slip-sheet { border-radius:22px; animation:slipFadeIn .2s ease; box-shadow:0 20px 60px rgba(0,0,0,.22); } }
-.slip-topbar { flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:10px 16px 4px; position:relative; background:#f8fafc; }
+.slip-topbar { flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:10px 16px 4px; background:#f8fafc; }
 .slip-handle { width:36px; height:4px; background:#e2e8f0; border-radius:99px; }
 @media (min-width:540px) { .slip-handle { display:none; } }
-.slip-close { position:absolute; right:16px; top:8px; width:28px; height:28px; border-radius:50%; background:#e2e8f0; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
-.slip-close:hover { background:#d1d5db; }
 .slip-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:8px 16px 0; }
 .slip-actions { flex-shrink:0; display:flex; gap:8px; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:#f8fafc; border-top:1px solid #e2e8f0; }
 .slip-act-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px 0; border-radius:11px; border:none; cursor:pointer; font-size:13px; font-weight:700; transition:opacity .15s, background .15s; -webkit-tap-highlight-color:transparent; }
@@ -459,78 +475,60 @@ const STYLES = `
 .slip-act-dl:hover:not(:disabled) { background:#1e293b; }
 .slip-act-sh { background:#e2e8f0; color:#0f172a; }
 .slip-act-sh:hover:not(:disabled) { background:#d1d5db; }
+.slip-act-cl { background:#e2e8f0; color:#0f172a; max-width:76px; }
 .slip-spin { width:14px; height:14px; border-radius:50%; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; animation:spin .7s linear infinite; flex-shrink:0; }
 .slip-spin.dark { border-color:rgba(0,0,0,.12); border-top-color:#111; }
 @keyframes spin { to{transform:rotate(360deg)} }
 `;
 
 const formatTimeLeft = (ms) => {
-  const t = Math.floor(ms / 1000);
+  const t=Math.floor(ms/1000);
   return `${String(Math.floor(t/3600)).padStart(2,'0')}h ${String(Math.floor((t%3600)/60)).padStart(2,'0')}m ${String(t%60).padStart(2,'0')}s`;
 };
 
-/* ─── TransactionSlip modal ────────────────────────────────────── */
+/* ══ TransactionSlip ══ */
 const TransactionSlip = ({ order, onClose }) => {
   const [busy, setBusy] = useState('');
-
-  const getBlob = () => {
-    const c = drawReceipt(order);
-    return canvasToBlob(c);
-  };
+  const code = order?.fund?.code || '';
+  const getBlob = () => canvasToBlob(drawReceipt(order));
 
   const handleDownload = async () => {
     setBusy('dl');
     try {
-      const blob = await getBlob();
-      const url  = URL.createObjectURL(blob);
-      const a    = Object.assign(document.createElement('a'), { href: url, download: `receipt_${order.orderId}.png` });
+      const blob=await getBlob();
+      const url=URL.createObjectURL(blob);
+      const a=Object.assign(document.createElement('a'),{href:url,download:`receipt_${code}_${order.orderId}.png`});
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-    } catch(e) { console.error(e); } finally { setBusy(''); }
+      setTimeout(()=>URL.revokeObjectURL(url),4000);
+    } catch(e){console.error(e);} finally{setBusy('');}
   };
-
   const handleShare = async () => {
     setBusy('sh');
     try {
-      const blob = await getBlob();
-      const file = new File([blob], `receipt_${order.orderId}.png`, { type: 'image/png' });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ title: `Receipt #${order.orderId}`, files: [file] });
-      } else if (navigator.share) {
-        await navigator.share({ title: `Receipt #${order.orderId}`, text: `₹${Number(order.fiat).toLocaleString('en-IN')} — #${order.orderId}` });
-      } else {
-        await handleDownload(); return;
-      }
-    } catch(e) { if (e.name !== 'AbortError') console.error(e); } finally { setBusy(''); }
+      const blob=await getBlob();
+      const file=new File([blob],`receipt_${code}_${order.orderId}.png`,{type:'image/png'});
+      if(navigator.canShare?.({files:[file]})) await navigator.share({title:`Receipt #${order.orderId}`,files:[file]});
+      else if(navigator.share) await navigator.share({title:`Receipt #${order.orderId}`,text:`₹${Number(order.fiat).toLocaleString('en-IN')} — #${order.orderId}`});
+      else { await handleDownload(); return; }
+    } catch(e){if(e.name!=='AbortError')console.error(e);} finally{setBusy('');}
   };
 
   return ReactDOM.createPortal(
-    <div className="slip-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
+    <div className="slip-backdrop" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="slip-sheet">
-        <div className="slip-topbar">
-          <div className="slip-handle"/>
-          {/* <button className="slip-close" onClick={onClose}><X size={13} color="#374151"/></button> */}
-        </div>
-
-        {/* ── Preview: pure React JSX — always pixel-perfect ── */}
+        <div className="slip-topbar"><div className="slip-handle"/></div>
         <div className="slip-scroll">
-          <ReceiptPreview order={order} />
-          <div style={{ height: 12 }}/>
+          <ReceiptSelector order={order}/>
+          <div style={{height:12}}/>
         </div>
-
         <div className="slip-actions">
           <button className="slip-act-btn slip-act-dl" onClick={handleDownload} disabled={!!busy}>
-            {busy === 'dl' ? <><div className="slip-spin"/>Saving…</> : <><DownloadIcon size={14}/>Save Image</>}
+            {busy==='dl'?<><div className="slip-spin"/>Saving…</>:<><DownloadIcon size={14}/>Save</>}
           </button>
           <button className="slip-act-btn slip-act-sh" onClick={handleShare} disabled={!!busy}>
-            {busy === 'sh' ? <><div className="slip-spin dark"/>Preparing…</> : <><Share2 size={14}/>Share</>}
+            {busy==='sh'?<><div className="slip-spin dark"/>Preparing…</>:<><Share2 size={14}/>Share</>}
           </button>
-
-           <button className="slip-act-btn slip-act-sh max-w-16" 
-            onClick={()=>onClose()}
-           >
-            {<div className="flex items-center">Close</div>}
-          </button>
+          <button className="slip-act-btn slip-act-cl" onClick={onClose}>Close</button>
         </div>
       </div>
     </div>,
@@ -538,21 +536,23 @@ const TransactionSlip = ({ order, onClose }) => {
   );
 };
 
-/* ─── OrderCard ─────────────────────────────────────────────────── */
+/* ══ OrderCard ══ */
 const OrderCard = ({ value, timeLeft, onViewSlip }) => {
   const [open, setOpen] = useState(false);
-  const pct = Math.round((value.fulfilledRatio || 0) * 100);
-  const s   = value.status;
-  const dateLabel = value.createdAt
-    ? new Date(value.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  const pct=Math.round((value.fulfilledRatio||0)*100);
+  const s=value.status;
+  const dateLabel=value.createdAt
+    ? new Date(value.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
     : '';
-
   return (
     <div className="eh-card">
-      <div className="eh-main" onClick={() => setOpen(o => !o)}>
+      <div className="eh-main" onClick={()=>setOpen(o=>!o)}>
         <div className={`eh-icon eh-icon-${s}`}>{s==='success'?'✓':s==='pending'?'◎':'✕'}</div>
         <div className="eh-center">
-          <div className="eh-order-id">#{value.orderId}</div>
+          <div className="eh-order-id">
+            #{value.orderId}
+            {value.fund?.code&&<span className="eh-fund-code">{value.fund.code}</span>}
+          </div>
           <div className="eh-date">{dateLabel}</div>
           <span className={`eh-pill eh-pill-${s}`}>{s.charAt(0).toUpperCase()+s.slice(1)}</span>
         </div>
@@ -567,46 +567,45 @@ const OrderCard = ({ value, timeLeft, onViewSlip }) => {
           <div className={`eh-prog-fill eh-prog-fill-${s}`} style={{width:pct+'%'}}/>
         </div>
       </div>
-      {open && (
+      {open&&(
         <div className="eh-expand">
-          {s==='pending' && timeLeft>0 && (
-            <div className="eh-countdown">⏱ {formatTimeLeft(timeLeft)} remaining</div>
-          )}
+          {s==='pending'&&timeLeft>0&&<div className="eh-countdown">⏱ {formatTimeLeft(timeLeft)} remaining</div>}
           <div className="eh-detail-grid">
             <div className="eh-detail-box">
               <div className="eh-detail-title">Fund</div>
               <div className="eh-detail-row"><span className="eh-detail-label">Type</span><span className="eh-detail-val" style={{textTransform:'capitalize'}}>{value.fund?.type}</span></div>
+              <div className="eh-detail-row"><span className="eh-detail-label">Code</span><span className="eh-detail-val" style={{fontFamily:'monospace',fontWeight:700}}>{value.fund?.code||'—'}</span></div>
               <div className="eh-detail-row"><span className="eh-detail-label">Rate</span><span className="eh-detail-val">₹{value.fund?.rate}</span></div>
               <div className="eh-detail-row"><span className="eh-detail-label">Fulfilled</span><span className="eh-detail-val">₹{Number(value.fulfilledFiat).toLocaleString('en-IN')}</span></div>
               <div className="eh-detail-row"><span className="eh-detail-label">Progress</span><span className="eh-detail-val">{pct}%</span></div>
             </div>
             <div className="eh-detail-box">
               <div className="eh-detail-title">{value.bankCard?.mode==='upi'?'UPI':'Bank'}</div>
-              {value.bankCard?.mode==='bank' ? (<>
+              {value.bankCard?.mode==='bank'?(<>
                 <div className="eh-detail-row"><span className="eh-detail-label">Name</span><span className="eh-detail-val">{value.bankCard.accountName}</span></div>
                 <div className="eh-detail-row"><span className="eh-detail-label">Acc No.</span><span className="eh-detail-val">{value.bankCard.accountNumber}</span></div>
                 <div className="eh-detail-row"><span className="eh-detail-label">IFSC</span><span className="eh-detail-val">{value.bankCard.ifsc}</span></div>
-              </>) : (<>
+              </>):(<>
                 <div className="eh-detail-row"><span className="eh-detail-label">Name</span><span className="eh-detail-val">{value.bankCard?.accountName}</span></div>
                 <div className="eh-detail-row"><span className="eh-detail-label">UPI ID</span><span className="eh-detail-val">{value.bankCard?.upi}</span></div>
               </>)}
             </div>
           </div>
           <div className="eh-actions">
-            <button className="eh-btn eh-btn-receipt" onClick={() => onViewSlip(value)}>
+            <button className="eh-btn eh-btn-receipt" onClick={()=>onViewSlip(value)}>
               <FileText size={13}/> View Receipt
             </button>
           </div>
-          {value.receipts?.length > 0 && (<>
+          {value.receipts?.length>0&&(<>
             <div className="eh-receipts-label">
               <span>Receipts</span>
               <span>₹{value.fulfilledFiat} / ₹{value.fiat}</span>
             </div>
             <div className="eh-receipts-strip">
-              {value.receipts.map((r,i) => (
+              {value.receipts.map((r,i)=>(
                 <div key={i} className="eh-receipt-thumb">
                   <Image width={44} height={44} src={r}
-                    style={{borderRadius:6, objectFit:'cover', display:'block'}}
+                    style={{borderRadius:6,objectFit:'cover',display:'block'}}
                     fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="/>
                   <a href={r} download target="_blank" rel="noopener noreferrer" className="eh-receipt-dl">
                     <DownloadIcon size={12}/>
@@ -621,62 +620,160 @@ const OrderCard = ({ value, timeLeft, onViewSlip }) => {
   );
 };
 
-/* ═══════════════════════════════════════════════════════════════ */
-const App = ({ open, setOpenDrawer ,getContainer}) => {
-  const [loading, setLoading]               = useState(false);
-  const [orders, setOrders]                 = useState([]);
+const PAGE_LIMIT = 10;
+
+const App = ({ open, setOpenDrawer, getContainer }) => {
+  const [loading,        setLoading]        = useState(false);
+  const [loadingMore,    setLoadingMore]    = useState(false);
+  const [orders,         setOrders]         = useState([]);
   const [remainingTimes, setRemainingTimes] = useState({});
-  const [slipOrder, setSlipOrder]           = useState(null);
+  const [slipOrder,      setSlipOrder]      = useState(null);
+  const [page,           setPage]           = useState(1);
+  const [hasMore,        setHasMore]        = useState(false);
 
-  const fetchOrders = async () => {
+  const sentinelRef = useRef(null);
+  const observerRef = useRef(null);
+
+  /* ── Fetch a page of orders ── */
+  const fetchOrders = useCallback(async (pageNum = 1, append = false) => {
+    if (pageNum === 1) setLoading(true);
+    else setLoadingMore(true);
+
     try {
-      setLoading(true);
-      const res = await usersGet('/order');
+      const res = await usersGet(`/order?page=${pageNum}&limit=${PAGE_LIMIT}`);
       if (res.success) {
-        setOrders(res.orders);
-        const timers = {};
-        res.orders.forEach(o => {
-          const mx = o?.fund?.maxFulfillmentTime;
-          timers[o._id] = Math.max(new Date(o.createdAt).getTime() + (mx??3)*3600000 - Date.now(), 0);
+        const newOrders = res.orders;
+
+        setOrders(prev => {
+          const merged = append ? [...prev, ...newOrders] : newOrders;
+
+          // Rebuild timers for all orders
+          const timers = {};
+          merged.forEach(o => {
+            const mx = o?.fund?.maxFulfillmentTime;
+            timers[o._id] = Math.max(
+              new Date(o.createdAt).getTime() + (mx ?? 3) * 3600000 - Date.now(),
+              0
+            );
+          });
+          setRemainingTimes(timers);
+
+          return merged;
         });
-        setRemainingTimes(timers);
+
+        setHasMore(res.hasMore);
+        setPage(pageNum);
       }
-    } catch(e) { console.log(e); } finally { setLoading(false); }
-  };
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
 
-  useEffect(() => { if (open) fetchOrders(); }, [open]);
+  /* ── IntersectionObserver: trigger next page on scroll ── */
+  useEffect(() => {
+    if (!sentinelRef.current) return;
 
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+          fetchOrders(page + 1, true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observerRef.current.observe(sentinelRef.current);
+    return () => observerRef.current?.disconnect();
+  }, [hasMore, loadingMore, loading, page, fetchOrders]);
+
+  /* ── Countdown timer ── */
   useEffect(() => {
     const t = setInterval(() => {
       setRemainingTimes(prev => {
-        const u={};
-        for(const id in prev) u[id]=Math.max(prev[id]-1000,0);
+        const u = {};
+        for (const id in prev) u[id] = Math.max(prev[id] - 1000, 0);
         return u;
       });
     }, 1000);
     return () => clearInterval(t);
   }, []);
 
+  /* ── Reset and fetch on open ── */
+  useEffect(() => {
+    if (open) {
+      setOrders([]);
+      setPage(1);
+      setHasMore(false);
+      fetchOrders(1, false);
+    }
+  }, [open]);
+
   return (
     <>
       <style>{STYLES}</style>
       <Drawer
-        closable destroyOnClose placement="right" width="100%"
-        loading={loading} getContainer={getContainer || (() => document.body)} open={open} onClose={setOpenDrawer}
-        closeIcon={<ArrowLeft size={20}/>}
-        title={<Text strong style={{fontSize:15}}>Exchange History</Text>}
+        closable
+        destroyOnClose
+        placement="right"
+        width="100%"
+        loading={loading && orders.length === 0}
+        getContainer={getContainer || (() => document.body)}
+        open={open}
+        onClose={setOpenDrawer}
+        closeIcon={<ArrowLeft size={20} />}
+        title={<Text strong style={{ fontSize: 15 }}>Exchange History</Text>}
       >
-        {orders.length
-          ? <div className="eh-list">
+        {orders.length > 0 ? (
+          <div>
+            <div className="eh-list">
               {orders.map(v => (
-                <OrderCard key={v._id} value={v}
-                  timeLeft={remainingTimes[v._id]} onViewSlip={setSlipOrder}/>
+                <OrderCard
+                  key={v._id}
+                  value={v}
+                  timeLeft={remainingTimes[v._id]}
+                  onViewSlip={setSlipOrder}
+                />
               ))}
             </div>
-          : <EmptyBox/>
-        }
+
+            {/* Loading more spinner */}
+            {loadingMore && (
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: 8, padding: '14px 0', fontSize: 12, color: '#94a3b8',
+              }}>
+                <div style={{
+                  width: 14, height: 14, borderRadius: '50%',
+                  border: '2px solid #e2e8f0', borderTopColor: '#0f172a',
+                  animation: 'spin .7s linear infinite',
+                }} />
+                Loading more…
+              </div>
+            )}
+
+            {/* End of list */}
+            {!hasMore && !loadingMore && orders.length >= PAGE_LIMIT && (
+              <div style={{
+                textAlign: 'center', fontSize: 11, color: '#cbd5e1', padding: '10px 0 4px',
+              }}>
+                All orders loaded
+              </div>
+            )}
+
+            {/* Invisible sentinel */}
+            <div ref={sentinelRef} style={{ height: 1 }} />
+          </div>
+        ) : !loading ? (
+          <EmptyBox />
+        ) : null}
       </Drawer>
-      {slipOrder && <TransactionSlip order={slipOrder} onClose={() => setSlipOrder(null)}/>}
+
+      {slipOrder && (
+        <TransactionSlip order={slipOrder} onClose={() => setSlipOrder(null)} />
+      )}
     </>
   );
 };
