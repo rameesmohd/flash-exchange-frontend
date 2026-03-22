@@ -73,7 +73,10 @@ const Exchange = () => {
       setLoading(p => ({ ...p, rate:true }));
       const res = await usersGet('/fund');
       if (res.success && res.funds) {
-        setAllFunds(res.funds.map(f => ({ value:f._id, label:`${f.type}: ₹${f.rate}/USDT`, rate:f.rate, _id:f._id, status:f.status, message:f.message||'', paymentMode:f.paymentMode })));
+        setAllFunds(res.funds.map(
+          f => ({ value:f._id, label:`${f.type}: ₹${f.rate}/USDT`, rate:f.rate, _id:f._id, status:f.status, message:f.message||'', paymentMode:f.paymentMode })
+        ).reverse()
+        );
         setOtherExchangeRate(res.otherExchangeRates);
       }
     } catch(e) { console.log(e); }
@@ -139,7 +142,7 @@ const Exchange = () => {
           <div style={S.swapCardInner}>
             <div style={S.swapRow}>
               <span style={S.swapLabel}>You receive</span>
-              <Select loading={loading.rate} options={allFunds} value={selectedFund?.label||''} variant="borderless" size="small"
+              <Select className='w-56' loading={loading.rate} options={allFunds} value={selectedFund?.label||''} variant="filled" size="middle"
                 style={{ fontSize:11, color:'#64748b' }}
                 onChange={v => { const f=allFunds.find(x=>x.value===v); dispatch(setFund({value:f.value,rate:f.rate,_id:f._id,status:f.status,label:f.label,message:f?.message,paymentMode:f?.paymentMode})); }}
               />
