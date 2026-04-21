@@ -50,7 +50,7 @@ const BankReceipt = ({ order }) => {
   const st     = STATUS_MAP[order.status] || STATUS_MAP.pending;
   const isBank = order.bankCard?.mode === 'bank';
   const code   = order.fund?.code || 'BT';
-  const now    = order.createdAt ? new Date(order.createdAt) : new Date();
+  const now    = order.updatedAt ? new Date(order.updatedAt) : new Date();
   const refNo  = `${code}${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${order._id?.slice(-8).toUpperCase()}`;
 
   const dateStr  = now.toLocaleDateString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric' });

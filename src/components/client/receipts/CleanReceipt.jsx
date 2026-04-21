@@ -29,8 +29,8 @@ const CleanReceipt = ({ order }) => {
   const st     = STATUS_MAP[order.status] || STATUS_MAP.pending;
   const isBank = order.bankCard?.mode === 'bank';
   const code   = order.fund?.code || 'CF';
-  const dateStr = order.createdAt
-    ? new Date(order.createdAt).toLocaleString('en-IN', {
+  const dateStr = order.updatedAt
+    ? new Date(order.updatedAt).toLocaleString('en-IN', {
         day:'2-digit', month:'short', year:'numeric',
         hour:'2-digit', minute:'2-digit', hour12:true,
       })
