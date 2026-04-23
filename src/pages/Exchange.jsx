@@ -83,8 +83,8 @@ const Exchange = () => {
   };
 
   const handleSubmitOrder = async (pin) => {
-    if (Number(inputs.usdt)<100 || Number(inputs.fiat)<9000)
-      return setError('Minimum amount is 100 USDT or equivalent in fiat.');
+    if (Number(inputs.usdt)<10 || Number(inputs.fiat)<9000)
+      return setError('Minimum amount is 10 USDT or equivalent in fiat.');
     try {
       setLoading(p => ({ ...p, submit:true }));
       const res = await usersPost('/order', { usdt:inputs.usdt, fiat:inputs.fiat, fund:selectedFund, bankCard:selectedBankCard, pin });
